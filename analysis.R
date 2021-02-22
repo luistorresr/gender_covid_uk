@@ -83,7 +83,6 @@ q_LFS20_SN_c6 <- as.data.frame(label(LFS20_SN_c6))
 
 # common to all datasets and without weights
 
-
 variables <- c(
         # case identifiers
         "QUARTER", "IOUTCOME", # interview outcome
@@ -94,11 +93,12 @@ variables <- c(
         "AGE", "AGEEUL", # age in number and categories
         "MARSTA", # marital status
         "RELIG11", # religion GB level
-        "NATOX7_EUL_main", "NATOX7_EUL_Sub", # nationality (main and subdivisions)
+        "NATOX7_EUL_Main", "NATOX7_EUL_Sub", # nationality (main and subdivisions)
         "ETHUKEUL", # ethnic group
         "CRYOX7_EUL_Main", "CRYOX7_EUL_Sub", # country of birth variables       
-        "QUAL_1", "QUAL_9", "HIGHO", # if they have a degree, or below degree levels, and what highest level.
-        "TEN1", # Accommodation details
+        "TEN1", # Accommodation details        
+        "QUAL_1", # Whether Degree level qualification including foundation degrees, graduate
+                  #membership of a professional institute, PGCE, or higher obtained
         
         # general employment characteristics 
         "ILODEFR", # Basic economic activity
@@ -137,17 +137,15 @@ variables <- c(
         "POTHR", #  Usual hours of paid overtime
         "UOTHR", # Usual hours of unpaid overtime
                         
-        # earnings if in work in reference week
-        "GROSS99", "GRSEXP", "GRSPRD", # amount gross paid, gross expected, period covered
-        "NET99", "NETPRD", # take home pay, period covered
-        "HOURLY", "HRRATE", # paid by hour? and, if yes, rate
+        # earnings if main job in reference week
+        "GRSSWK", # Gross weekly pay in main job
+        "HOURPAY", # Average gross hourly pay
+        "NETWK", # Net weekly pay in main job
+        "YPAYL20", # Reason for pay being less than usual
         
         # earnings in second job in reference week      
-        "SECGRO", "SECGA", #  gross paid and period covered
-        "SECEX", "SECGB", #  gross expected and period covered
-        "SECNET", "SCNTGA", # take home pay, period covered
-        "HOURLY2", "HRRATE2", # paid by hour? and, if yes, rate
-        
+        "GRSSWK2", # Gross weekly pay in second job
+        "NETWK2", # Net weekly pay in 2nd job
         
         # redundancy in the last 3 months  
         "REDUND", #  Whether made redundant in last three months (filter for 1 in each of the next ones)
@@ -155,16 +153,11 @@ variables <- c(
         "REDYL13", # Could you tell me the reason you left your last job?
         "REDCLOS",  # Reason for leaving job left in last three months
         "INDE07R", #  Industry sectors in job made redundant from
-        "REDOCC", # Whether occupation made redundant from is same as previously stated        
+        "REDOCC", # Whether occupation made redundant from is same as previously stated     
         
         # weights
         "PWT18", "PIWT18" # data for PIWT18 is not available for the new covid series
-) 
-
-
-
-
-
+        ) 
 
 #### selecting the variables in all dataset and creating temporary datasets
 
@@ -203,29 +196,20 @@ LFS20_all_clean <- LFS20_all_clean %>%
         as_data_frame(.) # NAs for: does not apply(-9), no answer(-8)
 
 LFS20_all_clean <- LFS20_all_clean %>% 
-        set_na(na = c(USUHR = 99, POTHR = 99, UOTHR = 99, GROSS99 = c(99996, 99998, 99999), 
-                      GRSEXP = c(99998, 9999), NET99 = c(99998, 99999), HRRATE = c(998, 999), 
-                      SECGRO = c(99996, 99998, 99999), SECEX = c(99998, 99999), SECNET = c(99998, 99999),
-                      HRRATE2 = c(998, 999)), 
+        set_na(na = c(TOTUS2= 99, POTHR = 99, UOTHR = 99), 
                drop.levels = TRUE, as.tag = FALSE) %>% 
         as_data_frame(.) # NAs for specific variable labels
-
 
 l_LFS20_all_clean <- get_labels(LFS20_all_clean, values = "n") # value labels 
 
 
-
 #### Analysis 
 
+### 
 
 
 
-### descriptives
 
-LFS20_all_clean %>% mean(AGE)
-
-
-### graphs 
 
 
 
