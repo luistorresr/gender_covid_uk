@@ -292,7 +292,7 @@ LFS_clean$QUARTER <- set_labels(LFS_clean$QUARTER, labels = c("Jan-Mar20" = 1, "
 
 ### saving the clean dataset
 
-save(LFS_clean, file = "./Data/LFS_clean.rda")
+save(LFS_clean, file = "./Data_clean/LFS_clean.rda")
 
 rm(list = ls()) # clean the global environment
 
@@ -304,7 +304,7 @@ rm(list = ls()) # clean the global environment
 
 ### load clean working dataset
 
-load("./Data/LFS_clean.rda")
+load("./Data_clean/LFS_clean.rda")
 
 q_LFS_clean <- as.data.frame(label(LFS_clean)) # variable labels
 l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels 
