@@ -45,9 +45,13 @@ library(janitor) # add totals to tables
 #### Output configurations
 options(digits = 3) # decimal points to 3
 
-#### Labour Force Survey - all datasets from 2020 
-#### UKDS End User Licence available at https://ukdataservice.ac.uk/
-#### No COVID-19 related variables in these datasets 
+####################################################################################################
+###################### THIS SECTION IS ONLY TO WORK WITH THE ORIGINAL DATASETS ####################
+###################################################################################################
+#########################Labour Force Survey - all datasets from 2020 #############################
+################ UKDS End User Licence available at https://ukdataservice.ac.uk/###################
+####################################################################################################
+
 
 LFS20_JM <- read_spss("./Data/LFS_UKDS/1-Jan-Mar-W1/UKDA-8639-spss/spss/spss25/lfsp_jm20_eul_pwt18.sav") # January to March (wave 1)
 LFS20_FA <- read_spss("./Data/LFS_UKDS/2-Feb-Apr-Corona/UKDA-8646-spss/spss/spss25/lfsp_fa20_eul_pwt18.sav") # February to April (covid)
@@ -61,22 +65,6 @@ LFS20_SN <- read_spss("./Data/LFS_UKDS/9-Sep-Nov-Corona/UKDA-8760-spss/spss/spss
 LFS20_OD <- read_spss("./Data/LFS_UKDS/10-Oct-Dec-W4/UKDA-8777-spss/spss/spss25/lfsp_od20_eul_pwt18.sav") # October to December (wave 4)
 LFS21_NJ <- read_spss("./Data/LFS_UKDS/11-Nov-Jan-Corona/UKDA-8788-spss/spss/spss25/lfsp_n20j_eul_pwt18.sav") # November to January
 LFS21_DF <- read_spss("./Data/LFS_UKDS/12-Dec-Feb-Corona/UKDA-8794-spss/spss/spss25/lfsp_d20f_eul_pwt18.sav") # December to February
-
-
-#### Creating the variable "quarter" in each dataset and an empty "PIWT18" for all covid datasets
-
-LFS20_JM <- LFS20_JM %>% mutate(QUARTER = 1)
-LFS20_FA <- LFS20_FA %>% mutate(QUARTER = 2, PIWT18 = NA)
-LFS20_MM <- LFS20_MM %>% mutate(QUARTER = 3, PIWT18 = NA)
-LFS20_AJ <- LFS20_AJ %>% mutate(QUARTER = 4)
-LFS20_MJ <- LFS20_MJ %>% mutate(QUARTER = 5, PIWT18 = NA)
-LFS20_JA <- LFS20_JA %>% mutate(QUARTER = 6, PIWT18 = NA)
-LFS20_JS <- LFS20_JS %>% mutate(QUARTER = 7)
-LFS20_AO <- LFS20_AO %>% mutate(QUARTER = 8, PIWT18 = NA)
-LFS20_SN <- LFS20_SN %>% mutate(QUARTER = 9, PIWT18 = NA)
-LFS20_OD <- LFS20_OD %>% mutate(QUARTER = 10)
-LFS21_NJ <- LFS21_NJ %>% mutate(QUARTER = 11, PIWT18 = NA)
-LFS21_DF <- LFS21_DF %>% mutate(QUARTER = 12, PIWT18 = NA)
 
 
 #### Extracting labels and questions for inspection
@@ -217,6 +205,21 @@ variables <- c(
         "PWT18", "PIWT18" # data for PIWT18 is not available for the new covid series
         ) 
 
+#### Creating the variable "quarter" in each dataset and an empty "PIWT18" for all covid datasets
+
+LFS20_JM <- LFS20_JM %>% mutate(QUARTER = 1)
+LFS20_FA <- LFS20_FA %>% mutate(QUARTER = 2, PIWT18 = NA)
+LFS20_MM <- LFS20_MM %>% mutate(QUARTER = 3, PIWT18 = NA)
+LFS20_AJ <- LFS20_AJ %>% mutate(QUARTER = 4)
+LFS20_MJ <- LFS20_MJ %>% mutate(QUARTER = 5, PIWT18 = NA)
+LFS20_JA <- LFS20_JA %>% mutate(QUARTER = 6, PIWT18 = NA)
+LFS20_JS <- LFS20_JS %>% mutate(QUARTER = 7)
+LFS20_AO <- LFS20_AO %>% mutate(QUARTER = 8, PIWT18 = NA)
+LFS20_SN <- LFS20_SN %>% mutate(QUARTER = 9, PIWT18 = NA)
+LFS20_OD <- LFS20_OD %>% mutate(QUARTER = 10)
+LFS21_NJ <- LFS21_NJ %>% mutate(QUARTER = 11, PIWT18 = NA)
+LFS21_DF <- LFS21_DF %>% mutate(QUARTER = 12, PIWT18 = NA)
+
 #### selecting the variables in all dataset and creating temporary datasets
 
 t1 <- LFS20_JM %>% select(variables) 
@@ -237,21 +240,9 @@ t12 <- LFS21_DF %>% select(variables)
 LFS_all <- rbind(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) # working database
 LFS_all <- as_tibble(LFS_all) # creating a tibble for data manipulation
 
-#### Create a working dataset 
+#### Create a working dataset to clean
 
 LFS_clean <- LFS_all # working dataset
-
-q_LFS_clean <- as.data.frame(label(LFS_clean)) # variable labels
-l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels 
-
-
-#### delete individual databases, questions and labels
-
-rm(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) # delete temporary datasets
-rm(LFS20_JM, LFS20_FA, LFS20_MM, LFS20_AJ, LFS20_MJ, LFS20_JA, LFS20_JS, LFS20_AO, LFS20_SN, LFS20_OD, LFS21_NJ, LFS21_DF) # delete databases
-rm(l_LFS20_JM, l_LFS20_FA, l_LFS20_MM,l_LFS20_AJ, l_LFS20_MJ, l_LFS20_JA, l_LFS20_JS, l_LFS20_AO, l_LFS20_SN, l_LFS20_OD, l_LFS21_NJ, l_LFS21_DF) # delete value labels
-rm(q_LFS20_JM, q_LFS20_FA, q_LFS20_MM, q_LFS20_AJ, q_LFS20_MJ, q_LFS20_JA, q_LFS20_JS, q_LFS20_AO, q_LFS20_SN, q_LFS20_OD, q_LFS21_NJ, q_LFS21_DF) # delete questions
-rm(variables) # delete the variable selection file
 
 ### Cleaning the working dataset 
 
@@ -283,13 +274,12 @@ l_LFS_clean <- get_labels(LFS_clean, values = "n") # check value labels
 ## recoding "Scotland North Caledonian Canal" for Scotland
 
 LFS_clean <- LFS_clean %>% mutate(COUNTRY2 = recode_factor(COUNTRY, 
-                                                    `1` = "England",
-                                                    `2` = "Wales",
-                                                    `3` = "Scotland", 
-                                                    `4` = "Scotland",
-                                                    `5` = "Northern Ireland" 
-                                                    ))                               
-
+                                                           `1` = "England",
+                                                           `2` = "Wales",
+                                                           `3` = "Scotland", 
+                                                           `4` = "Scotland",
+                                                           `5` = "Northern Ireland" 
+))                               
 
 
 ## adding labels to QUARTER
@@ -299,8 +289,25 @@ LFS_clean$QUARTER <- set_labels(LFS_clean$QUARTER, labels = c("Jan-Mar20" = 1, "
                                                               "Jul-Sep20" = 7, "Aug-Oct20" = 8, "Sep-Nov20" = 9,
                                                               "Oct-Dec20" = 10, "Nov-Jan21" = 11,"Dec-Feb21" = 12 ))
 
-l_LFS_clean <- get_labels(LFS_clean, values = "n") # check value labels 
 
+### saving the clean dataset
+
+save(LFS_clean, file = "./Data/LFS_clean.rda")
+
+rm(list = ls()) # clean the global environment
+
+######################### END WORKING WITH ORIGINAL DATASETS ####################################
+
+################################################################################################
+############################### Working with the clean dataset #################################
+################################################################################################
+
+### load clean working dataset
+
+load("./Data/LFS_clean.rda")
+
+q_LFS_clean <- as.data.frame(label(LFS_clean)) # variable labels
+l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels 
 
 
 #### Analysis 
