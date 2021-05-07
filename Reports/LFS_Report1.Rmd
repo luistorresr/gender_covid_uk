@@ -95,7 +95,7 @@ N_total %>% flextable() %>% theme_vanilla() %>%
         set_caption(caption = "Sample size and population estimates", style = "table") %>%
         bold(bold = TRUE, part = "header") %>%
         set_header_labels(`as_label(QUARTER)` = "Quarter",
-                          Population = "Total Population",
+                          Population = "Weighted sample",
                             Non_Reponse = "Non Responses",
                             Econ_active = "Economically Active") %>%
         autofit() %>%
@@ -226,15 +226,6 @@ unem_class %>%
 
 ```
 
-
-
-```{r income, echo=FALSE}
-
-
-
-```
-
-
 When ethnic background is taken into account, the trend seems less homogeneous. While the overall unemployment trend for people in the white ethic group from the first lockdown in March 2020 remained between 6% and 4%, unemployment rates for people in other groups fluctuated well beyond 6% each quarter. For most groups the COVID-19 pandemic increased the unemployment levels seen before the first lockdown. In this respect, men from mixed and black backgrounds have seen a rise in their unemployment compare to women, while women from other minorities have been hit the hardest. Employment seems to be recovering in the last couple of quarters for most groups, but for mixed/multiple and other minorities.    
 
 
@@ -295,9 +286,10 @@ unem_eth %>%
 
 
 
-
-
 ```{r age, echo=FALSE}
+
+
+
 
 
 

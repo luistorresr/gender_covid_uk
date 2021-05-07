@@ -22,10 +22,10 @@ if(!require(sjmisc)) install.packages("sjmisc", repos = "http://cran.us.r-projec
 if(!require(plotly)) install.packages("plotly", repos = "http://cran.us.r-project.org")
 if(!require(flextable)) install.packages("flextable", repos = "http://cran.us.r-project.org")
 if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-project.org")
-if(!require(descr)) install.packages("descr", repos = "http://cran.us.r-project.org")
+if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
 if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
 
-library(descr) # contingency table
+library(ggalt) # contingency table
 library(tidyverse) # several tools for data manipulation
 library(haven) # read SPSS, Stata, and SAS data
 library(gridExtra) # arrange multiple grid-based plots on a page
@@ -339,7 +339,7 @@ N_total %>% flextable() %>% theme_vanilla() %>%
         set_caption(caption = "Table 1: Sample size and population estimates", style = "table") %>%
         bold(bold = TRUE, part = "header") %>%
         set_header_labels(`as_label(QUARTER)` = "Quarter",
-                          Population = "Total Population",
+                          Population = "Wighted sample",
                             Non_Reponse = "Non Responses",
                             Econ_active = "Economically Active") %>%
         autofit() %>%
@@ -358,7 +358,7 @@ N_total %>% flextable() %>% theme_vanilla() %>%
 
 unem_sex <- LFS_clean %>% 
                 filter(AGE >= 18 & AGE <= 64 & IOUTCOME <= 2 & ILODEFR <=2) %>%
-                group_by(QUARTER, SEX, as_label(ILODEFR)) %>%
+                group_by(QUARTER,as_label(ILODEFR), SEX) %>%
                 summarise(Active = sum(PWT18))  %>% 
             pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
             adorn_totals("col") %>%
@@ -514,59 +514,72 @@ unem_class %>%
 
 
 
-# Unemployment per income and sex
+# Unemployment per age and sex
 
-unem_income <- LFS_clean %>% 
+get_labels(LFS_clean$AGEEUL_2)
+
+LFS_clean <- LFS_clean %>% 
+        mutate(AGEEUL_2 = recode_factor(AGEEUL,
+                                        `1`="Below 18", `2`="Below 18", `3`="Below 18", `4`="Below 18", `5`="Below 18", `6`="Below 18",
+                                        `7`="Aged 18-24", `8`="Aged 18-24", `9`="Aged 18-24", `10`="Aged 18-24", `11`="Aged 18-24", `12`="Aged 18-24", `13`="Aged 18-24", 
+                                        `14`="Aged 25-29", 
+                                        `15`="Aged 30-39", `16`="Aged 30-39", 
+                                        `17`="Aged 40-49", `18`="Aged 40-49",
+                                        `19`="Aged 50-64", `20`= "Aged 50-64", `21`= "Aged 50-64",
+                                        `22`="Above 64", `23` = "Above 64", `24`= "Above 64", `25`= "Above 64", `26` = "Above 64", `27`= "Above 64", `28`= "Above 64")) 
+
+unem_age <- LFS_clean %>% 
         filter(AGE >= 18 & AGE <= 64 & IOUTCOME <= 2 & ILODEFR <=2) %>%
-        group_by(QUARTER, SEX, as_label(ILODEFR)) %>%
+        group_by(QUARTER, SEX, as_label(ILODEFR), AGEEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
-        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
         adorn_totals("col") %>%
-        mutate(Rate = `Not employed` / Total) 
+        mutate(Rate = `Not employed` / Total)
 
+age_select <- unem_age %>% filter(AGEEUL_2 == "Aged 18-24")
 
-unem_class %>% 
+unem_age %>%       
         # select data
-        select(QUARTER, NSECMJ10_2, SEX, Rate) %>%  
-        filter(!is.na(Rate & as.integer(NSECMJ10_2)) & as.integer(NSECMJ10_2) != 7)  %>% 
+        select(QUARTER, AGEEUL_2, SEX, Rate) %>%  
+        filter(!is.na(Rate))  %>% 
+        arrange(desc(Rate)) %>%
         
         # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
-        geom_point(shape = 19) +  
+        ggplot(aes(x = QUARTER, y = Rate, col= as_label(SEX))) +
+        geom_point(aes(size=Rate, alpha=0.5)) +  
+        geom_encircle(data = age_select, aes(x = QUARTER, y = Rate)) +
         geom_vline(xintercept = 3, linetype="dotted") +
-        facet_wrap(.~as_label(NSECMJ10_2), ncol = 3) +
+        annotate(geom = "text", x = 11, y = 0.19, label = "Men aged 18-24", color= "#DF9216") +
+        annotate(geom = "text", x = 11, y = 0.080, label = "Women aged 18-24", color= "#791F83") +
         
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0,0.08), labels = label_percent()) + 
+        scale_y_continuous(breaks = seq(0,0.21, 0.03), limits = c(0,0.21), labels = label_percent()) +
         scale_x_continuous(breaks=c(1:12),
-                           labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
-                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
-                                    "Nov20-Jan21", "Dec20-Feb21")) +
-        
+                         labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                  "Nov20-Jan21", "Dec20-Feb21")) + 
         # annotation
         labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women by Occupation",
-             subtitle  = "UK Population between 18-64 years old ",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
+        y = "Rate",
+         title ="Unemployment Rate for Men and Women by Age Group",
+        subtitle  = "UK Population between 18-64 years old ",
+        caption = c("Source: UK Labour Force Survey (Person)")) +
         
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
                                         margin = margin(10, 0, 10, 0),
                                         size = 13),
-              axis.text.x=element_text(angle = 90),
+              axis.text.x=element_text(angle=90),
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
               axis.text = element_text(size = 8),
-              legend.position = "top",
+              legend.position = "none",
               legend.title = element_blank(),
               legend.text = element_text(size=10),
               strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
         guides(color = guide_legend(override.aes = list(size = 3))) 
-
-
 
 
 ### are there difference among women and men in their hours worked?
