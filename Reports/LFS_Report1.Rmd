@@ -57,16 +57,18 @@ options(digits = 3) # decimal points to 3
 
 ## Introduction
 
-The economic upheaval caused by the COVID-19 outbreak has substantial ramifications for gender equality. Previous economic recessions have affected men’s employment the most. However, this is not a typical recession. The impact of lockdowns and social distancing have a large impact on sectors with high female participation. Similarly, the closure of schools, nurseries and the working from home requirement for many workers increased caring responsibilities, which has large impacts on working mothers, but also on fathers taking responsibility for childcare. The early response by governments and flexible working arrangements adopted by businesses may be mitigating these impacts in ways not comparable to previous social and economic crises. 
+The COVID-19 outbreak has substantial consequences for gender equality in the workplace. Generally economic recessions affect men's employment the most, but this is not a typical recession. The lockdowns and social distancing measures have a unequal impact on jobs frequently done by women, like health care, cleaning and hospitality. On top of this, the closure of schools, nurseries and the switch to home-working increased childcare responsibilities for both working mothers and fathers.
 
-We explore the impact of Covid-19 on the paid work of women and men in the UK. We ask how the workplaces of women and men, and their types of work, have been impacted as the pandemic effects rolled out. The research asks whether the pandemic is narrowing or reinforcing existing (pre-pandemic) gender inequalities in our ways of working. 
+Measures adopted by businesses and governments, such as flexible working and..., may be mitigating the impacts of the pandemic in ways not comparable to previous social and economic crises. - introduce ethnicity/age/income?-
+
+Is the pandemic is narrowing or reinforcing pre-pandemic gender inequalities in our ways of working? - is this a too broad question? after all we only know about employment - To answer this question we use the UK's largest study on employment circumstances, the Labour Force Survey. More specifically, we ask 1) Which sectors have been hit the hardest by the pandemic 2) How unemployment rates differ between men and women of different ethnic background, age and income.
 
 
 ## Methodology
 
-This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). The LFS is the largest study of the employment circumstances of the UK population. Respondents are interviewed for 5 successive waves at 3-monthly intervals and approximately 20% of the sample is replaced every quarter. In 2020, additional non-calendar quarter data have been released as a response to the need of data in the context of the coronavirus pandemic. 
+This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for 5 successive waves at 3-monthly intervals and approximately 20% of the sample is replaced every quarter. In 2020, additional non-calendar quarter data have been released as a response to the need of data in the context of the coronavirus pandemic.
 
-The LFS replace non-responses with data from previous quarters. Responses brought from previous quarter represent a quarter average of 8,470,590. We remove these responses from our analyses to better account for variations between quarters. The resulted economically active population will be considered in the following sections. 
+The LFS replace non-responses with data from previous quarters. Responses brought from previous quarter represent a quarter average of 8,470,590. We remove these responses from our analyses to better account for variations between quarters. The resulted economically active population will be considered in the following sections. We only consider the working UK population between 18-64 year old.
 
 ```{r data, echo=FALSE}
 
@@ -112,7 +114,7 @@ N_total %>% flextable() %>% theme_vanilla() %>%
 
 ### Gender impact of COVID-19 on employment levels
 
-As previous economic recessions, the impact of COVID-19 on unemployment levels have hit men the most. From August-October 2020 quarter men's employment has shown signs of recovery. However, during the last lockdown these signs are fading for men, but recovery remains constant for women.     
+As with previous economic recessions, the impact of COVID-19 hit men's employement the most. From August-October 2020 quarter both men's and women's employment show signs of recovery. However, since the last lockdown these signs of recovery are fading for men.    
 
 
 ```{r unemployment, echo=FALSE}
@@ -134,26 +136,28 @@ unem_sex %>%
   
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0,0.06), labels = label_percent()) +
+        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0, 0.07), labels = label_percent()) +
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
                                   "Nov20-Jan21", "Dec20-Feb21")) +
         # annotation
-        labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women",
-             subtitle  = "UK Propulation between 18-64 years old",
+        labs(x = "", 
+             y = "",
+             title ="Men's employment hit the most by the COVID-19 pandemic",
+             subtitle  = "Unemployment rate of UK population  2020-2021",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "text", x = 12, y = 0.053, label = "Men", color= "#DF9216") +
         annotate(geom = "text", x = 12, y = 0.040, label = "Women", color= "#791F83") +
+        annotate(geom = "rect", xmin = 3,  xmax = 6, ymin = 0,  ymax = 0.07, alpha = 0.2) +
+        annotate(geom = "rect", xmin = 10, xmax = 11, ymin = 0, ymax = 0.07, alpha = 0.2) +
         
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
                                         margin = margin(10, 0, 10, 0),
                                         size = 13),
-              axis.text.x=element_text(angle = 90),
+              axis.text.x=element_text(angle=90),
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
               axis.text = element_text(size = 11),
@@ -162,7 +166,7 @@ unem_sex %>%
 
 ```
 
-When age groups are considered, the unemployment trend shows concerning levels for people between 18 and 24 years old. Unemployment reached 20% for men in summer 2020. Although employment showed signed of recovery after this peak, signs are fading for men, but recovery remains constant for women.
+When age groups are considered, the unemployment trend shows concerning levels for people between 18 and 24 years old. Unemployment reached 20% for men in summer 2020. Although employment showed signed of recovery after this peak, signs are fading for men, but recovery remains constant for women. Continue. 
 
 
 ```{r age, echo=FALSE}
@@ -209,8 +213,8 @@ unem_age %>%
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
                                   "Nov20-Jan21", "Dec20-Feb21")) + 
         # annotation
-        labs(x = "Quarter", 
-        y = "Rate",
+        labs(x = "", 
+        y = "",
          title ="Unemployment Rate for Men and Women by Age Group",
         subtitle  = "UK Population between 18-64 years old ",
         caption = c("Source: UK Labour Force Survey (Person)")) +
@@ -234,8 +238,7 @@ unem_age %>%
 ```
 
 
-
-This trend is to some extent explained by the job losses in routine and semi routine occupations.
+This trend is particularly explained by the job losses in routine and semi routine occupations, like bar staff, bus drivers and receptionists. -What does routine/semi-routing mean?- -And the lower supervisory and technical?- Is there a way to make these labels more self explanatory?
 
 
 ```{r occupation, echo=FALSE}
@@ -257,39 +260,34 @@ unem_class <- LFS_clean %>%
         adorn_totals("col") %>%
         mutate(Rate = `Not employed` / Total) 
         
-
 unem_class %>% 
         # select data
         select(QUARTER, NSECMJ10_2, SEX, Rate) %>%  
         filter(!is.na(Rate & as.integer(NSECMJ10_2)) & as.integer(NSECMJ10_2) != 7)  %>% 
-        
         # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
-        geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +  
-        geom_vline(xintercept = 3, linetype="dotted") +
-        facet_wrap(.~as_label(NSECMJ10_2), ncol = 3) +
-        
-        #scales
-        scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0,0.08), labels = label_percent()) + 
+        ggplot(aes(x = QUARTER, y = Rate, fill = NSECMJ10_2)) +
+        geom_area() +
+        facet_wrap(~as_label(SEX)) +
+  #scales
+        scale_fill_manual(values = c("#FC8DB7", "#791F83", "#006295", "#DF9216","#A3BE41", "#999999")) +
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
                                   "Nov20-Jan21", "Dec20-Feb21")) +
         # annotation
-        labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women by Occupation",
-             subtitle  = "UK Population between 18-64 years old ",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
+        labs(x = "", 
+             y = "%",
+             title ="Highest job loss in (semi)-routine occupations",
+             subtitle  = "Unemployment rate of UK population, 2020-2021",
+             caption = "Source: UK Labour Force Survey (Person)") +
         
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
                                         margin = margin(10, 0, 10, 0),
                                         size = 13),
-              axis.text.x=element_blank(),
+              # axis.text.x=element_blank(),
+              axis.text.x=element_text(angle=90),
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
               axis.text = element_text(size = 7),
@@ -297,11 +295,12 @@ unem_class %>%
               legend.title = element_blank(),
               legend.text = element_text(size=10),
               strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
-        guides(color = guide_legend(override.aes = list(size = 3))) 
+        guides(color = guide_legend(override.aes = list(size = 3)))
 
 ```
 
-When ethnic background is taken into account, the trend seems less homogeneous. While the overall unemployment trend for people in the white ethic group from the first lockdown in March 2020 remained between 6% and 4%, unemployment rates for people in other groups fluctuated well beyond 6% each quarter. For most groups the COVID-19 pandemic increased the unemployment levels seen before the first lockdown. In this respect, men from mixed and black backgrounds have seen a rise in their unemployment compare to women, while women from other minorities have been hit the hardest. Employment seems to be recovering in the last couple of quarters for most groups, but for mixed/multiple and other minorities.    
+
+When ethnic background is taken into account, the trend seems less homogeneous-than what?-. While the overall unemployment trend for people in the white ethic group from the first lockdown in March 2020 remained between 6% and 4%, unemployment rates for people in other groups fluctuated well beyond 6% each quarter. For most groups the COVID-19 pandemic increased the unemployment levels seen before the first lockdown. In this respect, men from mixed and black backgrounds have seen a rise in their unemployment compare to women, while women from other minorities have been hit the hardest. Employment seems to be recovering in the last couple of quarters for most groups, but for mixed/multiple and other minorities. 
 
 
 ```{r ethnicity, echo=FALSE}
@@ -324,37 +323,36 @@ unem_eth %>%
          # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
         geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +  
         geom_vline(xintercept = 3, linetype="dotted") +
+        geom_vline(xintercept = 10, linetype = "dotted") +
         facet_wrap(.~as_label(ETHUKEUL), ncol = 3) +
         
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.2, 0.03), limits = c(0,0.2), labels = label_percent()) + 
+        scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0,0.08), labels = label_percent()) + 
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
                                   "Nov20-Jan21", "Dec20-Feb21")) +
         # annotation
-        labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women by Ethnic Group",
-             subtitle  = "UK Population between 18-64 years old ",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
+        labs(x = "", 
+             y = "%",
+             title ="Highest job loss in people from non-white backgrounds",
+             subtitle  = "Unemployment rate of UK population, 2020-2021",
+             caption = "Source: UK Labour Force Survey (Person)") +
 
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
                                         margin = margin(10, 0, 10, 0),
                                         size = 13),
-              axis.text.x=element_blank(),
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 6),
+              axis.text = element_text(size = 7),
               legend.position = "top",
               legend.title = element_blank(),
               legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 8)) +
+              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
         guides(color = guide_legend(override.aes = list(size = 3))) 
 
 ```
@@ -363,8 +361,102 @@ unem_eth %>%
 
 
 
+```{r part-time}
+
+# (I dont think there is much interesting here)
+pt <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64 & IOUTCOME <= 2 & ILODEFR <= 20) %>% 
+        filter(FTPTWK == 2) %>% # select part-timers
+        filter(!is.na(YPTJOB)) %>% # select part-timers
+        group_by(QUARTER, YPTJOB, SEX, as_label(ILODEFR)) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>% 
+        group_by(QUARTER, SEX) %>%
+        mutate(ptreason = `In employment`/sum(`In employment`)*100) %>% 
+        as_tibble()
+pt %>% 
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = ptreason, col = as_label(SEX))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        # geom_point(shape = 19) +  
+        geom_vline(xintercept = 3, linetype="dotted") +
+        geom_vline(xintercept = 10, linetype="dotted") +
+        facet_wrap(.~as_label(YPTJOB), ncol = 2) +
+        
+        #scales
+        scale_colour_manual(values = c("#DF9216", "#791F83")) +
+        scale_x_continuous(breaks = c(1, 6, 12),
+                         labels = month.abb[c(1,6,12)]) +
+        # annotation
+        labs(x = "", 
+             y = "%",
+             caption = "Source: UK Labour Force Survey (Person)") +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = margin(10, 0, 10, 0),
+                                        size = 13),
+              # axis.text.x=element_blank(),
+              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 7),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=10),
+              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
+        guides(color = guide_legend(override.aes = list(size = 3)))
+
+```
 
 
+
+
+```{r time and overtime}
+# "EVEROT", # Whether ever work paid or unpaid overtime (filter use only)
+#         "POTHR", # Usual hours of paid overtime (filter by EVEROT = 1)
+#         "POTHR", # Usual hours of unpaid overtime (filter by EVEROT = 1)
+#         "SUMHRS", # Total hours worked in reference week in main and second jobs
+# 
+LFS_clean %>% 
+  filter(!ILODEFR ==2) %>% 
+  mutate(SEX = as.factor(SEX),
+         SUMHRS = as.numeric(SUMHRS)) %>% 
+  select(QUARTER, SEX, SUMHRS) %>%
+  group_by(QUARTER, SEX) %>% 
+  summarise(mean.hours = mean(SUMHRS, na.rm = TRUE),
+            sd.hours = sd(SUMHRS, na.rm = TRUE)) %>% 
+  ggplot(aes(x = QUARTER, y = mean.hours,  fill = SEX)) +
+  geom_line(size = 1, show.legend = FALSE) +
+        # geom_point(shape = 19) + 
+        # geom_vline(xintercept = 3, linetype="dotted") +
+        #scales
+        scale_colour_manual(values = c("#DF9216", "#791F83")) +
+        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0, 0.07), labels = label_percent()) +
+        scale_x_continuous(breaks = seq(1, 12, by = 1),
+                         labels = month.abb[1:12]) +
+        # annotation
+        labs(x = "", 
+             y = "%",
+             title ="Men's employment hit the most by the COVID-19 pandemic",
+             subtitle  = "Unemployment rate of UK population between, 2020-2021",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "text", x = 12, y = 0.053, label = "Men", color= "#DF9216") +
+        annotate(geom = "text", x = 12, y = 0.040, label = "Women", color= "#791F83") +
+        annotate(geom = "rect", xmin = 3,  xmax = 6, ymin = 0,  ymax = 0.07, alpha = 0.2) +
+        annotate(geom = "rect", xmin = 10, xmax = 11, ymin = 0, ymax = 0.07, alpha = 0.2) +
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 11),
+              legend.position = "none",
+              legend.title = element_blank()) 
+```
 
 
 
