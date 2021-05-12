@@ -1,12 +1,8 @@
 ---
-title: 'Impacts of COVID-19 on employment trends in the UK: Exploring gender, ethinicity and class'
+title: 'Impacts of COVID-19 on employment trends in the UK: Exploring gender, ethinicity
+  and class'
 author: "Luis D. Torres, Annegreet Veeken and Tracey Warren, University of Nottingham"
-output:
-  word_document: default
-  toc: true
-  toc_depth: 3
-  html_document:
-    df_print: paged
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -64,17 +60,18 @@ options(digits = 3) # decimal points to 3
 
 ## Introduction
 
-The COVID-19 outbreak has substantial consequences for men and women's working lives. Generally economic recessions affect men's employment the most, but this is not a typical recession. The lockdowns and social distancing measures have a unequal impact on jobs frequently done by women, like hospitality. The closure of schools, nurseries and the switch to home-working increased childcare responsibilities for both working mothers and fathers.
+The COVID-19 outbreak has substantial consequences for men and women's working lives. Generally economic recessions affect men's employment the most, but this is not a typical recession. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, may be mitigating the impacts of the pandemic in ways not comparable to previous social and economic crises. 
 
-Measures adopted by businesses and governments, such as flexible working and job retention scheme, may be mitigating the impacts of the pandemic in ways not comparable to previous social and economic crises.
+However, the lockdowns and social distancing measures may be having a unequal impact on jobs frequently done by women. Women have been historically more limited in their choices for employment, they are more likely to work under vulnerable conditions, and they are over-represented in mid-skill occupations. When women have access to paid employment, they tend to work in more unstable and precarious conditions than men.
 
-Is the pandemic narrowing or reinforcing inequalities in employment? To answer this question we use the UK's largest study on employment circumstances, the Labour Force Survey. More specifically, we ask how employment rates differ between men and women of different ethnic background, age and economic status.
+Therefore, we ask if the pandemic is narrowing or reinforcing inequalities in employment. To answer this question we use the UK's largest study on employment circumstances, the Labour Force Survey. More specifically, we ask how employment rates have differed between men and women of different ethnic background, age and class during the pandemic.
 
+The focus on these characteristics has a simple reason, our understanding of inequalities. Any quantifiable aspect that differs across individuals or social groups can be called an inequality. This is a descriptive observation which lacks of any moral judgement. In analysing the possible injustice of an inequality, it is necessary to establish that the inequality is avoidable, unnecessary and unfair. This requires an analysis of individual circumstances, individual choice and social advantage. 
 
 
 ## Methodology
 
-This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. In 2020, additional non-calendar quarter data has been released as a response to the need of data in the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters included data for January and February 2021.
+This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar | Apr-Jun | Jul-Sep | Oct-Dec. From 2020, additional non-calendar quarter data has been released as a response to the need of data in the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters included data for January and February 2021.
 
 Our analyses consider only the economically active population between 18-64 years old.
 
@@ -111,7 +108,9 @@ N_total %>%
 ```
 
 
-## Gender impact of COVID-19 on employment levels
+
+## Gender impact of COVID-19 on employment
+
 
 ### Men's employment hit the most 
 
@@ -165,14 +164,17 @@ unem_sex %>%
 
 ```
 
+
+
 This overall trend is useful to understand the extent of the COVID-19 impact on employment as well as the quarters where those impacts where felt the most. However, the trend does not account for the diversity of the UK population in terms of, age, ethnicity, and economic status. We further explore these factors in the following sections.
+
 
 
 ### Highest job loss among young people
 
 When age groups are considered, the unemployment trend shows concerning levels for people between 18 and 24 years old. Unemployment reached over 17% for men and 12% for women in Summer 2020. 
 
-Employment showed signed of recovery after this peak. While men's employment started to show signs of recovery in the period August-October, job loss for women remained constant until September-November quarter when it started to recover. 
+Employment showed signed of recovery after this peak. While men's employment started to show signs of recovery in the period August-October, job loss for women remained constant until September-November quarter. 
 
 
 ```{r age, echo=FALSE, fig.width= 8, fig.height=7}
@@ -185,7 +187,7 @@ unem_age <- LFS_clean %>%
         adorn_totals("col") %>%
         mutate(Rate = `Not employed` / Total)
 
-age_select <- unem_age %>% filter(AGEEUL_2 == "Aged 18-24")
+age_select <- unem_age %>% filter(AGEEUL_2 == 2)
 
 unem_age %>%       
         # select data
@@ -233,7 +235,8 @@ unem_age %>%
 ```
 
 
-### Women from non-white backgrounds have been hit the most
+
+### People from non-white backgrounds have been hit the most
 
 When ethnic background is taken into account, the gender gap against male employment seems less homogeneous than the overall trend. While unemployment for people from White background has remained well below 6% and against men, job losses for other minorities have fluctuated beyond 6% each quarter and with differential gender impacts.
 
@@ -305,12 +308,19 @@ unem_eth %>%
 
 ```
 
-### Highest job loss in low skilled jobs
 
-This trend is particularly explained by the job losses in routine and semi routine occupations, like bar staff, bus drivers and receptionists.
+It is important to notice that the LFS responses are weighted to official population projections that pre-date the COVID-19 pandemic. This particularly affects estimates for ethnicity estimates. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group. 
+
+
+
+### Highest job loss in routine and semi routine occupations
+
+This trend is particularly explained by the job losses in routine and semi routine occupations. Typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers.
 
 
 ```{r occupation, echo=FALSE, fig.width= 8, fig.height=6}
+
+# Unemployment per occupation and sex
 
 unem_class <- LFS_clean %>% 
         filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
@@ -319,17 +329,17 @@ unem_class <- LFS_clean %>%
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
         adorn_totals("col") %>%
         mutate(Rate = `Not employed` / Total) 
-        
+
 unem_class %>% 
         # select data
         select(QUARTER, NSECMJ10_2, SEX, Rate) %>%  
-        filter(!is.na(Rate & as.integer(NSECMJ10_2)) & as.integer(NSECMJ10_2) != 7)  %>% 
+        filter(!is.na(Rate & NSECMJ10_2) & NSECMJ10_2 <=5)  %>% 
         # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = Rate, fill = NSECMJ10_2)) +
+        ggplot(aes(x = QUARTER, y = Rate, fill = as_label(NSECMJ10_2))) +
         geom_area() +
         facet_wrap(~as_label(SEX)) +
-  #scales
-        scale_y_continuous(breaks = seq(0,0.21, 0.03), limits = c(0,0.21), labels = label_percent()) +
+        #scales
+        scale_y_continuous(breaks = seq(0,0.18, 0.02), limits = c(0,0.18), labels = label_percent()) +
         scale_fill_manual(values = c("#FC8DB7", "#791F83", "#006295", "#DF9216","#A3BE41", "#999999")) +
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
@@ -338,7 +348,7 @@ unem_class %>%
         # annotation
         labs(x = "", 
              y = "",
-             title ="Highest job loss in low skilled jobs",
+             title ="Highest job loss in routine and semi routine occupations",
              subtitle  = "Unemployment rate of UK population, 2020-2021",
              caption = "Source: UK Labour Force Survey (Person)") +
         
@@ -352,7 +362,7 @@ unem_class %>%
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
               axis.text = element_text(size = 9),
-              legend.position = "top",
+              legend.position = "right",
               legend.title = element_blank(),
               legend.text = element_text(size=10),
               strip.text = element_text(face = "bold", hjust = 0, size = 11)) +
@@ -361,6 +371,14 @@ unem_class %>%
 ```
 
 
+### Maybe some predictive modelling here
+
+to be continue 1..
+
+
+# Conclusions
+
+to be continue 2..
 
 
 
