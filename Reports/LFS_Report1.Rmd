@@ -2,7 +2,9 @@
 title: 'Impacts of COVID-19 on employment trends in the UK: Exploring gender, ethinicity
   and class'
 author: "Luis D. Torres, Annegreet Veeken and Tracey Warren, University of Nottingham"
-output: word_document
+output: 
+  word_document:
+    reference_docx: "Report_template1.docx"
 ---
 
 ```{r setup, include=FALSE}
@@ -10,8 +12,7 @@ knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
 	warning = FALSE,
-  collapse = TRUE,
-  fig.align = "center")
+  collapse = TRUE)
 
 ### R version
 # R version 4.0.4
@@ -57,24 +58,21 @@ library(janitor) # add totals to tables
 options(digits = 3) # decimal points to 3
 ```
 
-
 ## Introduction
 
-The COVID-19 outbreak has substantial consequences for men and women's working lives. Generally economic recessions affect men's employment the most, but this is not a typical recession. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, may be mitigating the impacts of the pandemic in ways not comparable to previous social and economic crises. 
+The COVID-19 outbreak has substantial consequences for men and women's working lives. Generally economic recessions affect men's employment the most, but this is not a typical recession. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, may be mitigating the impacts of the pandemic in ways not comparable to previous social and economic crises.
 
 However, the lockdowns and social distancing measures may be having a unequal impact on jobs frequently done by women. Women have been historically more limited in their choices for employment, they are more likely to work under vulnerable conditions, and they are over-represented in mid-skill occupations. When women have access to paid employment, they tend to work in more unstable and precarious conditions than men.
 
 Therefore, we ask if the pandemic is narrowing or reinforcing inequalities in employment. To answer this question we use the UK's largest study on employment circumstances, the Labour Force Survey. More specifically, we ask how employment rates have differed between men and women of different ethnic background, age and class during the pandemic.
 
-The focus on these characteristics has a simple reason, our understanding of inequalities. Any quantifiable aspect that differs across individuals or social groups can be called an inequality. This is a descriptive observation which lacks of any moral judgement. In analysing the possible injustice of an inequality, it is necessary to establish that the inequality is avoidable, unnecessary and unfair. This requires an analysis of individual circumstances, individual choice and social advantage. 
-
+The focus on these characteristics has a simple reason, our understanding of inequalities. Any quantifiable aspect that differs across individuals or social groups can be called an inequality. This is a descriptive observation which lacks of any moral judgement. In analysing the possible injustice of an inequality, it is necessary to establish that the inequality is avoidable, unnecessary and unfair. This requires an analysis of individual circumstances, individual choice and social advantage.
 
 ## Methodology
 
-This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar | Apr-Jun | Jul-Sep | Oct-Dec. From 2020, additional non-calendar quarter data has been released as a response to the need of data in the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters included data for January and February 2021.
+This report draws on the analysis of the 2020/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar \| Apr-Jun \| Jul-Sep \| Oct-Dec. From 2020, additional non-calendar quarter data has been released as a response to the need of data in the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters included data for January and February 2021.
 
 Our analyses consider only the economically active population between 18-64 years old.
-
 
 ```{r data, echo=FALSE}
 
@@ -107,15 +105,11 @@ N_total %>%
 
 ```
 
-
-
 ## Gender impact of COVID-19 on employment
 
+### Men's employment hit the most
 
-### Men's employment hit the most 
-
-As with previous economic recessions, the impact of COVID-19 hit men's employment the most. Unemployment increased dramatically after the first lockdown with a peach during summer 2020. From September-November quarter both men and women's employment had showed signs of stabilisation. 
-
+As with previous economic recessions, the impact of COVID-19 hit men's employment the most. Unemployment increased dramatically after the first lockdown with a peach during summer 2020. From September-November quarter both men and women's employment had showed signs of stabilisation.
 
 ```{r unemployment, echo=FALSE, fig.width= 8, fig.height=7}
 # Unemployment per sex
@@ -164,18 +158,13 @@ unem_sex %>%
 
 ```
 
-
-
 This overall trend is useful to understand the extent of the COVID-19 impact on employment as well as the quarters where those impacts where felt the most. However, the trend does not account for the diversity of the UK population in terms of, age, ethnicity, and economic status. We further explore these factors in the following sections.
-
-
 
 ### Highest job loss among young people
 
-When age groups are considered, the unemployment trend shows concerning levels for people between 18 and 24 years old. Unemployment reached over 17% for men and 12% for women in Summer 2020. 
+When age groups are considered, the unemployment trend shows concerning levels for people between 18 and 24 years old. Unemployment reached over 17% for men and 12% for women in Summer 2020.
 
-Employment showed signed of recovery after this peak. While men's employment started to show signs of recovery in the period August-October, job loss for women remained constant until September-November quarter. 
-
+Employment showed signed of recovery after this peak. While men's employment started to show signs of recovery in the period August-October, job loss for women remained constant until September-November quarter.
 
 ```{r age, echo=FALSE, fig.width= 8, fig.height=7}
 
@@ -234,24 +223,21 @@ unem_age %>%
 
 ```
 
-
-
 ### People from non-white backgrounds have been hit the most
 
 When ethnic background is taken into account, the gender gap against male employment seems less homogeneous than the overall trend. While unemployment for people from White background has remained well below 6% and against men, job losses for other minorities have fluctuated beyond 6% each quarter and with differential gender impacts.
 
-Men from mixed/multiple backgrounds have seen a sharp rise in their unemployment up to 15% in June-August. Female unemployment has remained constant below 6% for most quarters, but it has reached 11% in the last two quarters getting closer to male rates. 
+Men from mixed/multiple backgrounds have seen a sharp rise in their unemployment up to 15% in June-August. Female unemployment has remained constant below 6% for most quarters, but it has reached 11% in the last two quarters getting closer to male rates.
 
 A similar but less marked gender trend has been felt by people from black backgrounds. Unemployment increased to over 10% from June-August for men and women with fluctuation between 10% to 14% for the rest of the year. While the last quarter showed a drastic fall for men, women's unemployment remained constant at 12%.
 
-For most groups COVID-19 has worsen pre-pandemic gender gaps. For example, women from Indian, non-Chinese Asian, and other ethnic background suffered from lower employment since before the pandemic hit. However, some ethnic minorities have showed a particularly unstable and contrasting gender trend. This is the case of the Pakistani, Bangladeshi, and Chinese. 
+For most groups COVID-19 has worsen pre-pandemic gender gaps. For example, women from Indian, non-Chinese Asian, and other ethnic background suffered from lower employment since before the pandemic hit. However, some ethnic minorities have showed a particularly unstable and contrasting gender trend. This is the case of the Pakistani, Bangladeshi, and Chinese.
 
-- Pakistani women saw a short fall in unemployment during May-July to pre-pandemic levels. However, women's job losses increased sharply to a peak of 18% in September-November, while men's remained below 9%. Only in December-February women's unemployment fell to men's levels. 
-- Job loss showed a contrasting trend form Bangladeshi men and women. While women experienced a continuous fall in unemployment from the start of the pandemic until June-August, men saw an increase until the same quarter. The following three periods the trend shows and increase for women and a decrease for men. This changes in the last two quarters. 
-- Unemployment for Chinese people has been unstable particularly for men from the start of the pandemic to the period between August-October when stabilise below 6%. Women's unemployment, on the other hand, has doubled in the same period.
+-   Pakistani women saw a short fall in unemployment during May-July to pre-pandemic levels. However, women's job losses increased sharply to a peak of 18% in September-November, while men's remained below 9%. Only in December-February women's unemployment fell to men's levels.
+-   Job loss showed a contrasting trend form Bangladeshi men and women. While women experienced a continuous fall in unemployment from the start of the pandemic until June-August, men saw an increase until the same quarter. The following three periods the trend shows and increase for women and a decrease for men. This changes in the last two quarters.
+-   Unemployment for Chinese people has been unstable particularly for men from the start of the pandemic to the period between August-October when stabilise below 6%. Women's unemployment, on the other hand, has doubled in the same period.
 
 For most ethnic groups, but the Bangladeshi, the COVID-19 pandemic has had a negative impact on employment. Employment seems to be recovering in the last couple of quarters particularly for women. However, this is not the case for mixed/multiple and other ethnic groups who continue experiencing a rise in job losses.
-
 
 ```{r ethnicity, echo=FALSE, fig.width= 9, fig.height=8}
 
@@ -308,17 +294,13 @@ unem_eth %>%
 
 ```
 
-
-It is important to notice that the LFS responses are weighted to official population projections that pre-date the COVID-19 pandemic. This particularly affects estimates for ethnicity estimates. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group. 
-
-
+It is important to notice that the LFS responses are weighted to official population projections that pre-date the COVID-19 pandemic. This particularly affects estimates for ethnicity estimates. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.
 
 ### Highest job loss in routine and semi routine occupations
 
 This trend is particularly explained by the job losses in routine and semi routine occupations. Typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers.
 
-
-```{r occupation, echo=FALSE, fig.width= 8, fig.height=6}
+```{r occupation, echo=FALSE, fig.width= 8, fig.height=6, eval=FALSE}
 
 # Unemployment per occupation and sex
 
@@ -370,15 +352,10 @@ unem_class %>%
 
 ```
 
-
 ### Maybe some predictive modelling here
 
 to be continue 1..
 
-
 # Conclusions
 
 to be continue 2..
-
-
-
