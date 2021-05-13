@@ -344,12 +344,13 @@ unem_class %>%
               axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
               axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
               axis.text = element_text(size = 9),
-              legend.position = "right",
+              legend.position = "top",
+              legend.key.width = unit(0.5,"cm"),
+              legend.margin = margin(1, 0, 1, 0, "cm"),
               legend.title = element_blank(),
               legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 11)) +
-        guides(color = guide_legend(override.aes = list(size = 3)))
-
+              strip.text = element_text(face = "bold", hjust = 0, size = 11)) + 
+              guides(fill=guide_legend(nrow=2,byrow=TRUE))
 ```
 
 ### Maybe some predictive modelling here
