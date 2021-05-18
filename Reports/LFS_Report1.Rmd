@@ -300,7 +300,8 @@ It is important to notice that the LFS responses are weighted to official popula
 
 This trend is particularly explained by the job losses in routine and semi routine occupations. Typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers.
 
-```{r occupation, echo=FALSE, fig.width= 8, fig.height=6, eval=FALSE}
+
+```{r occupation, echo=FALSE, fig.width= 8, fig.height=6}
 
 # Unemployment per occupation and sex
 
