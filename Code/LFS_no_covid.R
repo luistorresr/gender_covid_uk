@@ -888,3 +888,63 @@ em_class %>%
         guides(color = guide_legend(override.aes = list(size = 5)))         
         
 
+###  Predictive analytics 
+
+tree_data <- LFS_clean %>%
+        select(QUARTER, AGE, SEX, AGEEUL_2, IOUTCOME, ETHUKEUL, ILODEFR) %>%
+        mutate_at(c("AGEEUL_2", "IOUTCOME", "ETHUKEUL", "ILODEFR", "SEX", "NSECMJ10_2"), ~as.factor(.)) %>% 
+        filter(QUARTER > 3 & 
+                       AGE >= 18 & AGE <= 64 & 
+                       ILODEFR %in% c("1","2") & # Employed/unemployed
+                       IOUTCOME %in% c("1","2")) %>% # personal/proxy response
+        na.omit() %>% 
+        droplevels()
+
+
+# Partitioning the data intro training and test
+set.seed(300)
+index <- createDataPartition(y = tree_data$ILODEFR, times = 1, p = 0.3, list = FALSE)
+train <- tree_data[-index,]
+test <- tree_data[index,]
+rm(index, LFS_clean)# free up memory
+
+rf <- randomForest(ILODEFR ~ AGEEUL_2 +  SEX + ETHUKEUL + QUARTER, 
+                   data = train, ntree = 200, importance = TRUE, #change number of trees and mtry to optimize OOB
+                   mtry = 2)
+rf
+varImpPlot(rf)
+importance(rf)
+
+pred <- predict(rf, newdata = test[,-8])
+# confusion matrix
+table(test$ILODEFR,pred)
+
+# random forest with oversampling
+
+set.seed(42)
+ctrl <- trainControl(method = "repeatedcv", 
+                     number = 10, 
+                     repeats = 10,
+                     verboseIter = FALSE,
+                     sampling = "up")
+
+rf_up <- caret::train(ILODEFR ~ AGE +  SEX + ETHUKEUL + QUARTER, 
+                      data = train,
+                      method = "rf",
+                      ntree = 100,
+                      trControl = ctrl)
+
+ctrl <- trainControl(method = "repeatedcv", 
+                     number = 10, 
+                     repeats = 10,
+                     verboseIter = FALSE,
+                     sampling = "down")
+
+rf_down <- caret::train(ILODEFR ~ AGE +  SEX + ETHUKEUL + QUARTER, 
+                        data = train,
+                        method = "rf",
+                        ntree = 100,
+                        trControl = ctrl)
+
+
+
