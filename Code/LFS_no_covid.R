@@ -24,6 +24,8 @@ if(!require(flextable)) install.packages("flextable", repos = "http://cran.us.r-
 if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-project.org")
 if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
 if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
+if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
+if(!require(rpart)) install.packages("caret", repos = "http://cran.us.r-project.org")
 
 library(ggalt) # contingency table
 library(tidyverse) # several tools for data manipulation
@@ -41,6 +43,12 @@ library(plotly) # interactive plots
 library(flextable) # formatting tables 
 library(scales) # add scale symbols and colour to axis
 library(janitor) # add totals to tables
+library(caret) # machine learning algorithms 
+library(rpart) # decision tree 
+library(mltools) # one hot encoding 
+library(party)
+library(tree)
+library(randomForest)
 
 #### Output configurations
 options(digits = 3) # decimal points to 3
@@ -98,6 +106,97 @@ q_LFS21_NJ <- as.data.frame(label(LFS21_NJ))
 q_LFS21_DF <- as.data.frame(label(LFS21_DF))
 
 
+## creating weeks
+
+LFS20_JM <- LFS20_JM %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 1, `2`= 2, `3`=3, `4`=4, 
+                               `5`=5, `6`=6, `7`= 7, `8`= 8, `9`= 9, 
+                               `10`= 10, `11`= 11, `12`= 12, `13`= 13)) # calendar quarter 1
+
+LFS20_FA <- LFS20_FA %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`=5, `2`=6, `3`= 7, `4`= 8, `5`= 9,
+                               `6`= 10, `7`= 11, `8`= 12, `9`= 13, 
+                               `10`=14, `11`=15, `12`= 16, `13`= 17)) # non calendar quarter 
+
+LFS20_MM <- LFS20_MM %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 10, `2`= 11, `3`= 12, `4`= 13, 
+                               `5`=14, `6`=15, `7`= 16, `8`= 17,
+                                `9`= 18, `10`= 19, `11`= 20, `12`= 21, `13`= 22)) # non calendar quarter 
+
+LFS20_AJ <- LFS20_AJ %>% 
+        mutate(YWEEKS = recode(WEEK, 
+                               `1`= 14, `2`= 15, `3`=16, `4`=17, 
+                               `5`=18, `6`=19, `7`=20, `8`= 21, `9`= 22, 
+                               `10`= 23, `11`= 24, `12`= 25, `13`= 26)) # calendar quarter 2
+ 
+LFS20_MJ <- LFS20_MJ %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`=18, `2`=19, `3`=20, `4`= 21, `5`= 22, 
+                               `6`= 23, `7`= 24, `8`= 25, `9`= 26,
+                               `10`= 27, `11`= 28, `12`= 29, `13`= 30)) # non calendar quarter  
+
+LFS20_JA <- LFS20_JA %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 23, `2`= 24, `3`= 25, `4`= 26,
+                               `5`= 27, `6`= 28, `7`= 29, `8`= 30,
+                               `9`= 31, `10`= 32, `11`= 33, `12`= 34, `13`= 35)) # non calendar quarter 
+
+LFS20_JS <- LFS20_JS %>% 
+        mutate(YWEEKS = recode(WEEK, 
+                               `1`= 27, `2`= 28, `3`= 29, `4`= 30, 
+                               `5`= 31, `6`= 32, `7`= 33, `8` = 34, `9`= 35, 
+                               `10`= 36, `11`= 37, `12`= 38, `13`= 39))  # calendar quarter 3
+
+LFS20_AO <- LFS20_AO %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 31, `2`= 32, `3`= 33, `4` = 34, `5`= 35, 
+                               `6`= 36, `7`= 37, `8`= 38, `9`= 39,
+                               `10`= 40, `11`= 41, `12`= 42, `13`= 43)) # non calendar quarter 
+
+LFS20_SN <- LFS20_SN %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 36, `2`= 37, `3`= 38, `4`= 39,
+                               `5`= 40, `6`= 41, `7`= 42, `8`= 43,
+                               `9` = 44, `10`= 45, `11`= 46, `12`= 47, `13`= 48)) # non calendar quarter 
+
+LFS20_OD <- LFS20_OD %>% 
+        mutate(YWEEKS = recode(WEEK, 
+                               `1`= 40, `2`= 41, `3`= 42, `4`= 43, 
+                               `5`= 44, `6`= 45, `7`= 46, `8` = 47, `9`= 48,
+                               `10`= 49, `11`= 50, `12`= 51, `13`= 52)) # calendar quarter 4
+
+LFS21_NJ <- LFS21_NJ %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 44, `2`= 45, `3`= 46, `4` = 47, `5`= 48,
+                               `6`= 49, `7`= 50, `8`= 51, `9`= 52,
+                               `10`= 53, `11`= 54, `12`= 55, `13`= 56)) # non calendar quarter  
+
+LFS21_DF  <- LFS21_DF %>% 
+        mutate(YWEEKS = recode(WEEK,  
+                               `1`= 49, `2`= 50, `3`= 51, `4`= 52,
+                               `5`= 53, `6`= 54, `7`= 55, `8`= 56,
+                               `9`= 57, `10`= 58, `11`= 59, `12`= 60, `13`= 61)) # non calendar quarter 
+
+
+#### Creating the variable "quarter", and empty "PIWT18" as well as YWEEKS for all covid datasets
+
+LFS20_JM <- LFS20_JM %>% mutate(QUARTER = 1)
+LFS20_FA <- LFS20_FA %>% mutate(QUARTER = 2, PIWT18 = NA)
+LFS20_MM <- LFS20_MM %>% mutate(QUARTER = 3, PIWT18 = NA)
+LFS20_AJ <- LFS20_AJ %>% mutate(QUARTER = 4)
+LFS20_MJ <- LFS20_MJ %>% mutate(QUARTER = 5, PIWT18 = NA)
+LFS20_JA <- LFS20_JA %>% mutate(QUARTER = 6, PIWT18 = NA)
+LFS20_JS <- LFS20_JS %>% mutate(QUARTER = 7)
+LFS20_AO <- LFS20_AO %>% mutate(QUARTER = 8, PIWT18 = NA)
+LFS20_SN <- LFS20_SN %>% mutate(QUARTER = 9, PIWT18 = NA)
+LFS20_OD <- LFS20_OD %>% mutate(QUARTER = 10)
+LFS21_NJ <- LFS21_NJ %>% mutate(QUARTER = 11, PIWT18 = NA)
+LFS21_DF <- LFS21_DF %>% mutate(QUARTER = 12, PIWT18 = NA)
+
+
 #### Selecting variables
 
 # common to all datasets
@@ -108,6 +207,7 @@ variables <- c(
         
         "QUARTER",
         "WEEK",
+        "YWEEKS",
         "IOUTCOME", # interview outcome
         
         # BASIC FILTERS
@@ -205,21 +305,6 @@ variables <- c(
         "PWT18", "PIWT18" # data for PIWT18 is not available for the new covid series
         ) 
 
-#### Creating the variable "quarter" in each dataset and an empty "PIWT18" for all covid datasets
-
-LFS20_JM <- LFS20_JM %>% mutate(QUARTER = 1)
-LFS20_FA <- LFS20_FA %>% mutate(QUARTER = 2, PIWT18 = NA)
-LFS20_MM <- LFS20_MM %>% mutate(QUARTER = 3, PIWT18 = NA)
-LFS20_AJ <- LFS20_AJ %>% mutate(QUARTER = 4)
-LFS20_MJ <- LFS20_MJ %>% mutate(QUARTER = 5, PIWT18 = NA)
-LFS20_JA <- LFS20_JA %>% mutate(QUARTER = 6, PIWT18 = NA)
-LFS20_JS <- LFS20_JS %>% mutate(QUARTER = 7)
-LFS20_AO <- LFS20_AO %>% mutate(QUARTER = 8, PIWT18 = NA)
-LFS20_SN <- LFS20_SN %>% mutate(QUARTER = 9, PIWT18 = NA)
-LFS20_OD <- LFS20_OD %>% mutate(QUARTER = 10)
-LFS21_NJ <- LFS21_NJ %>% mutate(QUARTER = 11, PIWT18 = NA)
-LFS21_DF <- LFS21_DF %>% mutate(QUARTER = 12, PIWT18 = NA)
-
 #### selecting the variables in all dataset and creating temporary datasets
 
 t1 <- LFS20_JM %>% select(variables) 
@@ -240,7 +325,7 @@ t12 <- LFS21_DF %>% select(variables)
 LFS_all <- rbind(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12) # working database
 LFS_all <- as_tibble(LFS_all) # creating a tibble for data manipulation
 
-save(LFS_all, file = "./Data_clean/LFS_all.rda")
+save(LFS_all, file = "./Data_clean/LFS_all.rda") 
 
 #### Create a working dataset to clean
 
@@ -280,7 +365,9 @@ LFS_clean <- LFS_clean %>% mutate(COUNTRY2 = recode_factor(factor(COUNTRY),
                                                    `2` = "Wales",
                                                    `3` = "Scotland", 
                                                    `4` = "Scotland",
-                                                   `5` = "Northern Ireland"))                               
+                                                   `5` = "Northern Ireland")) %>% 
+                                                as_numeric(., keep.labels = TRUE)
+
 ## recoding age bands
 
 LFS_clean <- LFS_clean %>% 
@@ -295,26 +382,32 @@ LFS_clean <- LFS_clean %>%
                                         `19`="Aged 50-64", `20`= "Aged 50-64", `21`= "Aged 50-64",
                                         `22`="Above 64", `23` = "Above 64", `24`= "Above 64", 
                                         `25`= "Above 64", `26` = "Above 64", `27`= "Above 64", 
-                                        `28`= "Above 64")) 
+                                        `28`= "Above 64")) %>% 
+        as_numeric(., keep.labels = TRUE)
+
+
 
 ## recoding occupations
 
 LFS_clean <- LFS_clean %>% 
         mutate(NSECMJ10_2 = recode_factor(factor(NSECMJ10), 
-                          `1` = "Higher managers",
-                          `2` = "Lower managers/professionals",
-                          `3` = "Administrative/auxiliary", 
-                          `4` = "Small employers/self-employed",
-                          `5` = "Lower supervisory/technical",
-                          `6` = "Routine/semi-routine",
-                          `7` = "Routine/semi-routine", 
-                          `8` = "Never worked, unemployed, and nec"))  
+                          `1` = "Management & professional",
+                          `2` = "Management & professional",
+                          `3` = "Intermediate", 
+                          `4` = "Small employers & own account",
+                          `5` = "Lower supervisory & technical",
+                          `6` = "Routine & semi-routine",
+                          `7` = "Routine & semi-routine", 
+                          `8` = "Never worked, unemployed, and nec")) %>% 
+       as_numeric(., keep.labels = TRUE)
+
 
 ## adding labels to QUARTER
 LFS_clean$QUARTER <- set_labels(LFS_clean$QUARTER, labels = c("Jan-Mar20" = 1, "Feb-Apr20" = 2, "Mar-May20" = 3,
                                                               "Apr-Jun20" = 4, "May-Jul20" = 5, "Jun-Aug20" = 6,
                                                               "Jul-Sep20" = 7, "Aug-Oct20" = 8, "Sep-Nov20" = 9,
-                                                              "Oct-Dec20" = 10, "Nov-Jan21" = 11,"Dec-Feb21" = 12 ))
+                                                             "Oct-Dec20" = 10, "Nov-Jan21" = 11,"Dec-Feb21" = 12 ))
+
 ### saving the clean dataset
 
 save(LFS_clean, file = "./Data_clean/LFS_clean.rda")
@@ -341,7 +434,7 @@ l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels
 
 #### NOTE: We consider only the personal and proxy responses (IOUTCOME 1 and 2) of people between 18 and 64 years old 
 
-### Calculate sample size 
+### Calculate sample/population size 
 
 N_total <- LFS_clean %>%
         filter(AGE >= 18 & AGE <= 64) %>%
@@ -371,35 +464,34 @@ N_total %>% flextable() %>% theme_vanilla() %>%
 
 ## Unemployment - tables and graphs 
 
-
 # Unemployment per sex
 
 unem_sex <- LFS_clean %>% 
-            filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
-            group_by(QUARTER, as_label(ILODEFR), SEX) %>%
-            summarise(Active = sum(PWT18))  %>% 
-            pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
-            adorn_totals("col") %>%
-            mutate(Rate = `Not employed` / Total) # unemployment rates per gender 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(QUARTER, as_label(ILODEFR), SEX) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total) # unemployment rates per gender 
 
 unem_sex %>% 
         ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
         geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +  
+        geom_point(shape = 19) + 
         geom_vline(xintercept = 3, linetype="dotted") +
         
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0,0.06), labels = label_percent()) +
+        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0, 0.06), labels = scales::percent_format(accuracy = 1L)) +
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
                                   "Nov20-Jan21", "Dec20-Feb21")) +
         # annotation
-        labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women",
-             subtitle  = "UK Propulation between 18-64 years old",
+        labs(x = "", 
+             y = "",
+             title ="Figure 1: Men’s unemployment rose most steeply",
+             subtitle  = "Unemployment rate of UK population  2020-2021",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "text", x = 12, y = 0.053, label = "Men", color= "#DF9216") +
         annotate(geom = "text", x = 12, y = 0.040, label = "Women", color= "#791F83") +
@@ -407,14 +499,124 @@ unem_sex %>%
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
+                                        margin = ggplot2::margin(10, 0, 10, 0),
                                         size = 13),
-              axis.text.x=element_text(angle = 90),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 10),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 11),
+              legend.position = "none",
+              legend.title = element_blank())  
+
+
+# Unemployment per sex and week for calendar waves
+# When weekly data from the four calendar quarters in 2020 are considered,
+# sample levels estimates show high variability. However, the trend shows 
+# that unemployment increased inmediatelly after the first lockdown and 
+# recover by the time when the second lockdown was in place.
+
+
+unem_sex_week <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(YWEEKS, as_label(ILODEFR), SEX) %>%
+        summarise(Active = n())  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total) # unemployment rates per gender 
+
+unem_sex_week %>% 
+        ggplot(aes(x = YWEEKS, y = Rate, col = as_label(SEX))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        
+        #scales
+        scale_colour_manual(values = c("#DF9216", "#791F83")) +
+        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0,0.06), labels = label_percent()) +
+        scale_x_continuous(breaks = seq(1,61, 1), limits = c(1, 62)) + 
+        
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Unemployment Rate for Men and Women",
+             subtitle  = "Weekly unemployment trend in 2020",
+             caption = c("Note: Sample level estimates for four calendar quarters
+                         Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "text", x = 52, y = 0.051, label = "Men", color= "#DF9216") +
+        annotate(geom = "text", x = 52, y = 0.032, label = "Women", color= "#791F83") +
+        annotate(geom = "rect", xmin = 13,  xmax = 23, ymin = 0,  ymax = 0.06, alpha = 0.2) +
+        annotate(geom = "rect", xmin = 44, xmax = 48, ymin = 0, ymax = 0.06, alpha = 0.2) +
+        annotate(geom = "rect", xmin = 54, xmax = 61, ymin = 0, ymax = 0.06, alpha = 0.2) +        
+        annotate(geom = "text", x = 18, y = 0.058, label = "Lockdown 1") +
+        annotate(geom = "text", x = 46, y = 0.058, label = "Lockdown 2") +
+        annotate(geom = "text", x = 58, y = 0.058, label = "Lockdown 3") +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle = 0),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 8),
               legend.position = "none",
               legend.title = element_blank()) 
+
+
+## Unemployment per age and sex
+
+unem_age <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(QUARTER, as_label(ILODEFR), SEX, AGEEUL_2) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total)
+
+age_select <- unem_age %>% filter(AGEEUL_2 == 2)
+
+unem_age %>%       
+        # select data
+        select(QUARTER, AGEEUL_2, SEX, Rate) %>%  
+        filter(!is.na(Rate))  %>% 
+        arrange(desc(Rate)) %>%
+
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Rate, col= as_label(AGEEUL_2))) +
+        geom_point(aes(size=Rate)) +  
+        geom_encircle(data = age_select, aes(x = QUARTER, y = Rate)) +
+        geom_vline(xintercept = 3, linetype="dotted") +
+        facet_wrap(.~as_label(SEX)) +
+        
+        #scales
+        scale_y_continuous(breaks = seq(0,0.20, 0.02), limits = c(0,0.20), labels = scales::percent_format(accuracy = 1L)) +
+        scale_x_continuous(breaks=c(1:12),
+                           labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) + 
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Figure 2: Highest job loss for young people",
+             subtitle  = "Unemployment rate of UK population, 2020-2021",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 11),
+              legend.position = "top",
+              legend.key.width = unit(0.5,"cm"),
+              legend.margin = ggplot2::margin(1, 0, 1, 0, "cm"),
+              legend.title = element_blank(),
+              legend.text = element_text(size=10),
+              strip.text = element_text(face = "bold", hjust = 0, size = 11)) +
+        guides(size = FALSE, color = guide_legend(override.aes = list(size = 5))) 
 
 
 # Unemployment per ethnicity and sex
@@ -427,16 +629,12 @@ unem_eth <- LFS_clean %>%
         adorn_totals("col") %>%
         mutate(Rate = `Not employed` / Total)
 
-unem_eth_summary <- unem_eth   %>% 
-        select(QUARTER, SEX, ETHUKEUL, Rate) %>% 
-        pivot_wider(names_from = SEX, values_from = Rate)
-
 unem_eth %>% 
         # select data
         select(QUARTER, ETHUKEUL, SEX, Rate) %>% 
         filter(!is.na(Rate & ETHUKEUL)) %>% 
-       
-         # graphic type and variables 
+        
+        # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
         geom_line(size = 1, show.legend = FALSE) +
         geom_point(shape = 19) +  
@@ -445,7 +643,222 @@ unem_eth %>%
         
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.2, 0.03), limits = c(0,0.2), labels = label_percent()) + 
+        scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0,0.18), labels = scales::percent_format(accuracy = 1L)) + 
+        scale_x_continuous(breaks=c(1:12),
+                         labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                  "Nov20-Jan21", "Dec20-Feb21")) +
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Figure 3: The steepest increases in unemployment were among minority ethnic groups",
+             subtitle  = "Unemployment rate of UK population, 2020-2021",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 3))) 
+
+
+## redundancies 
+
+### who has been made redundant in the last three months? 
+
+## overall estimates for everyone made redundant in the last three months 
+
+# covers the number of people who were not in employment during the reference week 
+# and who reported that they had been made redundant in the month of the reference 
+# week or in the two calendar months prior to this; plus the number of people who were 
+# in employment during the reference week who started their job in the same calendar month as,
+# or the two calendar months prior to, the reference week, and who reported that they had 
+# been made redundant in the past three months.
+
+sex_est <- LFS20_all_clean %>%
+        filter(ILODEFR2 == 1 & 2) %>%
+        group_by(QUARTER, SEX) %>%
+        summarise(SEXEST = sum(PWT18))
+
+red_sex <- LFS20_all_clean %>%
+        filter(REDUND == 1) %>%
+        group_by(QUARTER, SEX) %>%
+        summarise(SEXRED = sum(PWT18)) 
+
+red_sex_est <- left_join(red_sex, sex_est, by = c("QUARTER", "SEX"))
+
+red_sex_est <- red_sex_est %>%
+        mutate(PERSEX = SEXRED / SEXEST) # population ratio
+
+
+red_sex_est %>% ggplot(aes(x = QUARTER, y = SEXRED, col = as_label(SEX))) +
+        geom_line() +
+        geom_point(shape = 21) +
+        geom_hline(yintercept = 0, size = 1, colour="#333333") +
+        scale_colour_manual(values = c("#FAAB18", "#1380A1")) +
+        scale_y_continuous(breaks = breaks_extended(10)) +
+        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10"),
+                         labels=c("Jan-Mar", "Feb-Apr", "Mar-May", "Apr-Jun", "May-Jul", 
+                                  "Jun-Aug", "Jul-Sep","Aug-Oct", "Sep-Nov", "Oct-Dec")) +
+        theme(axis.text.x = element_text(angle = 90), legend.position = "top") +
+        xlab("Quarter") + 
+        ylab("Estimated Total (weighted)") +
+        labs(subtitle = "Made redundant in the last three months",
+             col = "") # population estimates 
+
+red_sex_est %>% ggplot(aes(x = QUARTER, y = PERSEX, col = as_label(SEX))) +
+        geom_line() +
+        geom_point(shape = 21) +
+        geom_hline(yintercept = 0, size = 1, colour="#333333") +
+        scale_colour_manual(values = c("#FAAB18", "#1380A1")) +
+        scale_y_continuous(labels = label_percent(accuracy = 0.1), breaks = breaks_extended(11)) +
+        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10"),
+                         labels=c("Jan-Mar", "Feb-Apr", "Mar-May", "Apr-Jun", "May-Jul", 
+                                  "Jun-Aug", "Jul-Sep","Aug-Oct", "Sep-Nov", "Oct-Dec")) +
+        theme(axis.text.x = element_text(angle = 90), legend.position = "top") +
+        xlab("Quarter") + 
+        ylab("Redundancy vs population ratio") +
+        labs(col = "") # redundancy vs population ratio
+
+
+## Reason for redundancy 
+
+redundancy_reason <- LFS20_all_clean %>%
+        filter(REDUND == 1 & REDCLOS != 3) %>%
+        group_by(QUARTER, SEX, REDCLOS) %>%
+        summarise(REDREAS = sum(PWT18)) 
+
+redundancy_reason %>% 
+        ggplot(aes(x = QUARTER, y = REDREAS, col = as_label(SEX))) +
+        geom_line() +
+        geom_point(shape = 21) +
+        geom_hline(yintercept = 0, size = 1, colour="#333333") +
+        scale_colour_manual(values = c("#FAAB18", "#1380A1")) +
+        scale_y_continuous(breaks = breaks_extended(10)) +
+        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9","10"),
+                         labels=c("Jan-Mar", "Feb-Apr", "Mar-May", "Apr-Jun", "May-Jul", 
+                                  "Jun-Aug", "Jul-Sep","Aug-Oct", "Sep-Nov", "Oct-Dec")) +
+        theme(axis.text.x = element_text(angle = 90), legend.position = "top") +
+        xlab("Quarter") + 
+        ylab("Estimated Total (weighted)") +
+        labs(subtitle = "Reason made redundant in last three months",
+             col = "") + facet_wrap(~as_label(REDCLOS))
+
+## Redundancy by industry
+
+est_ind <- LFS20_all_clean %>%
+        filter(ILODEFR2 == 1 & 2) %>%
+        group_by(QUARTER, SEX, INDE07R) %>%
+        summarise(ESTIND = sum(PWT18))
+
+red_ind <- LFS20_all_clean %>%
+        filter(REDUND == 1) %>%
+        group_by(QUARTER, SEX, INDE07R) %>%
+        summarise(REDIND = sum(PWT18))
+
+red_ind_est <- left_join(red_ind, est_ind, by = c("QUARTER", "SEX", "INDE07R"))
+
+
+red_ind_est <- red_ind_est %>%
+        mutate(PERIND = REDIND / ESTIND) # population ratio
+
+
+red_ind_est %>% drop_na(INDE07R) %>% 
+        ggplot(aes(x = QUARTER, y = REDIND, col = as_label(SEX))) +
+        geom_line() +
+        geom_point(shape = 21) +
+        geom_hline(yintercept = 0, size = 1, colour="#333333") +
+        scale_colour_manual(values = c("#FAAB18", "#1380A1")) +
+        scale_y_continuous(breaks = breaks_extended(6)) +
+        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9","10"),
+                         labels=c("Jan-Mar", "Feb-Apr", "Mar-May", "Apr-Jun", "May-Jul", 
+                                  "Jun-Aug", "Jul-Sep","Aug-Oct", "Sep-Nov", "Oct-Dec")) +
+        theme(axis.text.x = element_text(angle = 90), legend.position = "top") +
+        xlab("Quarter") + 
+        ylab("Estimated Total (weighted)") +
+        labs(subtitle = "Made redundant by industry",
+             col = "") + facet_wrap(.~as_label(INDE07R))
+
+
+# redundancy by ethnicity 
+
+est_eth <- LFS20_all_clean %>%
+        filter(ILODEFR2 == 1 & 2) %>%
+        group_by(QUARTER, SEX, ETHUKEUL) %>%
+        summarise(ESTETH = sum(PWT18))
+
+red_eth <- LFS20_all_clean %>%
+        filter(REDUND == 1) %>%
+        group_by(QUARTER, SEX, ETHUKEUL) %>%
+        summarise(REDETH = sum(PWT18))
+
+red_eth_est <- left_join(red_eth, est_eth, by = c("QUARTER", "SEX", "ETHUKEUL"))
+
+red_eth_est <- red_eth_est %>%
+        mutate(PERETC = REDETH / ESTETH) # population ratio
+
+red_eth_est %>%  filter(ETHUKEUL %in% c(1, 2, 3, 8)) %>%
+        ggplot(aes(x = QUARTER, y = PERETC, col = as_label(SEX))) +
+        geom_line() +
+        geom_point() +
+        geom_hline(yintercept = 0, size = 1, colour="#333333") +
+        scale_y_continuous(labels = label_percent(accuracy = 0.1), breaks = breaks_extended(11)) +
+        scale_colour_manual(values = c("#FAAB18", "#1380A1")) +
+        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9","10"),
+                         labels=c("Jan-Mar", "Feb-Apr", "Mar-May", "Apr-Jun", "May-Jul", 
+                                  "Jun-Aug", "Jul-Sep","Aug-Oct", "Sep-Nov", "Oct-Dec")) +
+        theme(axis.text.x = element_text(angle = 90), legend.position = "top") +
+        xlab("Quarter") + 
+        ylab("Redundancy vs population ratio") +
+        labs(col = "") + facet_wrap(.~as_label(ETHUKEUL))
+
+red_eth_est %>% filter(ETHUKEUL == 1) %>% 
+        group_by(QUARTER, SEX) %>%
+        summarise(MEAN = mean(PERETC)*100)
+
+
+
+
+
+## Employment per occupation and sex
+
+LFS_clean %>% 
+        filter(AGE >= 16 & AGE <= 64) %>%
+        group_by(QUARTER) %>%
+        summarise(pop = sum(PWT18), empl = sum(PWT18[ILODEFR ==1])) %>%
+        group_by(QUARTER) %>%
+        mutate(Rate = empl / pop)
+
+em_class <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64) %>%
+        group_by(QUARTER, SEX, NSECMJ10_2) %>%
+        summarise(pop = sum(PWT18), empl = sum(PWT18[ILODEFR ==1])) %>%
+        mutate(Rate = empl / pop) %>%
+        filter(NSECMJ10_2 != 6)
+
+em_class %>% 
+        # select data
+        select(QUARTER, NSECMJ10_2, SEX, Rate) %>%  
+        filter(NSECMJ10_2 <=5)  %>% 
+        
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Rate, col = as_label(NSECMJ10_2))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        geom_vline(xintercept = 3, linetype="dotted") +
+        facet_wrap(.~as_label(SEX)) +
+        
+        #scales
+        scale_y_continuous(breaks = seq(0.7,1, 0.02), limits = c(0.7,1), labels = scales::percent_format(accuracy = 1L)) + 
         scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
                          labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
                                   "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
@@ -453,232 +866,25 @@ unem_eth %>%
         # annotation
         labs(x = "", 
              y = "",
-             title ="Highest job loss in people from non-white backgrounds",
+             title ="Figure 4: Employment has not recovered equally for everyone",
              subtitle  = "Unemployment rate of UK population, 2020-2021",
              caption = c("Source: UK Labour Force Survey (Person)")) +
-
-        # theme
-        theme_economist_white(gray_bg = FALSE) +
-        theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
-                                        size = 13),
-              axis.text.x=element_blank(),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 8),
-              legend.position = "top",
-              legend.title = element_blank(),
-              legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
-        guides(color = guide_legend(override.aes = list(size = 3))) 
-
-
-# Unemployment per occupation and sex
-
-unem_class <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
-        group_by(QUARTER, NSECMJ10_2, SEX, as_label(ILODEFR)) %>%
-        summarise(Active = sum(PWT18))  %>% 
-        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
-        adorn_totals("col") %>%
-        mutate(Rate = `Not employed` / Total) 
-        
-
-unem_class %>% 
-        # select data
-        select(QUARTER, NSECMJ10_2, SEX, Rate) %>%  
-        filter(!is.na(Rate & as.integer(NSECMJ10_2)) & as.integer(NSECMJ10_2) != 7)  %>% 
-        
-        # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
-        geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +  
-        geom_vline(xintercept = 3, linetype="dotted") +
-        facet_wrap(.~as_label(NSECMJ10_2), ncol = 3) +
-        
-        #scales
-        scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0,0.08), labels = label_percent()) + 
-        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
-                         labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
-                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
-                                  "Nov20-Jan21", "Dec20-Feb21")) +
-        # annotation
-        labs(x = "Quarter", 
-             y = "Rate",
-             title ="Unemployment Rate for Men and Women by Occupation",
-             subtitle  = "UK Population between 18-64 years old ",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
         
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
-                                        size = 13),
-              axis.text.x=element_blank(),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 8),
-              legend.position = "top",
-              legend.title = element_blank(),
-              legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
-        guides(color = guide_legend(override.aes = list(size = 3))) 
-
-
-
-# Unemployment per age and sex
-
-unem_age <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
-        group_by(QUARTER, SEX, as_label(ILODEFR), AGEEUL_2) %>%
-        summarise(Active = sum(PWT18))  %>% 
-        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
-        adorn_totals("col") %>%
-        mutate(Rate = `Not employed` / Total)
-
-unem_age_summary <- unem_age  %>% 
-        select(QUARTER, SEX, AGEEUL_2, Rate) %>% 
-        pivot_wider(names_from = SEX, values_from = Rate)
-
-unem_age %>%       
-        # select data
-        select(QUARTER, AGEEUL_2, SEX, Rate) %>%  
-        filter(!is.na(Rate))  %>% 
-        arrange(desc(Rate)) %>%
-        
-        # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = Rate, col= as_label(SEX))) +
-        geom_point(aes(size=Rate, alpha=0.5)) +  
-        geom_encircle(data = age_select, aes(x = QUARTER, y = Rate)) +
-        geom_vline(xintercept = 3, linetype="dotted") +
-        annotate(geom = "text", x = 11, y = 0.19, label = "Men aged 18-24", color= "#DF9216") +
-        annotate(geom = "text", x = 11, y = 0.080, label = "Women aged 18-24", color= "#791F83") +
-        
-        #scales
-        scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.21, 0.03), limits = c(0,0.21), labels = label_percent()) +
-        scale_x_continuous(breaks=c(1:12),
-                         labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
-                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
-                                  "Nov20-Jan21", "Dec20-Feb21")) + 
-        # annotation
-        labs(x = "Quarter", 
-        y = "Rate",
-         title ="Unemployment Rate for Men and Women by Age Group",
-        subtitle  = "UK Population between 18-64 years old ",
-        caption = c("Source: UK Labour Force Survey (Person)")) +
-        
-        # theme
-        theme_economist_white(gray_bg = FALSE) +
-        theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
+                                        margin = ggplot2::margin(10, 0, 10, 0),
                                         size = 13),
               axis.text.x=element_text(angle=90),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 8),
-              legend.position = "none",
-              legend.title = element_blank(),
-              legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
-        guides(color = guide_legend(override.aes = list(size = 3))) 
-
-
-
-
-
-### part-time - REVIEW
-
-pt <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2) %>% 
-        filter(FTPTWK == 2) %>% # select part-timers
-        filter(!is.na(YPTJOB)) %>% # select part-timers
-        group_by(QUARTER, as_label(ILODEFR), SEX, YPTJOB) %>%
-        summarise(Active = sum(PWT18))  %>% 
-        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
-        adorn_totals("col") %>% 
-        mutate(ptreason = `In employment`/ Total) %>% 
-        as_tibble()
-
-pt %>% 
-        # graphic type and variables 
-        ggplot(aes(x = QUARTER, y = ptreason, col = as_label(SEX))) +
-        geom_line(size = 1, show.legend = FALSE) +
-        # geom_point(shape = 19) +  
-        geom_vline(xintercept = 3, linetype="dotted") +
-        geom_vline(xintercept = 10, linetype="dotted") +
-        facet_wrap(.~as_label(YPTJOB), ncol = 2) +
-        
-        #scales
-        scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(labels = label_percent()) + 
-        scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
-                         labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
-                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
-                                  "Nov20-Jan21", "Dec20-Feb21")) +
-        # annotation
-        labs(x = "", 
-             y = "%",
-             caption = "Source: UK Labour Force Survey (Person)") +
-        
-        # theme
-        theme_economist_white(gray_bg = FALSE) +
-        theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
-                                        size = 13),
-              # axis.text.x=element_blank(),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 7),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
               legend.position = "top",
+              legend.key.width = unit(0.5,"cm"),
+              legend.margin = ggplot2::margin(1, 0, 1, 0, "cm"),
               legend.title = element_blank(),
-              legend.text = element_text(size=10),
-              strip.text = element_text(face = "bold", hjust = 0, size = 9)) +
-        guides(color = guide_legend(override.aes = list(size = 3)))
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 5)))         
+        
 
-
-### time and overtime
-
-# "EVEROT", # Whether ever work paid or unpaid overtime (filter use only)
-#         "POTHR", # Usual hours of paid overtime (filter by EVEROT = 1)
-#         "POTHR", # Usual hours of unpaid overtime (filter by EVEROT = 1)
-#         "SUMHRS", # Total hours worked in reference week in main and second jobs
-# 
-LFS_clean %>% 
-        filter(!ILODEFR ==2) %>% 
-        mutate(SEX = as.factor(SEX),
-               SUMHRS = as.numeric(SUMHRS)) %>% 
-        select(QUARTER, SEX, SUMHRS) %>%
-        group_by(QUARTER, SEX) %>% 
-        summarise(mean.hours = mean(SUMHRS, na.rm = TRUE),
-                  sd.hours = sd(SUMHRS, na.rm = TRUE)) %>% 
-        ggplot(aes(x = QUARTER, y = mean.hours,  fill = SEX)) +
-        geom_line(size = 1, show.legend = FALSE) +
-        # geom_point(shape = 19) + 
-        # geom_vline(xintercept = 3, linetype="dotted") +
-        #scales
-        scale_colour_manual(values = c("#DF9216", "#791F83")) +
-        scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0, 0.07), labels = label_percent()) +
-        scale_x_continuous(breaks = seq(1, 12, by = 1),
-                           labels = month.abb[1:12]) +
-        # annotation
-        labs(x = "", 
-             y = "%",
-             title ="Men's employment hit the most by the COVID-19 pandemic",
-             subtitle  = "Unemployment rate of UK population between, 2020-2021",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
-        annotate(geom = "text", x = 12, y = 0.053, label = "Men", color= "#DF9216") +
-        annotate(geom = "text", x = 12, y = 0.040, label = "Women", color= "#791F83") +
-        annotate(geom = "rect", xmin = 3,  xmax = 6, ymin = 0,  ymax = 0.07, alpha = 0.2) +
-        annotate(geom = "rect", xmin = 10, xmax = 11, ymin = 0, ymax = 0.07, alpha = 0.2) +
-        # theme
-        theme_economist_white(gray_bg = FALSE) +
-        theme(plot.title = element_text(face = "bold",
-                                        margin = margin(10, 0, 10, 0),
-                                        size = 13),
-              axis.title.x = element_text(margin = margin(t = 5), vjust = 0, size = 10),
-              axis.title.y = element_text(margin = margin(r = 3), vjust = 2, size = 10), 
-              axis.text = element_text(size = 11),
-              legend.position = "none",
-              legend.title = element_blank()) 
