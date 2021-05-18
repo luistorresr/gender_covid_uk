@@ -318,7 +318,8 @@ Our research reveals the steepest rises in unemployment for workers who were emp
 The workers most protected from growing unemployment during the pandemic were those in management and professional jobs.
 
 
-```{r occupation, echo=FALSE, fig.width= 8, fig.height=6, eval=FALSE}
+
+```{r occupation, echo=FALSE, fig.width= 8, fig.height=6}
 
 # Employment per occupation and sex
 
