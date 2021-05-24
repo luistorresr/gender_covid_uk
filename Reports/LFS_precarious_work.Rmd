@@ -1,0 +1,334 @@
+---
+title: 'Impacts of COVID-19 on precarious jobs in the UK: Exploring gender, ethinicity
+  and class'
+author: "Luis D. Torres, Annegreet Veeken and Tracey Warren, University of Nottingham"
+output: 
+  word_document:
+      reference_docx: "Reports/Report_template1.docx"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+	warning = FALSE,
+  collapse = TRUE)
+```
+
+```{r libraries}
+library(tidyverse) # data wrangling
+library(ggthemes) # alternative themes
+library(ggtext) # fancy text
+library(plotly) # interactive graphs
+```
+
+- Who are in precarious working conditions
+  - gender
+  - ethnicity 
+  - age
+- how has this changed over time
+
+
+```{r data, echo=FALSE}
+load("../Data_clean/LFS_clean.rda")
+
+## Selecting variables
+# Respondent characteristics
+respon <- c("SEX", # 1 male, 2 female
+        "AGE", # number
+        "AGEEUL_2", # age bands (re-coded)
+        "ETHUKEUL", # ethnic group
+        "NSECMJ10_2") # NS-SEC major group (SOC2010 based) (recoded) 
+# `1` = "Management & professional",
+# `2` = "Management & professional",
+# `3` = "Intermediate", 
+# `4` = "Small employers & own account",
+# `5` = "Lower supervisory & technical",
+# `6` = "Routine & semi-routine",
+# `7` = "Routine & semi-routine", 
+# `8` = "Never worked, unemployed, and nec")
+
+# BASIC FILTERS
+filt <- c("ILODEFR", # Basic economic activity (ILO definition) (not include 4 = under 16)
+        "STAT")  # Employment status (respondents currently in work or who have worked in the last eight years)
+
+# MAIN JOB - PRECARIOUS WORK INDICATORS
+## full vs part time
+prec <-  c("FTPTWK", # Whether full or part time in main job (filter for the required economics activity)
+        "YPTJOB", # Reason for part time job (filter by FTPTWK = 2) 
+        ## Permanent/Temporary Employment
+        "JOBTYP", # Whether job permanent (filter by Stat=1 AND EverWk<1)
+        "WHYTMP6", # Reason for taking non-permanent job (filter by JOBTYP = 2) 
+        "RESTMR6") # Reason job is temporary
+
+
+## Preparing data
+lfs <- LFS_clean %>% 
+  # selecting relevant variables
+  dplyr::select(QUARTER, respon, filt, prec, PWT18) %>% 
+  # set variable types
+  mutate_at(c("AGEEUL_2","ETHUKEUL", "ILODEFR", "SEX", "NSECMJ10_2",
+               "STAT","FTPTWK","YPTJOB", "JOBTYP", "WHYTMP6", "RESTMR6" ), ~as.factor(.)) %>%
+  mutate_at(c("QUARTER", "AGE", "PWT18"), ~as.numeric(.)) %>%  
+  # Apply basic filters
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  filter(ILODEFR == "1") # only people in employment
+  # Recode quarter to week? 
+
+## House keeping
+sexlabel <- c("Men", "Women")
+names(sexlabel) <- c(1,2)
+sexcolour <- c("1" = "#DF9216", "2" = "#791F83")
+``` 
+
+```{r part-time}
+# FTPTWK Whether working full or part time (employees and self employed people only)
+ptwrk <- lfs %>% 
+  # filter(!is.na(FTPTWK)) %>% 
+  group_by(QUARTER, FTPTWK, SEX) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER) %>% 
+  # percentafe part-time per quarter
+  mutate(percentage = count/sum(count)*100) %>% 
+  filter(FTPTWK == "2") 
+  
+ptwrk.labels <- tibble(SEX = as.factor(c(1,2)),
+                        labels = as.factor(sexlabel),
+                        xpos = rep(max(ptwrk$QUARTER),2),
+                        ypos = ptwrk$percentage[ptwrk$QUARTER==max(ptwrk$QUARTER)]) 
+# line graph
+ggplot(ptwrk, aes(x = QUARTER, y = percentage, colour = SEX)) +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_point(shape = 19) +
+  # scale and colour
+  scale_colour_manual(values = sexcolour) +
+  scale_y_continuous("%") +
+  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                  labels=c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                           "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                           "Nov20-Jan21", "Dec20-Feb21")) +
+  # annotation
+  labs(x = NULL, y = NULL,
+       title ="Some kind of statement about the trend\nshown in the graph",
+       subtitle = "Percentage of <span style = 'color:#DF9216;'>men</span> and <span style = 'color:#791F83;'>women</span>  working part-time",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+   geom_text(data = ptwrk.labels, aes(x = xpos, y = ypos, label = labels),
+             hjust = 0) +
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(legend.position = "none",
+        plot.margin = unit(c(1,3,1,1),units = "lines"),
+        plot.title = element_text(vjust = 3),
+        plot.subtitle =  element_markdown(hjust = 0),
+        axis.text.x = element_text(angle = 90)) +
+  coord_cartesian(clip = "off") #avoid labels from being clipped off
+    
+# reasons for going part-time -- COVID vs. non-COVID?
+# YPTJOB - Reason for part time job
+# (1) Student/still at school
+# (2) Ill/disabled
+# (3) Could not find full-time job
+# (4) Did not want full-time job
+yptwrk <- lfs %>% 
+  # only partimers
+  filter(FTPTWK == "2") %>% 
+  group_by(QUARTER, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)*100) %>% 
+  filter(YPTJOB %in% c("3", "4")) # could not find ft job
+  
+yptwrk.labels <- tibble(YPTJOB = c("3", "4"),
+                        labels = c("Could not find full-time job", "Did not want full-time job"),
+                        xpos = rep(max(yptwrk$QUARTER), 2),
+                        ypos = yptwrk$percentage[yptwrk$QUARTER == max(yptwrk$QUARTER)]) 
+# line graph
+ggplot(yptwrk, aes(x = QUARTER, y = percentage, colour = YPTJOB)) +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_point(shape = 19) +
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous("%") +
+  scale_x_discrete(limits = c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                  labels = c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                           "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                           "Nov20-Jan21", "Dec20-Feb21")) +
+  # annotation
+  labs(x = NULL, y = NULL,
+       title ="Reasons for working part-time",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+   geom_text(data = yptwrk.labels, aes(x = xpos, y = ypos, label = labels),
+             hjust = 0) +
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(legend.position = "none",
+        plot.margin = unit(c(1,3,1,1),units = "lines"),
+        plot.title = element_text(vjust = 3),
+        plot.subtitle =  element_markdown(hjust = 0),
+        axis.text.x = element_text(angle = 90)) +
+  coord_cartesian(clip = "off") #avoid labels from being clipped off
+
+
+# Age and part-time
+yptwrk2 <- lfs %>% 
+  # only partimers
+  filter(FTPTWK == "2") %>%  # employed
+  group_by(QUARTER, AGEEUL_2, SEX, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)*100) %>% 
+  filter(YPTJOB == "3") # Did not find ft job
+
+
+# line graph
+ggplot(yptwrk2, aes(x = QUARTER, y = percentage, colour = SEX)) +
+  geom_line(size = 1, show.legend = FALSE) +
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous("%") +
+  scale_x_continuous(breaks = c(1, 4, 8, 12),
+                  labels = c("Jan-Mar20", "Apr-Jun20", "Aug-Oct20", "Dec20-Feb21")) +
+  facet_wrap(~AGEEUL_2, labeller = labeller(AGEEUL_2  = c("2" = "Aged 18-24",
+                                                                    "3" = "Aged 25-29",
+                                                                    "4" = "Aged 30-39",
+                                                                    "5" = "Aged 40-49",
+                                                                    "6" = "Aged 50-64")),
+             ncol = 2) +
+  # annotation
+  labs(x = NULL, y = NULL,
+       title ="Young women struggled more to find full-time employement during pandemic",
+       subtitle = "Percentage of <span style = 'color:#DF9216;'>men</span> and <span style = 'color:#791F83;'>women</span>  that could not find a full time job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(legend.position = "none",
+        plot.margin = unit(c(1,3,1,1),units = "lines"),
+        plot.title = element_text(vjust = 3),
+        plot.subtitle =  element_markdown(hjust = 0),
+        axis.text.x = element_text(angle = 90)) 
+
+
+# Ethnicity and part-time
+yptwrk3 <- lfs %>% 
+  # only partimers
+  filter(FTPTWK == "2") %>%  # employed
+  group_by(QUARTER, ETHUKEUL, SEX, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)*100) %>% 
+  filter(YPTJOB == "3") %>% # Did not find ft job
+  filter(!is.na(ETHUKEUL))
+
+# stacked graph
+ggplot(yptwrk3, aes(x = QUARTER, y = percentage, colour = SEX)) +
+  geom_line(size = 1, show.legend = FALSE) +
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous("%") +
+  scale_x_continuous(breaks = c(1, 4, 8, 12),
+                  labels = c("Jan-Mar20", "Apr-Jun20", "Aug-Oct20", "Dec20-Feb21")) +
+  facet_wrap(~ETHUKEUL, labeller = labeller(ETHUKEUL = c("1" = "White",
+                                            "2" = "Mixed/Multiple",
+                                            "3" = "Indian",
+                                            "4" = "Pakistani",
+                                            "5" = "Bangladeshi",
+                                            "6" = "Chinese",
+                                            "7" = "Other Asian",
+                                            "8" = "Black/African/Caribbean/Black British",
+                                            "9" = "Other")),
+             ncol = 3) +
+  # annotation
+  labs(x = NULL, y = NULL,
+       title ="",
+       subtitle = "Percentage of <span style = 'color:#DF9216;'>men</span> and <span style = 'color:#791F83;'>women</span>  that could not find a full-time job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(legend.position = "none",
+        plot.margin = unit(c(1,3,1,1),units = "lines"),
+        plot.title = element_text(vjust = 3),
+        plot.subtitle =  element_markdown(hjust = 0),
+        axis.text.x = element_text(angle = 90)) 
+```
+
+```{r}
+tibble(limits = c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12"),
+                  labels = c("Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                           "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                           "Nov20-Jan21", "Dec20-Feb21"))
+df <- lfs %>% 
+  # only partimers
+  filter(FTPTWK == "2") %>%  # employed
+  group_by(QUARTER, AGEEUL_2, SEX, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER) %>% 
+  # percentage reason
+  mutate(Percentage = round(count/sum(count)*100,1)) %>% 
+  filter(YPTJOB == "3") %>% # Did not find ft job
+  filter(QUARTER %in% c(1, #Jan-Mar 2020 
+                        9, #Sep-Nov 2020
+                        12)) %>%  #Dec-Feb 2021
+  mutate(QUARTER = as.factor(QUARTER)) %>% 
+  droplevels() %>% 
+  mutate(QUARTER = ordered(QUARTER, c("12", "9", "1"))) %>% 
+  mutate(Sex = recode(SEX, "1" = "Men", "2" = "Women"))  # works better with plotly
+
+ 
+age_pt <- ggplot(df, aes(x = Percentage, y = QUARTER, color = Sex)) +
+  geom_line(size = 1.5, colour = "#999999") +
+  geom_point() +
+  scale_colour_manual(name = "",
+                      values = c("Men"= "#DF9216","Women" = "#791F83")) +
+  scale_y_discrete(name = "",
+                   labels = rev(c("January - March 2020",
+                              "September - November 2020",
+                              "December - February 2021"))) +
+  scale_x_continuous("% of part-timers") +
+  facet_wrap(~AGEEUL_2, ncol = 1, labeller = labeller(AGEEUL_2  = c("2" = "Aged 18-24",
+                                                                    "3" = "Aged 25-29",
+                                                                    "4" = "Aged 30-39",
+                                                                    "5" = "Aged 40-49",
+                                                                    "6" = "Aged 50-64"))) +
+  # annotation
+  # labs(x = NULL, y = NULL,
+  #      title ="Women have more trouble finding full-time employement\nduring the pandemic",
+  #      subtitle = "Percentage of part-time working <span style = 'color:#DF9216;'>men</span> and <span style = 'color:#791F83;'>women</span> that could not find a full-time job",
+  #      caption = c("Source: UK Labour Force Survey (Person)")) +
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(legend.position = c("top"),
+        plot.margin = unit(c(1,3,1,1),units = "lines"),
+        plot.title = element_text(vjust = 3),
+        plot.subtitle =  element_markdown(hjust = 0)) 
+age_pt
+
+ggplotly(age_pt, tooltip=c("x", "SEX"), 
+         height = 600) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(title = list(text = "Percentage of part-time working men and women that\ncould not find a full-time job",
+                      xanchor = "left",
+                      x= 0.2),
+         font  = list(size = 13),
+         margin = list(t = 110, pad = 50))
+```
+
+```{r permanent}
+# WHYTMP6 - Reason for taking non-permanent job
+# (1) Contract which includes period of training
+# (2) Had a contract for probationary period
+# (3) Could not find a permanent job
+# (4) Did not want a permanent job
+# (5) Some other reason
+```
+
+```{r self-employed}
+STAT == 2
+
+
+```
+
