@@ -288,7 +288,7 @@ variables <- c(
        
         "WRKING", # Whether in paid job in reference week, either as employee or as self-employed
         "JBAWAY", # Whether temporary away from paid job (if "no" in WRKING)
-        "INDS07M", # Industry section in main job - 21 categories to link with BICS
+        "INDE07M", # Industry section in main job 
         "MANAGER", # managerial status in current job (filter by STAT = 1)  
         "REGWKR", # Region of place of work (reported)
         "SC10MMJ", # Major occupation group
@@ -676,6 +676,64 @@ unem_age %>%
         guides(size = FALSE, color = guide_legend(override.aes = list(size = 5))) 
 
 
+# Unemployment per ethnicity
+
+LFS_clean <- LFS_clean %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL), 
+                                                           `1` = "White",
+                                                           `2` = "Non-White", `3` = "Non-White", 
+                                                           `4` = "Non-White", `5` = "Non-White",
+                                                           `6` = "Non-White",`7` = "Non-White",
+                                                           `8` = "Non-White",`9` = "Non-White")) %>% 
+                                                as_numeric(., keep.labels = TRUE)
+
+unem_eth_gen <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(QUARTER, as_label(ILODEFR), ETHUKEUL_2) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total) 
+
+unem_eth_gen  %>% 
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Rate, col=as_label(ETHUKEUL_2))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        geom_vline(xintercept = 7, linetype="dotted") +
+        
+        #scales
+        scale_color_manual(values = c("#DF9216", "#6a51a3")) +
+        scale_y_continuous(breaks = seq(0,0.1, 0.02), limits = c(0,0.1), labels = scales::percent_format(accuracy = 1L)) + 
+        scale_x_continuous(breaks=c(1:16), 
+                           labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
+                                    "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) +
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Unemployment has hit non-white ethnics groups the worst",
+             subtitle  = "Unemployment rate UK population, 2019/20/21",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.1, alpha = 0.2) +        
+        annotate(geom = "text", x = 2.5, y = 0.09, label = "2019", size = 3) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 5))) 
+
+
 # Unemployment per ethnicity and sex
 
 unem_eth <- LFS_clean %>% 
@@ -896,6 +954,58 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
         guides(color = guide_legend(title="Made redundant because:", title.position = "top", override.aes = list(size = 5))) 
 
 
+## redundancy per reason and ethnicity
+
+red_reason_eth <- LFS_clean %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
+        group_by(QUARTER, SEX, ETHUKEUL_2, REDCLOS) %>%
+        summarise(Reason = sum(PWT18)) %>%
+        group_by(QUARTER) %>%
+        mutate(Percent = Reason / sum(Reason))
+
+red_reason_eth %>% 
+        # filter data
+        filter(!is.na(ETHUKEUL_2) & !is.na(REDCLOS)) %>% 
+        
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Percent, col = as_label(REDCLOS))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        geom_vline(xintercept = 7, linetype="dotted") +
+        facet_grid(as_label(SEX)~as_label(ETHUKEUL_2)) +
+        
+        #scales
+        scale_y_continuous(breaks = seq(0,0.4, 0.05), limits = c(0,0.4), labels = scales::percent_format(accuracy = 1L)) + 
+        scale_x_continuous(breaks=c(1:16), 
+                           labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
+                                    "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) +
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Figure 3: The steepest increases in unemployment were among minority ethnic groups",
+             subtitle  = "Unemployment rate of UK population, 2019/20/21",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.18, alpha = 0.2) +        
+        annotate(geom = "text", x = 2.5, y = 0.15, label = "2019", size = 3) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 5))) 
+
+
 # redundancy by class
 
 red_class <- LFS_clean %>%
@@ -942,6 +1052,81 @@ red_class %>%
               legend.text = element_text(size=11),
               strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
         guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 5))) 
+
+
+
+
+## redundancy per personal reason
+
+get_labels(LFS_clean$REDYL13)
+
+LFS_clean <- LFS_clean %>% mutate(REDYL13_2 = recode_factor(factor(REDYL13), 
+                                                            `1` = "Dismissal",
+                                                            `2` = "Made redundant",
+                                                            `3` = "Voluntary redundancy", 
+                                                            `4` = "Temporary job", 
+                                                             `5` = "Resignation",
+                                                             `6` = "Personal or Health reasons",
+                                                            `7` = "Retirement",
+                                                             `8` = "Retirement",
+                                                            `9` = "Personal or Health reasons",
+                                                            `10` = "Education",
+                                                            `11` = "Other reason")) %>% 
+        as_numeric(., keep.labels = TRUE)
+
+
+
+
+red_reason_1 <- LFS_clean %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
+        group_by(QUARTER, REDYL13_2, NSECMJ10_2) %>%
+        summarise(Reason = sum(PWT18)) %>%
+        group_by(QUARTER) %>%
+        mutate(Percent = Reason / sum(Reason))
+
+red_reason_1 %>% 
+        # filter data
+        filter(!is.na(NSECMJ10_2) & !is.na(REDYL13_2) & NSECMJ10_2 %in% c(1, 5) & REDYL13_2 %in% c(1, 2, 3, 4, 5, 6, 7)) %>% 
+        
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Percent, col = as_label(REDYL13_2))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        geom_vline(xintercept = 7, linetype="dotted") +
+        facet_wrap(.~as_label(NSECMJ10_2)) +
+        
+        #scales
+        scale_y_continuous(breaks = seq(0,0.4, 0.05), limits = c(0,0.4), labels = scales::percent_format(accuracy = 1L)) + 
+        scale_x_continuous(breaks=c(1:16), 
+                           labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
+                                    "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) +
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Figure 3: The steepest increases in unemployment were among minority ethnic groups",
+             subtitle  = "Unemployment rate of UK population, 2019/20/21",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.18, alpha = 0.2) +        
+        annotate(geom = "text", x = 2.5, y = 0.15, label = "2019", size = 3) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 5))) 
+
+
 
 
 ###  Predictive analytics 
