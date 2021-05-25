@@ -1,9 +1,9 @@
 ---
-title: 'Unemployment in the COVID-19 UK: Exploring gender, ethnicity, and class'
+title: 'Unemployment and job loss in the COVID-19 UK: Exploring gender, ethnicity, and class'
 author: "Luis D. Torres, Tracey Warren, and Annegreet Veeken, University of Nottingham"
 output: 
-  word_document:
-    reference_docx: "Report_template1.docx"
+  word_document: 
+    reference_docx: Report_template1.docx
 ---
 
 ```{r setup, include=FALSE}
@@ -63,97 +63,55 @@ The COVID-19 outbreak has substantial consequences for men and women’s working
 
 However, the lockdowns and social distancing measures may be having a unequal impact on jobs frequently done by women. Women have been historically more limited in their choices for employment than have men, they are more likely to work under vulnerable conditions, and they are over-represented in mid-skill occupations. Most women today have access to paid employment, but they tend to work in more unstable and precarious conditions than men. These disadvantages in paid work are experienced even more intensely by working class women and/or those women from minority ethnic groups.
 
-Therefore, we ask if the pandemic is narrowing or reinforcing existing inequalities in levels of unemployment. To answer this question we use the UK’s largest study on employment circumstances, the Labour Force Survey. More specifically, we ask how unemployment rates have differed between men and women overall, and between different ethnic, occupational class and age groups during the pandemic. 
-
-The focus on these characteristics has a simple reason, our understanding of inequalities. Any quantifiable aspect that differs across individuals or social groups can be called an inequality. This is a descriptive observation which lacks of any moral judgement. In analysing the possible injustice of an inequality, it is necessary to establish that the inequality is avoidable, unnecessary and unfair. This requires an analysis of individual circumstances, and social advantage and disadvantage.
-
-In this report we show levels of unemployment and redundancy in the UK throughout 2019 and into 2021, first comparing women and men, and then the trends by age, ethnic group and occupational class. 
-
-
-# The Project and its Data
-
-<div style="text-align: right"> Our project *‘How is COVID-19 impacting women and men’s working lives in the UK?’* is funded by Health Data Research UK, as part of the rapid funding call to use and enrich the data within the Data & Connectivity National Core Study (NCS) capability. 
-
-This report draws on the analysis of the 2019/20/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar | Apr-Jun | Jul-Sep | Oct-Dec. From 2020, additional non-calendar quarter data have been released in response to the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters also included data for January and February 2021.
-
-Our analyses consider only the economically active population between 18-64 years old. Table 1 summarises the sample size and population estimates for all the data waves considered in this analysis. Economically active population includes those people in employment plus those who are unemployed. We focus on understanding how COVID-19 impacted on:
-
--	Unemployment:  percentage of economically active people between 18-64 years old who are out of work. 
--	Redundancies: the number of people who reported that they had been made redundant or had taken voluntary redundancy in the last three months.
-
-We follow the trend pre and post pandemic considering March/May 2020 as the reference point. We trace the pre-pandemic trend up to the first 2019 quarter (Jan/March). We do this to identify if the COVID-19 pandemic is narrowing or reinforcing existing inequalities in the UK. 
-
-It is important to notice that the LFS responses are weighted to official population projections that pre-date the COVID-19 pandemic. This particularly affects estimates for ethnicity. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.
-
-
-```{r data, echo=FALSE}
-
-load("../Data_clean/LFS_clean.rda")
-
-N_total <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64) %>%
-        group_by(as_label(QUARTER)) %>%
-        summarise(Sample = n(), Population = sum(PWT18), Econ_active = sum(PWT18[ILODEFR <=2])) 
-
-N_total %>% flextable() %>% theme_vanilla() %>%
-        set_caption(caption = "Table 1: Sample size and population estimates", style = "table") %>%
-        bold(bold = TRUE, part = "header") %>%
-        set_header_labels(`as_label(QUARTER)` = "Quarter",
-                          Population = "Population estimates",
-                          Econ_active = "Economically Active")  %>%
-        autofit() %>%
-        align_nottext_col(align = "center", header = TRUE, footer = FALSE) %>%
-        add_footer_lines("Source: UK Labour Force Survey (Person)") %>%
-        color(part = "footer", color = "#666666") 
-
-```
-
+Therefore, we ask if the pandemic is narrowing or reinforcing existing inequalities in levels of unemployment. To answer this question, we use the UK’s largest study on employment circumstances, the Labour Force Survey (LFS), drawing on analysis of the 2019/20/21 releases. More specifically, we ask how unemployment rates have differed between men and women overall, and between different ethnic, occupational class and age groups during the pandemic; and who lost their jobs and why.
+ 
 
 # Gender impact of COVID-19 on employment trends
 
 
 ## Men's unemployment hit the most
 
-As with previous economic recessions, the impact of COVID-19 hit men’s levels of unemployment the most. Unemployment increased from below 4% until April/June to over 5% from June/August with a peak during summer 2020. From September/November both men and women’s unemployment levels has showed signs of stabilisation. However, unemployment remains over 1% over pre-pandemic rates. 
+The impact of COVID-19 hit men’s levels of unemployment the most. Unemployment increased from below 4% until April/June to over 5% from June/August with a peak during summer 2020. From September/November both men and women’s unemployment levels showed signs of stabilization and a slight decline. However, in early 2021, unemployment still remained 1% over pre-pandemic rates.
 
 
 ```{r unemployment, echo=FALSE, fig.width= 8, fig.height=5}
-# Unemployment per sex
+
+load("../Data_clean/LFS_clean.rda")
 
 unem_sex <- LFS_clean %>% 
-                filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
-                group_by(QUARTER, as_label(ILODEFR), SEX) %>%
-                summarise(Active = sum(PWT18))  %>% 
-            pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
-            adorn_totals("col") %>%
-            mutate(Rate = `Not employed` / Total) # unemployment rates per gender 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(QUARTER, as_label(ILODEFR), SEX) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total) # unemployment rates per gender 
 
 unem_sex %>% 
         ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
         geom_line(size = 1, show.legend = FALSE) +
         geom_point(shape = 19) + 
         geom_vline(xintercept = 7, linetype="dotted") +
-  
+        
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
         scale_y_continuous(breaks = seq(0,0.06, 0.01), limits = c(0, 0.06), labels = scales::percent_format(accuracy = 1L)) +
         scale_x_continuous(breaks=c(1:16), 
-                         labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
-                                  "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
-                                  "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
-                                  "Nov20-Jan21", "Dec20-Feb21")) +
-  
+                           labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
+                                    "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) +
+        
         # annotation
         labs(x = "", 
              y = "",
              title ="Figure 1: Men’s unemployment rose most steeply",
-             subtitle  = "Unemployment rate UK population, 2019/20/21",
+             subtitle  = "Unemployment rate of UK population 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "text", x = 16, y = 0.053, label = "Men", color= "#DF9216") +
         annotate(geom = "text", x = 16, y = 0.040, label = "Women", color= "#791F83") +
         annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.06, alpha = 0.2) +        
         annotate(geom = "text", x = 2.5, y = 0.055, label = "2019") +
-
+        
         # theme
         theme_economist_white(gray_bg = FALSE) +
         theme(plot.title = element_text(face = "bold",
@@ -168,20 +126,18 @@ unem_sex %>%
 
 ```
 
-This overall trend is useful to understand the extent of the COVID-19 impact on unemployment rates as well as the months (e.g., unemployment increased after the first lockdown) where those impacts were felt the most. However, this overall picture glosses over the diversity of the UK population in terms of age, ethnicity, and class. We further explore these factors in the following sections.
+This overall trend is useful to understand the extent of the COVID-19 impact on unemployment rates as well as the months where those impacts were felt the most (e.g., how unemployment increased after the first lockdown). However, this overall picture glosses over the diversity of the UK population in terms of age, ethnicity, and class. We further explore these factors in the following sections.
 
 
 ## Highest job loss among young people
 
-When age groups are considered, there is a concerning growth in levels of unemployment for people between 18 and 24 years old. The rate of unemployment reached over 17% for men and 12% for women in summer 2020, from a year start of 11% and 9%, respectively. Shops, pubs, restaurants and entertainment have been unable to fully open and these are businesses where young people tend to be frequently employed.
+When age groups are considered, there is a concerning growth in levels of unemployment for people between 18 and 24 years old (Figure 2). The rate of unemployment reached over 17% for men and 12% for women in summer 2020, from a year start of 11% and 9%, respectively. Shops, pubs, restaurants and entertainment were unable to fully open and these are businesses where young people are frequently employed.
 
-While men’s employment started to show signs of recovery in the period August/October, unemployment levels for women remained constant until the September/November quarter.
+While men’s employment started to show signs of recovery in August/October, unemployment levels for women remained constant until the September/November quarter. Compared to 2019, 2020 comes from higher levels of unemployment. Young men saw an increase of up to 4% and women of up to 2%.  
 
-In 2019, the trend for people between 18 and 24 years old was similar than the one observed in 2020. The year started and ended with the lower unemployment rate while peaking from April to September 2019. The difference between 2019 and 2020 comes from higher levels of unemployment in 2020. Young men saw an increase of up to 4% and women of up to 2%.  
+Other age groups also experienced higher unemployment during 2020 than they had in the pre-pandemic year. Men and women between 25 and 29 years old saw an increase of up to 2% compared to pre-pandemic rates. However, the last two quarters in 2020 show some signs of recovery.
 
-Other age groups have also experience higher unemployment during 2020. Men and women between 25 and 29 years old have seen an increase of up to 2% compared to pre-pandemic rates. However, the the last two quarters in 2020 show signs of recovery. 
-
-People between 50 and 64 years old have also seen an increase of up to 2% if the highest points are considered in 2019 and 2020. Early signs of stabilisation can be also seen for this group in the last quarters. However,the road to recovery seems to be slower for this group compared to the other age groups.
+Older workers, people between 50 and 64 years old, were not fully protected from the negative impacts of the pandemic. Their unemployment rates also increased (up to 2% if the highest points are considered in 2019 and 2020). Early signs of stabilisation can be also seen for this group as 2020 came to an end. However, the road to recovery seems to be slower for older workers compared to the other younger age groups 
 
 
 ```{r age, echo=FALSE, fig.width= 10, fig.height=7}
@@ -194,8 +150,6 @@ unem_age <- LFS_clean %>%
         adorn_totals("col") %>%
         mutate(Rate = `Not employed` / Total)
 
-age_select <- unem_age %>% filter(AGEEUL_2 == 2)
-
 unem_age %>%       
         # select data
         select(QUARTER, AGEEUL_2, SEX, Rate) %>%  
@@ -205,7 +159,6 @@ unem_age %>%
         # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col= as_label(AGEEUL_2))) +
         geom_point(aes(size=Rate)) +  
-        geom_encircle(data = age_select, aes(x = QUARTER, y = Rate)) +
         geom_vline(xintercept = 7, linetype="dotted") +
         facet_wrap(.~as_label(SEX)) +
         
@@ -221,7 +174,8 @@ unem_age %>%
              y = "",
              title ="Figure 2: Highest unemployment for young people",
              subtitle  = "Unemployment rate UK population, 2019/20/21",
-             caption = c("Source: UK Labour Force Survey (Person)")) +
+             caption = c("Note: Bubble size reflects unemployment levels
+                         Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.20, alpha = 0.2) +        
         annotate(geom = "text", x = 2.5, y = 0.17, label = "2019") +
   
@@ -246,22 +200,91 @@ unem_age %>%
 
 ## People from minority ethnic backgrounds have been hit the hardest
 
-When ethnic background is taken into account, the gender gap against male employment seems less homogeneous than the overall trend. While unemployment for people from White background has remained well below 6%, job losses for other minorities have fluctuated beyond 6% each quarter and with differential gender impacts.
-
-Men from mixed/multiple backgrounds have seen a sharp rise in their unemployment up to 15% in June/August. Female unemployment has remained constant below 6% for most quarters, but it has reached 11% in the last two quarters getting closer to male rates.
-
-A similar but less marked gender trend has been felt by people from black backgrounds. Unemployment increased to over 10% from June-August for men and women with fluctuation between 10% to 14% for the rest of the year. While the last quarter showed a drastic fall for men, women's unemployment remained constant at 12%.
-
-For most groups COVID-19 has worsen pre-pandemic gender gaps. For example, women from Indian, non-Chinese Asian, and other ethnic background suffered from lower employment since before the pandemic hit. However, some ethnic minorities have showed a particularly unstable and contrasting gender trend. This is the case of the Pakistani, Bangladeshi, and Chinese.
-
--   Pakistani women saw a short fall in unemployment during May/July to pre-pandemic levels. However, women’s unemployment increased sharply to a peak of 18% in September/November, while men’s remained below 9%. Only in December-February did women’s unemployment fell to men’s levels.
--   Unemployment showed a contrasting trend form Bangladeshi men and women. While women experienced a continuous fall in unemployment from the start of the pandemic until June/August, men saw an increase until the same quarter. The following three periods the trend shows and increase for women and a decrease for men. This changes in the last two quarters.
--   Unemployment for Chinese people has been unstable particularly for men from the start of the pandemic to the period between August-October when stabilise below 6%. Women’s unemployment, on the other hand, has doubled in the same period.
-
-For most minority ethnic groups, except the Bangladeshi, the COVID-19 pandemic has had a negative impact on employment levels with real growths in rates of unemployment. Employment seems to be recovering in the last couple of quarters particularly for women. However, this is not the case for mixed/multiple and other ethnic groups who continue experiencing a rise in unemployment bot both, women and men.
+For most minority ethnic groups, the COVID-19 pandemic has had a negative impact on employment levels, with worrying growths in rates of unemployment among the minority ethnic labour force. The white and non-white unemployment gap has widened since the start of the pandemic. While 2020 started with a gap of 3%, by the end of 2020 the gap was 5% (Figure 3).     
 
 
-```{r ethnicity, echo=FALSE, fig.width= 10, fig.height=9}
+```{r ethnicity, echo=FALSE, fig.width= 8, fig.height=5}
+
+# Unemployment per ethnicity
+
+LFS_clean <- LFS_clean %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL), 
+                                                           `1` = "White",
+                                                           `2` = "Non-White", `3` = "Non-White", 
+                                                           `4` = "Non-White", `5` = "Non-White",
+                                                           `6` = "Non-White",`7` = "Non-White",
+                                                           `8` = "Non-White",`9` = "Non-White")) %>% 
+                                                as_numeric(., keep.labels = TRUE)
+
+unem_eth_gen <- LFS_clean %>% 
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        group_by(QUARTER, as_label(ILODEFR), ETHUKEUL_2) %>%
+        summarise(Active = sum(PWT18))  %>% 
+        pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
+        adorn_totals("col") %>%
+        mutate(Rate = `Not employed` / Total) %>%
+        filter(!is.na(ETHUKEUL_2))
+
+unem_eth_gen  %>% 
+        # graphic type and variables 
+        ggplot(aes(x = QUARTER, y = Rate, col=as_label(ETHUKEUL_2))) +
+        geom_line(size = 1, show.legend = FALSE) +
+        geom_point(shape = 19) +  
+        geom_vline(xintercept = 7, linetype="dotted") +
+        
+        #scales
+        scale_color_manual(values = c("#DF9216", "#6a51a3")) +
+        scale_y_continuous(breaks = seq(0,0.1, 0.01), limits = c(0,0.1), labels = scales::percent_format(accuracy = 1L)) + 
+        scale_x_continuous(breaks=c(1:16), 
+                           labels=c("Jan-Mar19","Apr-Jun19","Jul-Sep19","Oct-Dec19",
+                                    "Jan-Mar20", "Feb-Apr20", "Mar-May20", "Apr-Jun20", "May-Jul20", 
+                                    "Jun-Aug20", "Jul-Sep20","Aug-Oct20", "Sep-Nov20", "Oct-Dec20",
+                                    "Nov20-Jan21", "Dec20-Feb21")) +
+        # annotation
+        labs(x = "", 
+             y = "",
+             title ="Figure 3: Unemployment hit non-white ethnic groups the worst",
+             subtitle  = "Unemployment rate UK population, 2019/20/21",
+             caption = c("Source: UK Labour Force Survey (Person)")) +
+        annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.10, alpha = 0.2) +        
+        annotate(geom = "text", x = 2.5, y = 0.09, label = "2019", size = 3) +
+        
+        # theme
+        theme_economist_white(gray_bg = FALSE) +
+        theme(plot.title = element_text(face = "bold",
+                                        margin = ggplot2::margin(10, 0, 10, 0),
+                                        size = 13),
+              axis.text.x=element_text(angle=90),
+              axis.title.x = element_text(margin = ggplot2::margin(t = 5), vjust = 0, size = 10),
+              axis.title.y = element_text(margin = ggplot2::margin(r = 3), vjust = 2, size = 10), 
+              axis.text = element_text(size = 9),
+              legend.position = "top",
+              legend.title = element_blank(),
+              legend.text = element_text(size=11),
+              strip.text = element_text(face = "bold", hjust = 0, size = 10)) +
+        guides(color = guide_legend(override.aes = list(size = 5))) 
+
+
+```
+
+
+In addition, when specific ethnic groups are taken into account (see Figure 4), we see real diversity in the gender gap in unemployment levels shown earlier. Employment did seem to be recovering in the last couple of quarters of 2020 and into 2021, particularly for women. However, this potentially positive picture does not apply equally: mixed/multiple and other ethnic groups continued to experience rising unemployment into 2021, both women and men.
+
+Men from mixed/multiple minority ethnic backgrounds saw by far the sharpest rise in their unemployment (peaking at fully 15% in summer 2020). Female unemployment remained constant below 6% for most time periods examined, but it reached 11% in the last two quarters of 2020, getting closer to the high male rates.
+
+A similar but less marked gender trend has been felt by people from black backgrounds. Unemployment increased to over 10% from June-August for men and women, with fluctuation between 10% to 14% for the rest of the year. While the last quarter showed a drastic fall for men, women’s unemployment remained constant at 12%.
+
+For most groups COVID-19 has worsened pre-pandemic gender gaps. For example, women from Indian, non-Chinese Asian, and other ethnic background suffered from lower employment since before the pandemic hit. However, some ethnic minorities have showed a particularly unstable and contrasting gender trend. This is the case of the Pakistani, Bangladeshi, and Chinese.
+
+•	Pakistani women saw a short fall in unemployment during May/July to pre-pandemic levels. However, their unemployment increased sharply to a peak of 18% in September/November, while men’s remained half that (below 9%). Only in December 2020-February 2021 did women’s unemployment fell to men’s levels.
+
+•	Bangladeshi men and women experienced very/quite different trends in unemployment levels While women saw a continuous fall in unemployment from the start of the pandemic until June/August, men saw an increase. This was followed by an increase for women and a decrease for men, but this then swapped again.
+
+•	Trends in unemployment for Chinese people were volatile, particularly for men, from the start of the pandemic to August-October but levels stabilised after (at below 6%). Women’s unemployment, on the other hand, doubled in the period when’s men’s levels were falling.
+
+For most minority ethnic groups, except the Bangladeshis, the COVID-19 pandemic has had a negative impact on employment levels with real growths in rates of unemployment. Employment seems to be recovering in the last couple of quarters particularly for women. However, this is not the case for mixed/multiple and other ethnic groups who continue experiencing a rise in unemployment bot both, women and men.
+
+
+```{r ethnicity sex, echo=FALSE, fig.width= 10, fig.height=9}
 
 # Unemployment per ethnicity and sex
 
@@ -296,7 +319,7 @@ unem_eth %>%
         # annotation
         labs(x = "", 
              y = "",
-             title ="Figure 3: The steepest increases in unemployment were among minority ethnic groups",
+             title ="Figure 4: The steepest increases in unemployment were among minority ethnic groups",
              subtitle  = "Unemployment rate of UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.18, alpha = 0.2) +        
@@ -320,13 +343,13 @@ unem_eth %>%
 ```
 
 
-## Employment has not recovered for everyone the same
+## Employment has not recovered for all classes equally
 
-Our research reveals that employment is not recovering for workers who were employed in routine and semi routine occupations. Typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers. 
+Our research reveals that employment rates are not recovering equally for all workers, with those employed in routine and semi routine occupations facing more persistent problems. Yet these are essential workers whose crucial work was highlighted during the pandemic: typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers. 
 
-People in these occupations have experienced a reduction in their employment compared to pre-pandemic periods. This is particularly true for men who saw a decreased of 5% at the end of 2020 compared to the last quarter in 2019 (87% vs 82%). In case of women the decreased was of 2% when both periods are compared.  
+People in these key occupations saw the steepest fall in their employment, when compared to the pre-pandemic period employment rate (Figure 5). This is particularly true for men who saw a decrease of 5% from 2019 to the end of 2020 (87% vs 82%). The equivalent fall for women was 2%.
 
-Employment for other occupational categories has remained stable. Employment levels have remained virtually unchanged for management and professional jobs compared to pre-pandemic rates.
+Employment levels for other occupational categories remained far more stable and, indeed, they remained virtually unchanged for management and professional jobs, compared to pre-pandemic rates.
 
 
 ```{r echo=FALSE, fig.width= 10, fig.height=6}
@@ -361,7 +384,7 @@ em_class %>%
         # annotation
         labs(x = "", 
              y = "Percentage of people in employment",
-             title ="Figure 4: Employment has not recovered equally for everyone",
+             title ="Figure 5: Employment has not recovered equally for everyone",
              subtitle  = "Employment rate UK population per occupational class, 2019/20/21",
              caption = c("Note: Employment is the proportion of the working age population that is employed
                          Source: UK Labour Force Survey (Person)")) +
@@ -389,13 +412,16 @@ em_class %>%
 ```
 
 
-## Redundancies were concentrated in professional as well as rutine occupations
 
-From Figure 4 is interesting to notice that management and professional jobs have not seen a detriment to their employment levels. However, people in this category were made redundant the most during 2020 (see Figure 5 below). An estimated of 87,553 male workers in this category indicated that they were made redundant within the previous three months in the October/December quarter. This is a 3.2-times higher compared to the same period in 2019. In the case of female workers the peak was felt in the September/November quarter with an estimated of 63,803 redundancies in the last three months. This is 2.3-times more redundancies than the last quarter of 2019. Routine and semi-routine occupations followed a similar trend with highest points in the second semester of 2020. 
+## Redundancies were concentrated in professional as well as routine occupations
 
-Men in lower supervisory and technical occupations saw an increase of redundancies during the pandemic, while for women redundancies remained relatively low for this category. However, women in intermediate occupations were considerably more affected than men. Typical intermediate occupations include clerical occupations, administrative assistants, and occupations which involve working alongside managers and professionals in ancillary roles.  
+The pandemic barely impacted the employment levels of managerial and professional workers. However, people in this category were made redundant the most during 2020 (see Figure 6 below). An estimated of 87,553 male workers in managerial/professional jobs indicated that they had been made redundant within the previous three months (surveyed in October/December 2020). This is a 3.2-times higher compared to the same period in 2019. In the case of female workers the peak was felt in the September/November quarter with an estimated of 63,803 redundancies in the last three months. This is 2.3-times more redundancies than the last quarter of 2019. 
 
-Redundancies have experienced a sharp decline at the end of 2020 as reported in November 2020 to January 2021 quarter. 
+Routine and semi-routine occupations also saw redundancy rates peak in the second half of 2020. However, workers in this occupational class have not seen the level of recovery that managerial and professional roles have (as shown is Figure 5 above). We asked if this trend may be explained by comparing voluntary vs non-voluntary redundancies. We found that management and profesional workers have taken more voluntary redundancies (up to 12% in 2019 and close to 5% in 2020) compared to routine and semi-routine occupations (below 2% for all periods). Voluntary redundancies may imply that workers are changing companies, starting new projects or simply become economically inactive. This seems to be less likely for workers in the rotine and semi-routine category. 
+
+Men in lower supervisory and technical occupations saw an increase of redundancies during the pandemic, while for women redundancies remained relatively low for this category. However, women in intermediate occupations were considerably more affected than men. Typical intermediate occupations include clerical occupations, administrative assistants, and occupations which involve working alongside managers and professionals in ancillary roles. Women are frequently found in supporting roles. With managerial and professional workers being able to work from home, ancillary roles may have been reduced as there were less face to face meetings to organise, visitors to host, and trips to coordinate. 
+
+Redundancies have experienced a sharp decline at the end of 2020 as reported in November 2020 to January 2021 quarter .
 
 
 ```{r redundancy occupation, echo=FALSE, fig.width= 10, fig.height=6.5}
@@ -424,7 +450,7 @@ red_class %>%
         # annotation
         labs(x = "", 
              y = "Number of employees made redundant",
-             title ="Figure 5: Professional and rutine occupations experienced more redundancies",
+             title ="Figure 6: Professional and routine occupations experienced more redundancies",
              subtitle  = "Redundancies UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 90000, alpha = 0.2) +        
@@ -447,18 +473,17 @@ red_class %>%
 
 ```
 
+## Employers are letting their staff go
 
-## Employers are not being able to keep their staff
+The reasons behind redundancies are mostly divided between those workers who were made redundant because employers had to close down fully and those who were made redundant because their employers reduced staffing numbers in the face of reduced demand and/or to maintain profit levels. As non-essential businesses were experiencing long periods of inactivity as a result of covid-19 closure and other pressures, many employers opted for fewer employees to carry out the available work. The percentage of people who lost their jobs because of workplaces reducing staff shot up rapidly after the first lockdown, peaking at 38% of all redundancies in summer 2020.
 
-The reasons behind redundancies are frequently divided between those who were made redundant because employers had to close down and those who were made redundant because their employers reduce staff. As non-essential businesses have experienced long periods of inactivity, employers have opted for fewer employees to carry out the available work. This has increased the amount of people who have lost their jobs because of workplaces reducing staff. 
-
-This trend has not decreased since its peak in summer 2020 for both, men and women. 
+This trend has not decreased since its peak in summer 2020 for both, men and women.
 
 
 ```{r redundancy reason, echo=FALSE, fig.width= 10, fig.height=6}
 
 red_reason <- LFS_clean %>%
-        filter(REDUND == 1) %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
         group_by(QUARTER, SEX, REDCLOS) %>%
         summarise(Reason = sum(PWT18)) %>%
         group_by(QUARTER) %>%
@@ -482,7 +507,7 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
         # annotation
         labs(x = "", 
              y = "% of employees made redundant",
-             title ="Figure 6: Employers are not being able to keep their staff",
+             title ="Figure 7: Employers are letting their staff go",
              subtitle  = "Redundancies of UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "rect", xmin = 1, xmax = 4, ymin = 0, ymax = 0.5, alpha = 0.2) +        
@@ -508,8 +533,52 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
 ```
 
 
+
 # Conclusions
 
-It is known that men's employment suffers the most in economic crisis. This report has showed that the COVID-19 pandemic is not different in that respect. Overall, men have been more impacted when unemployment and redundancies are considered. However, gender impacts vary when ethnicity, age and occupational class are included in the analysis. Women from minority groups and in intermediate occupations have been also greatly impacted. 
+It is known that men’s rates of formal employment suffer the most in economic crisis. This report has showed that the COVID-19 pandemic is not different in that respect. Overall, men have been more impacted when unemployment and redundancies are considered. However, gender impacts vary when ethnicity, age and occupational class are included in the analysis. Women from minority groups and in intermediate occupations have been also greatly impacted.
 
-By using pre-pandemic data, this reports also shows that the pandemic has not created new inequalities, but reinforced the ones already existent. Overall, pre-pandemic trends have simply worsen from the first lockdown and starting to slowly recover by the end of the year and beginning of 2021. There is, however, more variability across ethnic minorities as the trend does not necessarily follows pre-pandemic rates, particularly for Indian and Chinese people. 
+By using pre-pandemic data, this reports also shows that the pandemic has not created new inequalities in employment levels, but reinforced the ones already existent. Overall, pre-pandemic trends worsened from the first lockdown but were starting to slowly recover by the end of 2020 and the beginning of 2021. There is, however, more variability across ethnic minorities. Recovery has been slower for them worsening the gap already present before the pandemic.
+
+Rising unemployment levels and the rapidly expanding numbers of people who lost their jobs and livelihoods due to employers cutting back on staff paint a worrying picture about work during the pandemic, including how workers, whose experiences were already shaped by intersecting inequalities of gender, class and ethnic, fared as the pandemic rolled out. Yet they do not tell the full story. In our next report, we look at precariousness. We will ask how precarious, if at all, our work has become and for whom. 
+
+
+
+# The Project and its Data
+
+<div style="text-align: right"> Our project *‘How is COVID-19 impacting women and men’s working lives in the UK?’* is funded by Health Data Research UK, as part of the rapid funding call to use and enrich the data within the Data & Connectivity National Core Study (NCS) capability. 
+
+This report draws on the analysis of the 2019/20/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar | Apr-Jun | Jul-Sep | Oct-Dec. From 2020, additional non-calendar quarter data have been released in response to the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters also included data for January and February 2021.
+
+Our analyses consider only the economically active population between 18-64 years old. Table 1 summarises the sample size and population estimates for all the data waves considered in this analysis. Economically active population includes those people in employment plus those who are unemployed. We focus on understanding how COVID-19 impacted on:
+
+-	Unemployment:  percentage of economically active people between 18-64 years old who are out of work. 
+-	Redundancies: the number of people who reported that they had been made redundant or had taken voluntary redundancy in the last three months.
+
+For our analysis by gender, these data is restricted of course because far more women than men are outside of the formal labour force (sometimes, problematically, called ‘economically inactive’). For more details on women and men’s paid and unpaid work see our [Project Website] (https://www.nottingham.ac.uk/business/research/carrying-the-work-burden-of-covid-19/)
+
+We follow the trend pre and post pandemic considering March/May 2020 as the reference point. We trace the pre-pandemic trend up to the first 2019 quarter (Jan/March). We do this to identify if the COVID-19 pandemic is narrowing or reinforcing existing inequalities in the UK. 
+
+It is important to notice that the LFS responses are weighted to official population projections that pre-date the COVID-19 pandemic. This particularly affects estimates for ethnicity. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.
+
+
+```{r data, echo=FALSE}
+
+N_total <- LFS_clean %>%
+        filter(AGE >= 18 & AGE <= 64) %>%
+        group_by(as_label(QUARTER)) %>%
+        summarise(Sample = n(), Population = sum(PWT18), Econ_active = sum(PWT18[ILODEFR <=2])) 
+
+N_total %>% flextable() %>% theme_vanilla() %>%
+        set_caption(caption = "Table 1: Sample size and population estimates", style = "table") %>%
+        bold(bold = TRUE, part = "header") %>%
+        set_header_labels(`as_label(QUARTER)` = "Quarter",
+                          Population = "Population estimates",
+                          Econ_active = "Economically Active")  %>%
+        autofit() %>%
+        align_nottext_col(align = "center", header = TRUE, footer = FALSE) %>%
+        add_footer_lines("Source: UK Labour Force Survey (Person)") %>%
+        color(part = "footer", color = "#666666") 
+
+```
+
