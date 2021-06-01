@@ -81,6 +81,7 @@ theme_economist_white <- theme_economist_white(base_size = 12)
 
 <p align="justify"> Our analyses in this report consider only the economically active population aged between 18-64. Far more women than men are outside the formal labour force, sometimes (problematically) termed ‘economically inactive’ even though they are involved in crucial unpaid domestic work and caring that are both essential to the running of the economy. We address women’s intensified unpaid work and caring during the pandemic in our <a href="https://www.nottingham.ac.uk/business/who-we-are/case-studies/featured-research-case-studies/covid-19-working-women/index.aspx" target="_blank">sister project</a>.</p>
 
+
 # Gender impacts
 
 ## Men's unemployment hit the most
