@@ -545,7 +545,7 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
         # annotation
         labs(x = "", 
              y = "% of employees made redundant",
-             title ="Figure 7: Employers are not being able to keep their staff",
+             title ="Employers are not being able to keep their staff",
              subtitle  = "Redundancies of UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
 
