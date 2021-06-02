@@ -5,10 +5,10 @@ author:
  - By Luis D. Torres, Tracey Warren, and Annegreet Veeken from the University of Nottingham, and in collaboration with the UK Women’s Budget Group
 date: "June 2021"
 output: 
-  rmdformats::robobook:
-    self_contained: true
-    highlight: tango
-  
+   rmdformats::robobook:
+    self_contained: TRUE
+    fig_caption: TRUE
+
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE,
 	warning = FALSE,
-  collapse = TRUE)
+  collapse = TRUE,
+  fig.align = 'center')
 
 ### R version
 # R version 4.0.4
@@ -42,6 +43,8 @@ if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.
 if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
 if(!require(rmdformats)) install.packages("bookdown", repos = "http://cran.us.r-project.org")
 if(!require(htmlwidgets)) install.packages("htmlwidgets", repos = "http://cran.us.r-project.org")
+if(!require(widgetframe)) install.packages("widgetframe", repos = "http://cran.us.r-project.org")
+if(!require(shiny)) install.packages("shiny", repos = "http://cran.us.r-project.org")
 
 library(ggalt) # contingency table
 library(tidyverse) # several tools for data manipulation
@@ -61,6 +64,8 @@ library(scales) # add scale symbols and colour to axis
 library(janitor) # add totals to tables
 library(rmdformats)
 library(htmlwidgets)
+library(shiny)
+library(widgetframe)
 
 
 #### Output configurations
@@ -79,19 +84,16 @@ theme_economist_white <- theme_economist_white(base_size = 12)
 
 <p align="justify"> In this summary report, we ask if the pandemic is narrowing or reinforcing existing inequalities in levels of unemployment. To answer this question, we use the UK’s largest study on employment circumstances, the Labour Force Survey (LFS), drawing on analysis of the 2019/20/21 releases. More specifically, we ask how unemployment rates have differed between men and women overall, and between different age, ethnic and occupational class groups during the pandemic; and who lost their jobs and why.</p> 
 
-<p align="justify"> Our analyses in this report consider only the economically active population aged between 18-64. Far more women than men are outside the formal labour force, sometimes (problematically) termed ‘economically inactive’ even though they are involved in crucial unpaid domestic work and caring that are both essential to the running of the economy. We address women’s intensified unpaid work and caring during the pandemic in our <a href="https://www.nottingham.ac.uk/business/who-we-are/case-studies/featured-research-case-studies/covid-19-working-women/index.aspx" target="_blank">sister project</a>.</p>
+<p align="justify"> Our analyses in this report consider only the economically active population aged between 18-64. Far more women than men are outside the formal labour force, sometimes (problematically) termed ‘economically inactive’ even though they are involved in crucial unpaid domestic work and caring that are both essential to the running of the economy. We address women’s intensified unpaid work and caring during the pandemic in our <a href="https://www.nottingham.ac.uk/business/who-we-are/case-studies/featured-research-case-studies/covid-19-working-women/index.aspx" target="_blank">sister project</a>.</p> <br>
 
 
-# Gender impacts
-
-## Men's unemployment hit the most
+# Men's unemployment hit the most
 
 <p align="justify"> Unemployment among men increased from below 4% up to April/June 2020 to over 5% from June/August 2020, with a peak during summer 2020. From September/November, unemployment among both men and women showed signs of stabilisation and a slight decline. However, in early 2021, unemployment remained 1% over pre-pandemic rates.</p>
 
 <p align="justify"> This overall trend is useful to understand the extent of the COVID-19 impact on unemployment rates, as well as the months during which those impacts were felt the most (e.g., how unemployment increased after the first lockdown). However, this overall picture glosses over the diversity of the UK population in terms of age, ethnicity, and class. We further explore these factors in the following sections.</p>
 
-
-```{r unem, echo=FALSE,  fig.width= 8, fig.height=5, fig.align = 'center'}
+```{r unem}
 
 load("../Data_clean/LFS_clean.rda")
 
@@ -136,7 +138,7 @@ unem_sex_plot <- unem_sex %>%
   #  annotation
         labs(x = "", 
              y = "",
-             title ="Men’s unemployment rose most steeply",
+             title ="Figure 1: Men’s unemployment rose most steeply",
              subtitle  = "Unemployment rate UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "text", x = 16, y = 0.053, label = "Men", color= "#DF9216") +
@@ -151,41 +153,42 @@ unem_sex_plot <- unem_sex %>%
               plot.title = 
                 element_text(margin = ggplot2::margin(10, 0, 10, 0)),
               axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                         vjust = 0, size = 12),
+                                         vjust = 0, size = 10),
               axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                         vjust = 2, size = 12),
+                                         vjust = 2, size = 10),
               legend.position = "none") 
 
-if (knitr::is_html_output()) {
-  ggplotly(unem_sex_plot, tooltip = c("text")) %>%
+ggplotly(unem_sex_plot, tooltip = c("text"), width = 700, 
+           height = 500) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE)) %>%
   config(displayModeBar = FALSE) %>% 
-  layout(title = list(text = "Unemployment rate UK population, 2019-2021",
-                      xanchor = "left"),
-         font  = list(size = 11),
-         margin = list(t = 110, pad = 10),
+  layout(title = list(text = paste('Figure 1: Men’s unemployment rose most steeply',
+                                    '<br>',
+                                    '<sup>',
+                                    'Unemployment rate UK population, 2019/20/21',
+                                    '</sup>',
+                                    '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 110, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
          annotations = list( x = 8.6, y = 0.025, 
                              text = "Start of the COVID-19\nfirst lockdown", 
                              showarrow = F)) 
-} else {
-  unem_sex_plot +
-    # this annotation is placed incorrectly with ggplotly
-    annotate(geom = "text", x = 7.1, y = 0.03, label = "Start of the COVID-19\nfirst lockdown", hjust = 0) 
-}
 
 ```
 
 
-## Highest job loss among young people
+# Highest job loss among young people
 
 <p align="justify">Compared to 2019, 2020 had higher levels of unemployment overall. When age groups are considered, there was a concerning growth unemployment for people aged between 18 and 24 (Figure 2). For this age group, the rate of unemployment reached over 17% for men and 12% for women in summer 2020, from a year start of 11% and 9%, respectively. Shops, pubs, restaurants, and entertainment venues, i.e. those businesses where young people are frequently employed, were unable to fully open.</p>
 
 <p align="justify">Looking at Figure 2, young men saw an increase in unemployment of up to 4% in July/September 2020 compared to 2019. Similarly, women’s unemployment rose up to 2% in August/October 2020. While younger men’s employment started to show signs of recovery in August/October 2020, unemployment levels for women remained constant until the September/November quarter.</p>
 
-
-
-```{r age, echo=FALSE,  fig.width= 10, fig.height=7, fig.align = 'center'}
+```{r age}
 
 unem_age <- LFS_clean %>% 
         filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
@@ -201,13 +204,13 @@ tiplab_age <- rbind(tiplab,tiplab,tiplab,tiplab,tiplab) %>%
                       rep(as_character(as_label(unem_age$AGEEUL_2)[3]), 32),
                       rep(as_character(as_label(unem_age$AGEEUL_2)[4]), 32),
                       rep(as_character(as_label(unem_age$AGEEUL_2)[5]), 32))) %>% 
-  dplyr::arrange(QUARTER, as_factor(AGEEUL_2))
+  dplyr::arrange(QUARTER, as_factor(SEX))
 
 unem_age_plot <- unem_age %>%       
         # select data
         select(QUARTER, AGEEUL_2, SEX, Rate) %>%  
         filter(!is.na(Rate))  %>% 
-        arrange(desc(Rate)) %>%
+        # arrange(desc(Rate)) %>%
 
         # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col= as_label(AGEEUL_2))) +
@@ -261,22 +264,35 @@ unem_age_plot <- unem_age %>%
               strip.text = element_text(face = "bold", hjust = 0, size = 12)) +
         guides(size = FALSE, color = guide_legend(override.aes = list(size = 4))) 
 
-if (knitr::is_html_output()) {
-  ggplotly(unem_age_plot, tooltip=c("text"), width = 1000,
-           height = 700) %>%
+
+  ggplotly(unem_age_plot, tooltip=c("text"), width = 700,
+           height = 550) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE)) %>%
   config(displayModeBar = FALSE) %>% 
-  layout(title = list(text = "Unemployment rate per age group, 2019-2021",
-                      xanchor = "left"),
-         font  = list(size = 11),
-         margin = list(t = 110, pad = 10),
+  layout(title = list(text = paste('Figure 2: Highest unemployment for young people',
+                                    '<br>',
+                                    '<sup>',
+                                    'Unemployment rate UK population, 2019/20/21',
+                                    '</sup>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                   '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 150, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
          legend = list(orientation = "h",   # show entries horizontally
                      xanchor = "center",  # use center of legend as anchor
-                     x = 0.5, y= 1.1))
-} else {
-  unem_age_plot
-}
+                     yanchor = "top",
+                     x = 0.5, y= 1.18,
+                     font  = list(size = 14)))
 
 ```
 
@@ -286,12 +302,11 @@ if (knitr::is_html_output()) {
 <p align="justify">Older workers, e.g. those aged between 50 and 64, were not fully protected from the negative impacts of the pandemic. Their unemployment rates also increased (up to 2% if the highest points in 2019 and 2020 are compared). Although early signs of stabilisation can be seen for this group as 2020 came to an end, their road to recovery seems to be slower when compared to the younger age groups.</p>
 
 
-## People from minority ethnic backgrounds have been hit the hardest
+# Minority ethnic groups have been hit the hardest
 
 <p align="justify">For most minority ethnic groups, the COVID-19 pandemic has led to worrying growths in rates of unemployment. The white and minority-ethnic unemployment gap widened since the start of the pandemic: while 2020 started with a gap of 3%, by the end of 2020 the gap was 5% (Figure 3).</p>
 
-
-```{r, ethnicity, echo=FALSE, fig.width= 9, fig.height=5, fig.align = 'center'}
+```{r, ethnicity}
 
 # Unemployment per ethnicity
 
@@ -312,13 +327,23 @@ unem_eth_gen <- LFS_clean %>%
         mutate(Rate = `Not employed` / Total) %>%
         filter(!is.na(ETHUKEUL_2))
 
-unem_eth_gen  %>% 
+tiplab_eth_gen <-  tibble(QUARTER = c(seq(1:16), seq(1:16)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov-Jan 2021", "Dec-Feb 2021"),2)) %>% 
+            dplyr::arrange(QUARTER)
+
+unem_eth_gen_plot <- unem_eth_gen  %>% 
         # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col=as_label(ETHUKEUL_2))) +
         geom_vline(xintercept = 4, color = "#c9c9c9") +
         geom_vline(xintercept = 15, color = "#c9c9c9") +
         geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +
+        geom_point(aes(text = paste("Unemployment:", round(Rate*100,1),"%", 
+                                    "\nQuarter:", tiplab_eth_gen$qlabel[tiplab_eth_gen$QUARTER == QUARTER],
+                                    "\nEthnic group:", as_label(ETHUKEUL_2))), 
+                   shape = 19) +
         geom_vline(xintercept = 7, linetype="dotted") +
 
         #scales
@@ -357,7 +382,28 @@ unem_eth_gen  %>%
         guides(size = FALSE, color = guide_legend(override.aes = list(size = 4)))  
 
 
-
+ggplotly(unem_eth_gen_plot, tooltip=c("text"), width = 700,
+           height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(title = list(text = paste('Figure 3: Unemployment hit ethnic-minorities the worst',
+                                    '<br>',
+                                    '<sup>',
+                                    'UK Unemployment rate, 2019/20/21',
+                                    '</sup>',
+                                    '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 110, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.1,
+                     font  = list(size = 14)))
 
 ```
 
@@ -366,8 +412,7 @@ unem_eth_gen  %>%
 
 <p align="justify">A similar but less marked gender trend is shown among people from black backgrounds. Unemployment increased to over 10% from June-August for men and women, with fluctuations between 10% and 14% for the rest of the year. While the last quarter showed a sharp fall for men, women’s unemployment remained constant at 12%.</p>
 
-
-```{r ethnicity and sex, echo=FALSE}
+```{r ethnicity and sex}
 
 # Unemployment per ethnicity and sex
 
@@ -394,7 +439,7 @@ tiplab_eth <- rbind(tiplab,tiplab,tiplab,tiplab,tiplab,tiplab,tiplab,tiplab,tipl
 unem_eth_plot <- unem_eth %>% 
         # select data
         select(QUARTER, ETHUKEUL, SEX, Rate) %>% 
-        filter(!is.na(Rate & ETHUKEUL)) %>% 
+        filter(!is.na(Rate & ETHUKEUL) & ETHUKEUL != 9) %>% 
        
          # graphic type and variables 
         ggplot(aes(x = QUARTER, y = Rate, col = as_label(SEX))) +
@@ -408,7 +453,7 @@ unem_eth_plot <- unem_eth %>%
                                     "\nEthnicity:", as_label(ETHUKEUL))), 
                    shape = 19) +
         geom_vline(xintercept = 7, linetype="dotted") +
-        facet_wrap(.~as_label(ETHUKEUL), ncol = 3) +
+        facet_wrap(.~as_label(ETHUKEUL), ncol = 2) +
         
         #scales
         scale_colour_manual(values = c("#DF9216", "#791F83")) +
@@ -422,7 +467,7 @@ unem_eth_plot <- unem_eth %>%
         # annotation
         labs(x = "", 
              y = "",
-             title ="The steepest increases in unemployment were among minority ethnic groups",
+             title ="Figure 4: The steepest increases in unemployment were among minority ethnic groups",
              subtitle  = "Unemployment rate of UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
         annotate(geom = "text", x = 2, y = 0.17, label = "2019", size = 3) +
@@ -441,22 +486,34 @@ unem_eth_plot <- unem_eth %>%
               strip.text = element_text(face = "bold", hjust = 0, size = 11)) +
         guides(color = guide_legend(override.aes = list(size = 4))) 
 
-if (knitr::is_html_output()) {
-ggplotly(unem_eth_plot, tooltip=c("text"), width = 1000,
-           height = 700) %>%
+
+ggplotly(unem_eth_plot, tooltip=c("text"), width = 800,
+           height = 800) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE)) %>%
   config(displayModeBar = FALSE) %>% 
-  layout(title = list(text = "Unemployment per ethnicity, 2019-2021",
-                      xanchor = "left"),
-         font  = list(size = 11),
-         margin = list(t = 110, pad = 10),
+  layout(title = list(text = paste0('Figure 4: The steepest increases among minority ethnic groups',
+                                    '<br>',
+                                    '<sup>',
+                                    'UK Unemployment rate, 2019/20/21',
+                                    '</sup>',
+                                    '<br>',
+                                    '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 130, r = 100, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         yaxis3 = list(tickfont = list(size = 11)),
+         yaxis4 = list(tickfont = list(size = 11)),
          legend = list(orientation = "h",   # show entries horizontally
                      xanchor = "center",  # use center of legend as anchor
-                     x = 0.5, y= 1.1))
-} else {
-  unem_eth_plot 
-}
+                     x = 0.5, y= 1.1,
+                     yanchor = "top",
+                     font  = list(size = 13)))
 
 ```
 
@@ -470,14 +527,13 @@ ggplotly(unem_eth_plot, tooltip=c("text"), width = 1000,
 <p align="justify">For most minority ethnic groups, except the Bangladeshis, the COVID-19 pandemic has had a negative impact on employment levels, with real growth in rates of unemployment. However, employment seems to be recovering in the last couple of quarters, particularly for women. This is not the case for women and men from mixed/multiple and other ethnic groups who continue to experience a rise in unemployment.</p>
 
 
-## Employment has not recovered for everyone the same
+# Recovery has not been for everyone
 
 <p align="justify">As well as age and ethnicity differences, our research also reveals differences by class. Employment rates are not recovering equally for all workers, with those employed in routine and semi routine occupations facing more persistent problems. Yet these are essential workers whose crucial work was highlighted during the pandemic: typical occupations here include cleaners, drivers, assemblers, machine operators, porters and messengers, plumbers, shop workers and care workers.</p>
 
 <p align="justify">People in these key occupations saw the steepest fall in their employment, when compared to the employment rate during the pre-pandemic period (Figure 5). This is particularly true for men who saw a decrease of 5% from 2019 to the end of 2020 (87% vs 82%). The equivalent fall for women was 2%. Employment levels for other occupational class categories remained far more stable and, indeed, remained virtually unchanged for management and professional jobs, compared to pre-pandemic rates. </p>
 
-
-```{r echo=FALSE, fig.width= 10, fig.height=7, fig.align = 'center'}
+```{r echo=FALSE}
 
 ## Employment per occupation and sex
 
@@ -525,7 +581,7 @@ em_class_plot <- em_class %>%
                   "#DF9216", "#A3BE41")) +
         # annotation
         labs(x = "", 
-             y = "Percentage of people in employment",
+             y = "",
              title ="Employment has not recovered equally for everyone",
              subtitle  = "Employment rate UK population per occupational class, 2019/20/21",
              caption = c("Note: Employment is the proportion of the working age population that is employed
@@ -549,26 +605,44 @@ em_class_plot <- em_class %>%
               strip.text = element_text(face = "bold", hjust = 0, size = 12)) +
         guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4)))
 
-if (knitr::is_html_output()) {
-  ggplotly(em_class_plot, tooltip=c("text"), width = 1000,
-           height = 700) %>%
+
+ggplotly(em_class_plot, tooltip=c("text"), width = 700,
+           height = 600) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE)) %>%
   config(displayModeBar = FALSE) %>% 
-  layout(title = list(text = "Employment rate per occupational class, 2019-2021",
-                      xanchor = "left"),
-         font  = list(size = 11),
-         margin = list(t = 110, pad = 10),
+  layout(title = list(text = paste('Figure 5: Employment has not recovered equally for everyone',
+                                    '<br>',
+                                    '<sup>',
+                                    'UK Employment rate per occupational class, 2019/20/21',
+                                    '</sup>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                   '<br>',
+                                   '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 200, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
          legend = list(orientation = "h",   # show entries horizontally
                      xanchor = "center",  # use center of legend as anchor
-                     x = 0.5, y= 1.1))
-} else {
-  unem_age_plot
-}
+                     yanchor = "top",
+                     x = 0.5, y= 1.28,
+                     font  = list(size = 13)))
+
 ```
 
 
-## Redundancies were concentrated in professional as well as routine occupations
+# Redundancies per occupational class
 
 <p align="justify">While the pandemic barely impacted the overall employment levels of management and professional workers, people in this category were most likely to be made redundant during 2020 (see Figure 6). An estimated 87,553 male workers in management/professional jobs indicated that they had been made redundant within the previous three months (surveyed in October/December 2020). This is 3.2 times higher than the same period in 2019. In the case of similar female workers, the peak was felt in the September/November quarter, with an estimated 63,803 redundancies in the previous three months. This is 2.3 times more redundancies than the last quarter of 2019. </p>
 
@@ -578,8 +652,7 @@ if (knitr::is_html_output()) {
 
 <p align="justify">There was a sharp decline in the number of redundancies as 2020 closed and 2021 began. </p>
 
-
-```{r redundancy occupation, echo=FALSE, fig.width= 10, fig.height=7, fig.align = 'center'}
+```{r redundancy occupation}
 
 red_class <- LFS_clean %>%
         filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
@@ -587,13 +660,14 @@ red_class <- LFS_clean %>%
         summarise(Redund = sum(PWT18)) %>%
         filter(!is.na(NSECMJ10_2) & NSECMJ10_2 != 6)
 
-tiplab_red <- rbind(tiplab,tiplab,tiplab,tiplab,tiplab) %>% 
-  mutate(NSECMJ10_2 = c(rep(as_character(as_label(em_class$NSECMJ10_2)[1]), 32),
-                        rep(as_character(as_label(em_class$NSECMJ10_2)[2]), 32),
-                        rep(as_character(as_label(em_class$NSECMJ10_2)[3]), 32),
-                        rep(as_character(as_label(em_class$NSECMJ10_2)[4]), 32),
-                        rep(as_character(as_label(em_class$NSECMJ10_2)[5]), 32))) %>% 
+# this one misses some months, create new tiplab to correctly label
+tiplab_red <- red_class %>% 
+  mutate(SEX = as_label(SEX)) %>% 
+  dplyr::select(QUARTER, SEX, NSECMJ10_2) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
   dplyr::arrange(QUARTER, NSECMJ10_2)
+
 
 red_class_plot <- red_class %>% 
         ggplot(aes(x = QUARTER, y = Redund, col = as_label(NSECMJ10_2))) +
@@ -620,7 +694,7 @@ red_class_plot <- red_class %>%
         
         # annotation
         labs(x = "", 
-             y = "Number of employees made redundant",
+             y = "",
              title ="Professional and routine occupations experienced more redundancies",
              subtitle  = "Redundancies UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
@@ -641,35 +715,51 @@ red_class_plot <- red_class %>%
               strip.text = element_text(face = "bold", hjust = 0, size = 12)) +
         guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) 
 
-if (knitr::is_html_output()) {
-  ggplotly(red_class_plot, tooltip=c("text"), width = 1000,
-           height = 700) %>%
+ggplotly(red_class_plot, tooltip=c("text"), width = 700,
+           height = 600) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE)) %>%
   config(displayModeBar = FALSE) %>% 
-  layout(title = list(text = "Redundancies in UK population 2019-2021",
-                      xanchor = "left"),
-         font  = list(size = 11),
-         margin = list(t = 110, pad = 10),
+  layout(title = list(text = paste('Figure 6: Redundancies per occupational class',
+                                    '<br>',
+                                    '<sup>',
+                                    'Number of people made redundant in the UK, 2019/20/21',
+                                    '</sup>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                   '<br>',
+                                   '<br>',
+                                   '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 190, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
          legend = list(orientation = "h",   # show entries horizontally
                      xanchor = "center",  # use center of legend as anchor
-                     x = 0.5, y= 1.1))
-} else {
-  red_class_plot
-}
+                     yanchor = "top",
+                     x = 0.5, y= 1.26,
+                     font  = list(size = 13)))
+
 
 ```
 
 
-## Employers are not being able to keep their staff
+# Employers are not being able to keep their staff
 
 <p align="justify">The reasons for redundancies are mostly divided between those workers who were made redundant because employers had to close down fully and those who were made redundant because their employers reduced staffing numbers in the face of reduced demand and/or to maintain profit levels. As non-essential businesses were experiencing long periods of inactivity, as a result of COVID-19 closures and other pressures, many employers opted to retain fewer employees to carry out the available work. The percentage of people who lost their jobs because of workplaces reducing staff shot up rapidly after the first lockdown, peaking at 38% of all redundancies in summer 2020. </p>
 
 <p align="justify">This trend has not decreased since its peak in summer 2020, with both men and women similarly affected. </p>
 
-
-
-```{r redundancy reason, echo=FALSE, fig.width= 10, fig.height=7, fig.align = 'center'}
+```{r redundancy reason}
 
 red_reason <- LFS_clean %>%
         filter(REDUND == 1) %>%
@@ -678,12 +768,21 @@ red_reason <- LFS_clean %>%
         group_by(QUARTER) %>%
         mutate(Percent = Reason / sum(Reason))
 
-red_reason %>% filter(!is.na(REDCLOS)) %>% 
+tiplab_red_reason <-  rbind(tiplab,tiplab,tiplab) %>% 
+  mutate(REDCLOS = c(rep(as_character(as_label(red_reason$REDCLOS)[1]), 32),
+                        rep(as_character(as_label(red_reason$REDCLOS)[2]), 32),
+                        rep(as_character(as_label(red_reason$REDCLOS)[3]), 32))) %>% 
+  dplyr::arrange(QUARTER, REDCLOS)
+
+red_reason_plot <- red_reason %>% filter(!is.na(REDCLOS)) %>% 
         ggplot(aes(x = QUARTER, y = Percent, col = as_label(REDCLOS))) +
         geom_vline(xintercept = 4, color = "#c9c9c9") +
         geom_vline(xintercept = 15, color = "#c9c9c9") +
         geom_line(size = 1, show.legend = FALSE) +
-        geom_point(shape = 19) +
+        geom_point(aes(text = paste("Redundancy:", round(Percent*100,1),"%", 
+                                    "\nQuarter:", tiplab_red_reason$qlabel[tiplab_red_reason$QUARTER == QUARTER],
+                                    "\nReason:", as_label(REDCLOS))), 
+                   shape = 19) +
         geom_vline(xintercept = 7, linetype="dotted") +
         facet_wrap(~as_label(SEX)) + 
         
@@ -699,7 +798,7 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
         
         # annotation
         labs(x = "", 
-             y = "% of employees made redundant",
+             y = "",
              title ="Figure 7: Employers are not being able to keep their staff",
              subtitle  = "Redundancies of UK population, 2019/20/21",
              caption = c("Source: UK Labour Force Survey (Person)")) +
@@ -720,6 +819,36 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
               legend.text = element_text(size=11),
               strip.text = element_text(face = "bold", hjust = 0, size = 12)) +
         guides(color = guide_legend(title="Within the last three months I was made redundant because:", title.position = "top", override.aes = list(size = 5))) 
+
+ggplotly(red_reason_plot, tooltip=c("text"), width = 700,
+           height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(title = list(text = paste('Figure 7: Employers are not being able to keep their staff',
+                                    '<br>',
+                                    '<sup>',
+                                    'Percentage of people made redundant in the UK, 2019/20/21',
+                                    '</sup>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                    '<br>',
+                                   '<br>'),
+                      xanchor = "left",
+                      yanchor = "top",
+                      font  = list(size = 18)),
+         margin = list(t = 160, l = 0, b = 100, r = 10),
+         xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.23,
+                     font  = list(size = 13)))
 
 
 
@@ -745,7 +874,6 @@ red_reason %>% filter(!is.na(REDCLOS)) %>%
 <p align="justify">Our project ‘How is COVID-19 impacting women and men’s working lives in the UK?’ is funded by Health Data Research UK, as part of the rapid funding call to use and enrich the data within the Data & Connectivity National Core Study (NCS) capability. This report draws on the analysis of the 2019/20/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar | Apr-Jun | Jul-Sep | Oct-Dec. From 2020, additional non-calendar quarter data have been released in response to the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters also included data for January and February 2021. Our analyses consider only the economically active population between 18-64 years old. </p>
 
 <p align="justify">Table 1 summarises the sample size and population estimates for all the data waves considered in this analysis. </p>
-
 
 ```{r data, echo=FALSE, ft.align = "center"}
 
