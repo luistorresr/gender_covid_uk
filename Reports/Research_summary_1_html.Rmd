@@ -674,7 +674,7 @@ red_class_plot <- red_class %>%
         geom_vline(xintercept = 4, color = "#c9c9c9") +
         geom_vline(xintercept = 15, color = "#c9c9c9") +
         geom_line(size = 1, show.legend = FALSE) +
-        geom_point(aes(text = paste("Redundancy:", round(Redund*100,1),"%", 
+        geom_point(aes(text = paste("Redundancy:", Redund, 
                                     "\nGender:", as_label(SEX), 
                                     "\nQuarter:", tiplab_red$qlabel[tiplab_red$QUARTER == QUARTER],
                                     "\nOccupation:", as_label(NSECMJ10_2))), 
