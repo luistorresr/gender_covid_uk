@@ -922,7 +922,7 @@ N_total %>% flextable() %>% theme_vanilla() %>%
 
 *	<p align="justify">The research data are distributed by the UK Data Service (safeguarded data version). The original data creators, the depositors, the copyright holders, the funders and the UK Data Archive bear no responsibility for the analysis or interpretation of the data made in this paper.</p>
 
-*	<p align="justify">We are grateful to Professor Clare Lyonette from the Institute for Employment Research University of Warwick feedback and Dr Mary-Ann Stephenson and Dr Sara Reis from the UK Women’s Budget Group for their collaboration on the project. </p>
+*	<p align="justify">We are grateful to Professor Clare Lyonette from the Institute for Employment Research University of Warwick for feedback and Dr Mary-Ann Stephenson and Dr Sara Reis from the UK Women’s Budget Group for their collaboration on the project. </p>
 
 
 # Citation
