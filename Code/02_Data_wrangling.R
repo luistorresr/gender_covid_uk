@@ -272,30 +272,25 @@ variables <- c(
 
         # MAIN JOB - PRECARIOUS WORK INDICATORS
         
-        # self-employment
-        
-        
         ## full vs part time (complement with hours data)
         
         "FTPTWK", # Whether full or part time in main job (filter for the required economics activity)        
         "YPTJOB", # Reason for part time job (filter by FTPTWK = 2) 
-        "VARYHR", # Whether weekly hours tend to vary
-        
 
         ## Permanent/Temporary Employment
         
         "JOBTYP", # Whether job permanent (filter by Stat=1 AND EverWk<1)
         "AGWRK", # Whether agency worker (applies to JOBTYP = 1)
-        "EMPLEN", # Length of time continuously employed
-        "EMPMON", # Months continuously employed
-        
         "WHYTMP6", # Reason for taking non-permanent job (filter by JOBTYP = 2) 
         "RESTMR6", # Reason job is temporary - Way in which job was not permanent
         "TEMLEN", # Length of non-permanent job
+        "EMPLEN", # Length of time continuously employed
+        "EMPMON", # Months continuously employed      
         
         ## work arrangements
         
         "FLED10", # Type of agreed work arrangement
+        "VARYHR", # Whether weekly hours tend to vary
         
         ## Seeking for work
         "DIFJOB", # Whether looking for different or additional paid job or business
@@ -384,7 +379,11 @@ t14 <- LFS21_FA %>% select(variables)
 LFS_all <- rbind(t1a, t2a, t3a, t4a, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) # working database
 LFS_all <- as_tibble(LFS_all) # creating a tibble for data manipulation
 
-save(LFS_all, file = "./Data_clean/LFS_all.rda") 
+rm(list = ls()) # clean the global environment to save memory
+
+save(LFS_all, file = "./Data_clean/LFS_all.rda") # load the saved dataset for data manipulation
+
+load("./Data_clean/LFS_all.rda") # this is the file for analysis
 
 #### Create a working dataset to clean
 
@@ -467,6 +466,19 @@ LFS_clean$QUARTER <- set_labels(LFS_clean$QUARTER, labels = c("Jan/Mar19" = 1, "
                                                               "Jul/Sep20" = 11, "Aug/Oct20" = 12, "Sep/Nov20" = 13,
                                                              "Oct/Dec20" = 14, "Nov20/Jan21" = 15,"Dec20/Feb21" = 16,
                                                              "Jan/Mar21" = 17, "Feb/Apr21" = 18))
+
+## adding labels to FLED10
+LFS_clean$FLED10 <- set_labels(LFS_clean$FLED10, labels = c("Flexitime" = 1, 
+                                                            "Annualised hours" = 2, 
+                                                            "Term time working" = 3, 
+                                                            "Job sharing" = 4, 
+                                                            "Nine day fortnight" = 5, 
+                                                            "Four and a half day week" = 6, 
+                                                            "Zero hours contract" = 7,
+                                                            "On-Call Working" = 8, 
+                                                            "None of these" = 9, 
+                                                            "Don’t know" = 10))
+l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels 
 
 ### saving the clean dataset
 
