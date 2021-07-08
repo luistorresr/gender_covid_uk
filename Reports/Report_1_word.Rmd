@@ -93,7 +93,7 @@ load("../Data_clean/LFS_clean.rda")
 # Unemployment per sex
 
 unem_sex <- LFS_clean %>% 
-                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2) %>%
+                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2 & QUARTER <= 16) %>%
                 group_by(QUARTER, as_label(ILODEFR), SEX) %>%
                 summarise(Active = sum(PWT18))  %>% 
             pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -156,7 +156,7 @@ Looking at Figure 2, young men saw an increase in unemployment of up to 4% in Ju
 ```{r age, echo=FALSE,  fig.width= 10, fig.height=7}
 
 unem_age <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, AGEEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
@@ -242,7 +242,7 @@ LFS_clean <- LFS_clean %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL),
                                                 as_numeric(., keep.labels = TRUE)
 
 unem_eth_gen <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), ETHUKEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -310,7 +310,7 @@ A similar but less marked gender trend is shown among people from black backgrou
 # Unemployment per ethnicity and sex
 
 unem_eth <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, ETHUKEUL) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -386,7 +386,7 @@ People in these key occupations saw the steepest fall in their employment, when 
 ## Employment per occupation and sex
 
 em_class <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64) %>%
+        filter(AGE >= 18 & AGE <= 64  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(pop = sum(PWT18), empl = sum(PWT18[ILODEFR ==1])) %>%
         mutate(Rate = empl / pop) %>%
@@ -456,7 +456,7 @@ There was a sharp decline in the number of redundancies as 2020 closed and 2021 
 ```{r redundancy occupation, echo=FALSE, fig.width= 10, fig.height=7}
 
 red_class <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(Redund = sum(PWT18)) %>%
         filter(!is.na(NSECMJ10_2) & NSECMJ10_2 != 6)
@@ -517,7 +517,7 @@ This trend has not decreased since its peak in summer 2020, with both men and wo
 ```{r redundancy reason, echo=FALSE, fig.width= 10, fig.height=7}
 
 red_reason <- LFS_clean %>%
-        filter(REDUND == 1) %>%
+        filter(REDUND == 1  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, REDCLOS) %>%
         summarise(Reason = sum(PWT18)) %>%
         group_by(QUARTER) %>%
@@ -595,7 +595,7 @@ Table 1 summarises the sample size and population estimates for all the data wav
 ```{r data, echo=FALSE}
 
 N_total <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64) %>%
+        filter(AGE >= 18 & AGE <= 64  & QUARTER <= 16) %>%
         group_by(as_label(QUARTER)) %>%
         summarise(Sample = n(), Population = sum(PWT18), Econ_active = sum(PWT18[ILODEFR <=2])) 
 

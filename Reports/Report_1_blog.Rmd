@@ -80,7 +80,7 @@ load("../Data_clean/LFS_clean.rda")
 
 # Unemployment per sex
 unem_sex <- LFS_clean %>% 
-                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2) %>%
+                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2  & QUARTER <= 16) %>%
                 group_by(QUARTER, as_label(ILODEFR), SEX) %>%
                 summarise(Active = sum(PWT18))  %>% 
             pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -166,7 +166,7 @@ Men have been impacted more when overall unemployment is considered. But this ov
 
 ```{r unemployment ethnicity, fig.width= 10, fig.height=10}
 unem_eth <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, ETHUKEUL) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -260,7 +260,7 @@ Male under 25-year olds have been hit particularly badly by unemployment. In the
 
 ```{r age, fig.width= 10, fig.height=7}
 unem_age <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, AGEEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
@@ -371,7 +371,7 @@ Our research also revealed that while some recovery in employment is visible fro
 
 ```{r working class employment, fig.width= 10, fig.height=7}
 em_class <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64) %>%
+        filter(AGE >= 18 & AGE <= 64  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(pop = sum(PWT18), empl = sum(PWT18[ILODEFR == 1])) %>%
         mutate(Rate = empl / pop) %>%
@@ -464,7 +464,7 @@ The main reason for the high amount of redundancies seems to be that employers a
 
 ```{r redundancy, fig.width= 10, fig.height=7}
 red_class <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(Redund = sum(PWT18)) %>%
         filter(!is.na(NSECMJ10_2) & NSECMJ10_2 != 6)

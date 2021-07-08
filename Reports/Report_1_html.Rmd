@@ -99,7 +99,7 @@ load("../Data_clean/LFS_clean.rda")
 
 # Unemployment per sex
 unem_sex <- LFS_clean %>% 
-                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2) %>%
+                filter(AGE >= 18 & AGE <= 64 & ILODEFR <= 2  & QUARTER <= 16) %>%
                 group_by(QUARTER, as_label(ILODEFR), SEX) %>%
                 summarise(Active = sum(PWT18))  %>% 
             pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -191,7 +191,7 @@ ggplotly(unem_sex_plot, tooltip = c("text"), width = 700,
 ```{r age}
 
 unem_age <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, AGEEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%        
@@ -319,7 +319,7 @@ LFS_clean <- LFS_clean %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL),
                                                 as_numeric(., keep.labels = TRUE)
 
 unem_eth_gen <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), ETHUKEUL_2) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -417,7 +417,7 @@ ggplotly(unem_eth_gen_plot, tooltip=c("text"), width = 700,
 # Unemployment per ethnicity and sex
 
 unem_eth <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2) %>%
+        filter(AGE >= 18 & AGE <= 64 & ILODEFR <=2  & QUARTER <= 16) %>%
         group_by(QUARTER, as_label(ILODEFR), SEX, ETHUKEUL) %>%
         summarise(Active = sum(PWT18))  %>% 
         pivot_wider(names_from = `as_label(ILODEFR)`, values_from = Active) %>%
@@ -538,7 +538,7 @@ ggplotly(unem_eth_plot, tooltip=c("text"), width = 800,
 ## Employment per occupation and sex
 
 em_class <- LFS_clean %>% 
-        filter(AGE >= 18 & AGE <= 64) %>%
+        filter(AGE >= 18 & AGE <= 64  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(pop = sum(PWT18), empl = sum(PWT18[ILODEFR ==1])) %>%
         mutate(Rate = empl / pop) %>%
@@ -655,7 +655,7 @@ ggplotly(em_class_plot, tooltip=c("text"), width = 700,
 ```{r redundancy occupation}
 
 red_class <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64 & REDUND == 1) %>%
+        filter(AGE >= 18 & AGE <= 64 & REDUND == 1  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, NSECMJ10_2) %>%
         summarise(Redund = sum(PWT18)) %>%
         filter(!is.na(NSECMJ10_2) & NSECMJ10_2 != 6)
@@ -762,7 +762,7 @@ ggplotly(red_class_plot, tooltip=c("text"), width = 700,
 ```{r redundancy reason}
 
 red_reason <- LFS_clean %>%
-        filter(REDUND == 1) %>%
+        filter(REDUND == 1  & QUARTER <= 16) %>%
         group_by(QUARTER, SEX, REDCLOS) %>%
         summarise(Reason = sum(PWT18)) %>%
         group_by(QUARTER) %>%
@@ -878,7 +878,7 @@ ggplotly(red_reason_plot, tooltip=c("text"), width = 700,
 ```{r data, echo=FALSE, ft.align = "center"}
 
 N_total <- LFS_clean %>%
-        filter(AGE >= 18 & AGE <= 64) %>%
+        filter(AGE >= 18 & AGE <= 64  & QUARTER <= 16) %>%
         group_by(as_label(QUARTER)) %>%
         summarise(Sample = n(), Population = sum(PWT18), Econ_active = sum(PWT18[ILODEFR <=2])) 
 
