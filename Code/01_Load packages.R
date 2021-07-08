@@ -24,7 +24,7 @@ if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-projec
 if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
 if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
-if(!require(rpart)) install.packages("caret", repos = "http://cran.us.r-project.org")
+if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.org")
 
 library(ggalt) # contingency table
 library(tidyverse) # several tools for data manipulation
@@ -52,3 +52,4 @@ library(randomForest)
 #### Output configurations
 options(digits = 3) # decimal points to 3
 memory.limit(size = 1000000)
+
