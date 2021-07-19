@@ -23,8 +23,12 @@ if(!require(flextable)) install.packages("flextable", repos = "http://cran.us.r-
 if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-project.org")
 if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
 if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
-if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
-if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.org")
+if(!require(bookdown)) install.packages("bookdown", repos = "http://cran.us.r-project.org")
+if(!require(rmdformats)) install.packages("rmdformats", repos = "http://cran.us.r-project.org")
+if(!require(htmlwidgets)) install.packages("htmlwidgets", repos = "http://cran.us.r-project.org")
+if(!require(widgetframe)) install.packages("widgetframe", repos = "http://cran.us.r-project.org")
+if(!require(shiny)) install.packages("shiny", repos = "http://cran.us.r-project.org")
+
 
 library(ggalt) # contingency table
 library(tidyverse) # several tools for data manipulation
@@ -42,12 +46,11 @@ library(plotly) # interactive plots
 library(flextable) # formatting tables 
 library(scales) # add scale symbols and colour to axis
 library(janitor) # add totals to tables
-library(caret) # machine learning algorithms 
-library(rpart) # decision tree 
-library(mltools) # one hot encoding 
-library(party)
-library(tree)
-library(randomForest)
+library(bookdown) # building reports in html
+library(rmdformats)
+library(htmlwidgets)
+library(shiny)
+library(widgetframe)
 
 #### Output configurations
 options(digits = 3) # decimal points to 3
