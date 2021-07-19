@@ -45,6 +45,17 @@ N_total_2 %>% flextable() %>% theme_vanilla() %>%
 
 ### PART-TIME WORK (employees and self employed people only) 
 
+t_ptwrk_hr <- d_precariety %>% # summary table
+  filter(FTPTWK == 2) %>%  # only part-timers
+  select(QUARTER, BUSHR) %>%
+  filter(!is.na(BUSHR)) %>%
+  group_by(QUARTER) %>%
+  summarise(mean_hr = mean(BUSHR)) 
+
+mean(t_ptwrk_hr$mean_hr)
+
+
+
 #### by sex 
 
 t_ptwrk <- d_precariety %>% # summary table
@@ -55,6 +66,11 @@ t_ptwrk <- d_precariety %>% # summary table
   # percentage part-time per quarter
   mutate(percentage = count/sum(count)) %>% 
   filter(FTPTWK == 2)
+
+percent(min(t_ptwrk$percentage[t_ptwrk$SEX == 2], accuracy = 1)) # minimum for women
+percent(max(t_ptwrk$percentage[t_ptwrk$SEX == 2])) # maximum for women
+t_ptwrk$QUARTER[which.max(t_ptwrk$percentage[t_ptwrk$SEX == 2])] # quarter with the max % of women part-time
+t_ptwrk$QUARTER[which.min(t_ptwrk$percentage[t_ptwrk$SEX == 2])] # quarter with the max % of women part-time
 
 p_ptwrk <- t_ptwrk %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_factor(SEX))) + # line graph
@@ -120,6 +136,13 @@ t_ptwrk_eth <- d_precariety %>% # table summary
   # percentage part-time per quarter
   mutate(percentage = count/sum(count)) %>% 
   filter(FTPTWK == 2 & !is.na(ETHUKEUL_2))
+
+min(percent(t_ptwrk_eth$percentage[t_ptwrk_eth$ETHUKEUL_2 == 2], accuracy = 1)) # min etninicy
+
+max(percent(t_ptwrk_eth$percentage[t_ptwrk_eth$ETHUKEUL_2 == 2], accuracy = 1)) # max ethnicity
+
+min(percent(t_ptwrk_eth$percentage[t_ptwrk_eth$ETHUKEUL_2 == 1], accuracy = 1)) # min white
+max(percent(t_ptwrk_eth$percentage[t_ptwrk_eth$ETHUKEUL_2 == 1], accuracy = 1)) # max white
 
 p_ptwrk_eth <- t_ptwrk_eth %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + ## line graph
@@ -411,6 +434,11 @@ t_yptwrk <- d_precariety %>% # table summary
   mutate(percentage = count/sum(count)) %>% 
   filter(YPTJOB %in% c("3", "4")) # could not find / did not want ft job
 
+min(percent(t_yptwrk$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk$SEX == 1], accuracy = 1))
+max(percent(t_yptwrk$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk$SEX == 1], accuracy = 1))
+min(percent(t_yptwrk$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk$SEX == 2], accuracy = 1))
+max(percent(t_yptwrk$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk$SEX == 2], accuracy = 1))
+
 p_yptwrk <- t_yptwrk %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(SEX))) + # line graph
   geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
@@ -469,6 +497,11 @@ t_yptwrk_eth <- d_precariety %>% # table summary
   mutate(percentage = count/sum(count)) %>% 
   filter(YPTJOB %in% c("3", "4") & !is.na(ETHUKEUL_2)) # could not find / did not want ft job
 
+min(percent(t_yptwrk_eth$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk_eth$ETHUKEUL_2 == 1], accuracy = 1))
+max(percent(t_yptwrk_eth$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk_eth$ETHUKEUL_2 == 1], accuracy = 1))
+min(percent(t_yptwrk_eth$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk_eth$ETHUKEUL_2 == 2], accuracy = 1))
+max(percent(t_yptwrk_eth$percentage[t_yptwrk$YPTJOB == 3 & t_yptwrk_eth$ETHUKEUL_2 == 2], accuracy = 1))
+
 p_yptwrk_eth <- t_yptwrk_eth %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
   geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
@@ -526,6 +559,12 @@ t_yptwrk_class <- d_precariety %>% # table summary
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
   filter(YPTJOB %in% c("3", "4")) # could not find / did not want ft job
+
+min(percent(t_yptwrk_class$percentage[t_yptwrk_class$YPTJOB == 3 & t_yptwrk_class$NSECMJ10_2 == 5], accuracy = 1))
+max(percent(t_yptwrk_class$percentage[t_yptwrk_class$YPTJOB == 3 & t_yptwrk_class$NSECMJ10_2 == 5], accuracy = 1))
+max(percent(t_yptwrk_class$percentage[t_yptwrk_class$YPTJOB == 3 & t_yptwrk_class$NSECMJ10_2 == 4], accuracy = 1))
+min(percent(t_yptwrk_class$percentage[t_yptwrk_class$YPTJOB == 3 & t_yptwrk_class$QUARTER == 5 & t_yptwrk_class$NSECMJ10_2 == 4], accuracy = 1))
+
 
 p_yptwrk_class <- t_yptwrk_class %>% # line graph
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) +
@@ -642,6 +681,13 @@ t_jobtyp <- d_precariety %>% # summary table
   mutate(percentage = count/sum(count)) %>% 
   filter(JOBTYP == 2)
 
+min(percent(t_jobtyp$percentage[t_jobtyp$SEX == 2], accuracy = 1))
+max(percent(t_jobtyp$percentage[t_jobtyp$SEX == 2], accuracy = 1))
+
+min(percent(t_jobtyp$percentage[t_jobtyp$SEX == 1], accuracy = 1))
+max(percent(t_jobtyp$percentage[t_jobtyp$SEX == 1], accuracy = 1))
+
+
 p_jobtyp <- t_jobtyp %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_factor(SEX))) + # line graph
   geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
@@ -696,6 +742,12 @@ t_jobtyp_eth <- d_precariety %>% # table summary
   # percentage part-time per quarter
   mutate(percentage = count/sum(count)) %>% 
   filter(JOBTYP == 2 & !is.na(ETHUKEUL_2))
+
+min(percent(t_jobtyp_eth$percentage[t_jobtyp_eth$ETHUKEUL_2 == 1], accuracy = 1))
+max(percent(t_jobtyp_eth$percentage[t_jobtyp_eth$ETHUKEUL_2 == 1], accuracy = 1))
+
+min(percent(t_jobtyp_eth$percentage[t_jobtyp_eth$ETHUKEUL_2 == 2], accuracy = 1))
+max(percent(t_jobtyp_eth$percentage[t_jobtyp_eth$ETHUKEUL_2 == 2], accuracy = 1))
 
 p_jobtyp_eth <- t_jobtyp_eth %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
@@ -825,6 +877,12 @@ t_restmr2 <- d_precariety %>% # summary table
   # percentage 
   mutate(percentage = count/sum(count)) %>% 
   filter(!is.na(RESTMR6_2) & RESTMR6_2 != 6) # remove "other"
+
+min(percent(t_restmr2$percentage[t_restmr2$SEX == 1 & t_restmr2$RESTMR6_2 == 3], accuracy = 1))
+max(percent(t_restmr2$percentage[t_restmr2$SEX == 1 & t_restmr2$RESTMR6_2 == 3], accuracy = 1))
+
+min(percent(t_restmr2$percentage[t_restmr2$SEX == 2 & t_restmr2$RESTMR6_2 == 3], accuracy = 1))
+max(percent(t_restmr2$percentage[t_restmr2$SEX == 2 & t_restmr2$RESTMR6_2 == 3], accuracy = 1))
 
 p_restmr2 <- t_restmr2 %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(RESTMR6_2))) + # line graph
@@ -1301,7 +1359,7 @@ t_whytem_eth <- d_precariety %>% # table summary
   group_by(QUARTER, ETHUKEUL_2) %>% 
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
-  filter(WHYTMP6 %in% c("3") & !is.na(ETHUKEUL_2)) # could not find 
+  filter(WHYTMP6 %in% c("3", "4") & !is.na(ETHUKEUL_2))  
 
 p_whytem_eth <- t_whytem_eth %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
@@ -1310,6 +1368,7 @@ p_whytem_eth <- t_whytem_eth %>%
   geom_line(size = 1, show.legend = FALSE) +
   geom_point(shape = 19) +
   geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(WHYTMP6)) +
   
   # scale and colour
   scale_colour_manual(values = c("#DF9216", "#791F83")) +
@@ -1347,6 +1406,7 @@ p_whytem_eth <- t_whytem_eth %>%
   guides(color = guide_legend(override.aes = list(size = 4))) # change the legend box size
 
 p_whytem_eth
+
 
 ##### cannot find permanenet job by contract type
 
@@ -1414,7 +1474,7 @@ t_whytem_class <- d_precariety %>% # table summary
   group_by(QUARTER, NSECMJ10_2) %>% 
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
-  filter(NSECMJ10_2 != 3 & WHYTMP6 %in% c("3")) # could not find 
+  filter(NSECMJ10_2 != 3 & WHYTMP6 %in% c("3", "4")) # could not find 
 
 p_whytem_class <- t_whytem_class %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) +
@@ -1423,6 +1483,7 @@ p_whytem_class <- t_whytem_class %>%
   geom_line(size = 1, show.legend = FALSE) +
   geom_point(shape = 19) +
   geom_vline(xintercept = 7, linetype="dotted") + 
+  facet_wrap(.~ as_label(WHYTMP6)) +
   
   # scale and colour
   scale_y_continuous(breaks = seq(0,0.5, 0.05), limits = c(0, 0.5), labels =
@@ -1546,7 +1607,7 @@ t_fled <- d_precariety %>% # table summary
   group_by(QUARTER, SEX) %>% 
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
-  filter(!is.na(FLED10) & FLED10 %in% c(1, 4, 7, 8)) # omit NAs and include only certain categories
+  filter(!is.na(FLED10) & FLED10 %in% c(1, 2, 4, 7, 8)) # omit NAs and include only certain categories
 
 p_fled <- t_fled %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(FLED10))) + # line graph
@@ -1598,12 +1659,12 @@ p_fled # print the plot
 
 t_fled_eth <- d_precariety %>% # table summary 
   filter(QUARTER %in% c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18)) %>% 
-  group_by(QUARTER, FLED10, SEX, ETHUKEUL_2) %>% 
+  group_by(QUARTER, FLED10, ETHUKEUL_2) %>% 
   summarise(count = sum(PWT18)) %>% 
-  group_by(QUARTER, SEX, ETHUKEUL_2) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
-  filter(!is.na(FLED10) & !is.na(ETHUKEUL_2) & FLED10 %in% c(1, 2, 4, 7, 8)) # remove NA and include only certain categories
+  filter(!is.na(FLED10) & !is.na(ETHUKEUL_2) & FLED10 %in% c(1, 2, 7, 8)) # remove NA and include only certain categories
 
 p_fled_eth <- t_fled_eth %>% 
   ggplot(aes(x = QUARTER, y = percentage, colour = as_label(FLED10))) + # line graph
@@ -1612,7 +1673,7 @@ p_fled_eth <- t_fled_eth %>%
   geom_line(size = 1, show.legend = FALSE) +
   geom_point(shape = 19) +
   geom_vline(xintercept = 7, linetype="dotted") +
-  facet_wrap(.~as_label(ETHUKEUL_2) + as_label(SEX)) +
+  facet_wrap(.~as_label(ETHUKEUL_2)) +
   
   # scale and colour
   scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.2), labels =
@@ -1707,8 +1768,6 @@ p_fled_class <- t_fled_class %>%
 
 p_fled_class # print the plot
 
-
-###"VARYHR", # Whether weekly hours tend to vary
 
 
 
