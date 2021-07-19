@@ -1,0 +1,1883 @@
+---
+title: "How has the risk of precarious work evolved in the COVID-19 UK? Research Summary 2"
+subtitle: 'Project: How is COVID-19 impacting women and men’s working lives in the UK?'
+author: "Luis D. Torres, Tracey Warren and Annegreet Veeken, and the UK Women’s Budget Group"
+date: July 2021
+output: 
+   rmdformats::robobook:
+     self_contained: TRUE
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+	warning = FALSE,
+  collapse = TRUE,
+  fig.align = "center",
+  fig_caption= TRUE,
+  use_bookdown= TRUE,
+  toc= TRUE,
+  toc_depth= 3,
+  collapsed = FALSE
+  
+)
+```
+
+```{r libraries}
+#### packages needed
+if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if(!require(gridExtra)) install.packages("girdExtra", repos = "http://cran.us.r-project.org")
+if(!require(corrr)) install.packages("corrr", repos = "http://cran.us.r-project.org")
+if(!require(Hmisc)) install.packages("Hmisc", repos = "http://cran.us.r-project.org")
+if(!require(sjlabelled)) install.packages("sjlabelled", repos = "http://cran.us.r-project.org")
+if(!require(ggthemes)) install.packages("ggthemes", repos = "http://cran.us.r-project.org")
+if(!require(ggtext)) install.packages("ggtext", repos = "http://cran.us.r-project.org")
+if(!require(ggrepel)) install.packages("ggrepel", repos = "http://cran.us.r-project.org")
+if(!require(doBy)) install.packages("doBy", repos = "http://cran.us.r-project.org")
+if(!require(sjmisc)) install.packages("sjmisc", repos = "http://cran.us.r-project.org")
+if(!require(plotly)) install.packages("plotly", repos = "http://cran.us.r-project.org")
+if(!require(flextable)) install.packages("flextable", repos = "http://cran.us.r-project.org")
+if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-project.org")
+if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
+if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
+if(!require(bookdown)) install.packages("bookdown", repos = "http://cran.us.r-project.org")
+if(!require(rmdformats)) install.packages("rmdformats", repos = "http://cran.us.r-project.org")
+if(!require(htmlwidgets)) install.packages("htmlwidgets", repos = "http://cran.us.r-project.org")
+if(!require(widgetframe)) install.packages("widgetframe", repos = "http://cran.us.r-project.org")
+if(!require(shiny)) install.packages("shiny", repos = "http://cran.us.r-project.org")
+
+library(ggalt) # contingency table
+library(tidyverse) # several tools for data manipulation
+library(haven) # read SPSS, Stata, and SAS data
+library(gridExtra) # arrange multiple grid-based plots on a page
+library(corrr) # for correlations correlate()
+library(Hmisc) # many functions useful for data analysis
+library(sjmisc) # useful to set Na's
+library(sjlabelled) # get_labels function
+library(ggthemes) # themes for ggplot2
+library(ggtext) # fancy text
+library(ggrepel) # help with the position of the labels on ggplot2 graph
+library(doBy) # 'do' something to data stratified 'by' some variables
+library(plotly) # interactive plots
+library(flextable) # formatting tables 
+library(scales) # add scale symbols and colour to axis
+library(janitor) # add totals to tables
+library(rmdformats)
+library(htmlwidgets)
+library(shiny)
+library(widgetframe)
+
+```
+
+```{r data, echo=FALSE}
+
+load("../../Data_clean/LFS_clean.rda") # this is the base file
+
+## CREATING A SUB-DATASET
+
+d_precariety <- LFS_clean %>% 
+  # set variable types
+  mutate_at(c("QUARTER", "PWT18", "PIWT18"), ~as.numeric(.)) %>%  
+  # Apply basic filters
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  filter(ILODEFR == 1) %>% # only people in employment
+  filter(STAT <= 2) %>% # only employees and self-employed
+  filter(STATR <= 2) # only employees and self-employed current job
+
+```
+
+# Background
+
+<p align="justify">Covid-19 has proven to be not solely a health crisis. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, have shaped the impacts of the pandemic in ways not comparable to previous social and economic crises, while lockdowns and social distancing measures have had an unequal impact on those jobs frequently done by women and men. We set out to examine if Covid-19 is narrowing or reinforcing existing inequalities among women and men in their working lives. Our first research summary focused on unemployment and job loss before and during the pandemic period. This summary examines precarious work.</p>
+
+<p align="justify">Many factors contribute to the rise of precarious work. Typically, economic crisis and its aftermath have been a key driver affecting the risk of precariousness. As employers and employees find themselves operating in a more uncertain context, new hiring take place on the basis of atypical or non-standard work[^1] such as part-time, temporary, fixed-term, casual work, and zero hours contracts among others. Job-seekers tend to accept these contracts, as otherwise they would continue in unemployment.</p>
+
+[^1]: EUROFOUND (2017). Atypical work. Retrieved from: <https://www.eurofound.europa.eu/observatories/eurwork/industrial-relations-dictionary/atypical-work>
+
+<p align="justify">This research summary aims at understanding how Covid-19 has impacted, if at all, on the precarisation of work in the UK. To answer this question, we use the UK's largest study on employment circumstances, the Labour Force Survey (LFS), drawing on analysis of the 2019/20/21 releases. We follow the trend pre- and post-pandemic, considering March/May 2020 as the reference point. We trace the pre-pandemic trend from the first 2019 quarter (Jan/March). We do this to identify if the Covid-19 pandemic is narrowing or reinforcing existing inequalities in the levels of precariousness for workers aged between 18-64.</p>
+
+# Has work become more precarious during the COVID-19 pandemic?
+
+<p align="justify">We focus on understanding how Covid-19 has impacted on the precarisation of work in the UK. Precarious work involves instability, insecurity, and social and/or economic vulnerability. However, there is no universally accepted definition of precarious work[^2]. The European Parliament's 2017 resolution [^3] on working conditions and precarious employment defines it as 'employment which does not comply with EU, international and national standards and laws and/or does not provide sufficient resources for a decent life or adequate social protection'. In this respect, precarious work is frequently associated with non-standard or atypical employment. This is generally any employment arrangement that is not full-time and permanent.</p>
+
+[^2]: Jain, A. & Hassard, J. (2017). Precarious work: definitions, workers affected and OSH consequences. OHS Wiki. Retrieved from: <https://oshwiki.eu/wiki/Precarious_work:_definitions,_workers_affected_and_OSH_consequences>
+
+[^3]: European Parliament resolution of 4 July 2017 on working conditions and precarious employment (2016/2221(INI))
+
+<p align="justify"> Benach et al. (2016)[^4] describe three approaches to defining precarious working common in existing research: (1) defining precariousness as relating to certain sectors of the labour market; (2) defining it as referring to any so called non-standard work type such as zero hours (i.e. any employment that is not through a permanent, full-time contract); and (3) defining it in relation to the attributes of a job, taking into account various aspects of the employment context. Although part-time contracts are actually quite 'standard' for women workers in the UK, we nevertheless follow the second approach and explore it in relation to gender, ethnicity and ocupational class.</p>
+
+[^4]: Benach, J., Vives, A., Tarafa, G., Delclos, C., Muntaner, C.: What should we know about precarious employment and health in 2025? Framing the agenda for the next decade of research. Int. J. Epidemiol. 45(1), 232--238 (2016)
+
+<p align="justify">We focus our analysis around two dimensions[^5]:</p>
+
+[^5]: Andrea Broughton et al. (2016). Precarious Employment: Patterns, Trends and Policy Strategies in Europe. European Parliament. Retrieved from: [https://www.europarl.europa.eu/thinktank/en/document.html?reference=IPOL_STU(2016)587285](https://www.europarl.europa.eu/thinktank/en/document.html?reference=IPOL_STU(2016)587285){.uri}
+
+-   <p align="justify">*Employment arrangements*: part-time work, temporary work and atypical employment including flexitime, annualised hours, zero hours contracts, job sharing and on-call working.</p>
+
+-   <p align="justify"> *Individual characteristics*: gender, ethnicity, and class. </p>
+
+# Part-Time Work
+
+## Who is in part-time work?
+
+```{r table part-time hours}
+
+t_ptwrk_hr <- d_precariety %>% # summary table
+  filter(FTPTWK == 2) %>%  # only part-timers
+  select(QUARTER, BUSHR) %>%
+  filter(!is.na(BUSHR)) %>%
+  group_by(QUARTER) %>%
+  summarise(mean_hr = mean(BUSHR)) 
+```
+
+<p align="justify">People in employment can work on a full-time or a part-time basis. A part-time worker is someone who works fewer hours than a full-time worker. There is no specific number of hours that makes someone full or part-time, but a full-time worker will usually work 35 hours or more a week.</p>
+
+<p align="justify">In the UK Labour Force Survey, the split between full-time and part-time employment is based on respondents' self-classification. The average hours worked by part-timers, for all the periods included in this analysis, is 19.6 hours.</p>
+
+### Slight decline for female workers
+
+```{r table part-time sex}
+
+t_ptwrk <- d_precariety %>% # summary table
+  filter(!is.na(FTPTWK)) %>%  # omit no answers and no applly
+  group_by(QUARTER, SEX, FTPTWK) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(FTPTWK == 2)
+
+```
+
+<p align="justify">Part-time work is prevalent in the UK, especially so among women workers who have caring responsibilities. The level of part-time employment among women had been tapering gently downwards long before the pandemic hit, and this decline continued in 2020, falling from 39% to 35% of women workers in a part-time job. Men had seen some increases in part-time working in the decade after the recession of 2008-9. The pandemic period continued the slight decline for women but brought little change for men as shown in Figure 1.</p>
+
+```{r baseline tiplab with quarter and with quarter and sex}
+
+tiplab_0 <- tibble(QUARTER = c(seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),1)) %>% 
+            dplyr::arrange(QUARTER)
+
+tiplab <-  tibble(SEX = c(rep("Men",18),rep("Women", 18)),
+                  QUARTER = c(seq(1:18), seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),2)) %>% 
+            dplyr::arrange(QUARTER)
+
+```
+
+```{r plot part-time sex, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 1: Slight decline in part-time work for women"}
+
+p_ptwrk <- t_ptwrk %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_factor(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab$qlabel[tiplab$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nPart-timers:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.5, 0.05), limits = c(0, 0.55), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 17, y = 0.12, label = "Men", color= "#DF9216", size = 4) +
+  annotate(geom = "text", x = 17, y = 0.38, label = "Women", color= "#791F83", size = 4) +
+  annotate(geom = "text", x = 7.1, y = 0.25, label = "Start of the COVID-19\nfirst lockdown", hjust = 0, size = 3.5) +
+  annotate(geom = "text", x = 2, y = 0.53, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.53, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.53, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none")
+
+# interactive
+ggplotly(p_ptwrk, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)))
+
+
+
+```
+
+
+### Slight decline for white and ethnic-minority groups
+
+```{r table part-time ethinicty}
+
+d_precariety <- d_precariety %>% 
+  mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL), # recode ethinicity 
+                      `1` = "White",
+                      `2` = "Minority-ethnic", `3` = "Minority-ethnic", 
+                      `4` = "Minority-ethnic", `5` = "Minority-ethnic",
+                      `6` = "Minority-ethnic",`7` = "Minority-ethnic",
+                      `8` = "Minority-ethnic",`9` = "Minority-ethnic")) %>% as_numeric(., keep.labels = TRUE)
+
+t_ptwrk_seth <- d_precariety %>% # table summary 
+  filter(!is.na(FTPTWK)) %>% # omit no answers and no apply
+  group_by(QUARTER, ETHUKEUL_2, FTPTWK) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(FTPTWK == 2 & !is.na(ETHUKEUL_2))
+
+```
+
+<p align="justify">The pandemic saw the small part-time gap between ethnic-minority and white workers narrow further (see Figure 2). This was caused by a slight decline in part-time working among people from minority-ethnic groups after the summer of 2020, taking their level below that of the white majority.</p>
+
+```{r plot part-time ethinicty, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 2: Slight decline in part-time work for all groups"}
+
+tiplab_seth <-  tibble(ETHUKEUL_2 = c(rep("White",18),rep("Minority-Ethnic", 18)),
+                  QUARTER = c(seq(1:18), seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),2)) %>% 
+            dplyr::arrange(QUARTER)
+
+
+p_ptwrk_seth <- t_ptwrk_seth %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_seth$qlabel[tiplab_seth$QUARTER == QUARTER],  
+                              "\nEthnic group:", as_label(ETHUKEUL_2), 
+                              "\nPart-timers:", round(percentage*100,1),"%")), 
+                   shape = 19) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.5, 0.05), limits = c(0, 0.55), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 7.1, y = 0.05, label = "Start of the COVID-19\nfirst lockdown", hjust = 0, size = 3) +
+  annotate(geom = "text", x = 2, y = 0.53, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.53, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.53, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_ptwrk_seth, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.1,
+                     font  = list(size = 13)))
+
+```
+
+### Virtually no change across occupational groups
+
+```{r table part-time class}
+
+t_ptwrk_sclass <- d_precariety %>% # table summary 
+  filter(!is.na(FTPTWK) & NSECMJ10_2 <= 5) %>% # omit no answers and no apply
+  group_by(QUARTER, NSECMJ10_2, FTPTWK) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, NSECMJ10_2) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(FTPTWK == 2 & !is.na(NSECMJ10_2))
+```
+
+<p align="justify">Part-time jobs are over-concentrated in routine and semi-routine occupations in the UK (over 35% of workers in this occupational band were working part-time through 2019, 2020 and 2021). Far fewer senior staff work part-time (below 15% of managers/professionals).</p>
+
+<p align="justify">Figure 3 shows that the pandemic did little to alter this picture, and trends in relative levels of part-time working remained virtually unchanged across the occupational groupings in 2020. In 2021, the amount of lower supervisory/technical staff working part-time dipped from 13% to 9%. On the other hand, the self-employed (small employers and own account workers) have experienced a progressive rise in part-time working from a minimum of 23% pre-pandemic levels to a maximum of 26% since the pandemic hit.</p>
+
+```{r plot part-time class, fig.width= 8, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 3: Part-time trend remains virtually unchanged"}
+
+tiplab_sclass <-  rbind(tiplab_0,tiplab_0,tiplab_0,tiplab_0,tiplab_0) %>%
+                  mutate(NSECMJ10_2 = c(rep(as_character(as_label(t_ptwrk_sclass$NSECMJ10_2)[1]), 18),
+                                        rep(as_character(as_label(t_ptwrk_sclass$NSECMJ10_2)[2]), 18),
+                                        rep(as_character(as_label(t_ptwrk_sclass$NSECMJ10_2)[3]), 18),
+                                        rep(as_character(as_label(t_ptwrk_sclass$NSECMJ10_2)[4]), 18),
+                                        rep(as_character(as_label(t_ptwrk_sclass$NSECMJ10_2)[5]), 18))) %>% 
+            dplyr::arrange(QUARTER, NSECMJ10_2)
+
+p_ptwrk_sclass <- t_ptwrk_sclass %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_sclass$qlabel[tiplab_sclass$QUARTER == QUARTER],
+                              "\nOccupation:", as_label(NSECMJ10_2),
+                              "\nPart-timers:", round(percentage*100,1),"%")), 
+                   shape = 19) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.5, 0.05), limits = c(0, 0.55), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.53, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.53, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.53, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+
+# interactive
+ggplotly(p_ptwrk_sclass , tooltip = c("text"), width = 700, height = 450) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+```
+
+### Intersectionality matters
+
+```{r table part-time mix}
+
+t_ptwrk_mix <- d_precariety %>% # table summary 
+  filter(!is.na(FTPTWK) & NSECMJ10_2 <= 5) %>% # # omit no answers and no apply
+  group_by(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2, FTPTWK) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(FTPTWK == 2 & !is.na(NSECMJ10_2) & !is.na(ETHUKEUL_2))
+
+```
+
+<p align="justify">We can usefully compare women workers with men, minority-ethnic workers with white, and people from one occupational class with those in other class groupings to identify inequalities in precarious work before and after the pandemic hit, but an intersectional approach recognises that gender, ethnicity and class all intersect with each other to shape working lives.</p>
+
+<p align="justify">The story of relative stability in levels of part-time employment during the pandemic crisis (as seen in Figures 1-3) is actually shaped by the experiences of the employed white majority. Separating white from minority-ethnic workers reveals a far more unsettled picture for the latter group (see Figure 4).</p>
+
+<p align="justify">Levels of part-time working were higher for women than men within each ethnic and occupational group. White and minority-ethnic women workers follow a similar trend when occupational groups are considered: with part-time employment levels highest in routine and semi-routine jobs. Part-time levels among the routine and semi-routine occupations remained close to 60% until the end of 2020 for both ethnic groups. As we entered 2021, the levels for ethnic minority women fell (to 48% in the December/February quarter) but then rose again in the following two quarters of 2021 (up to 55% of the women were working part-time). On the other hand, white female workers in routine/semi-routine jobs experienced a decline in part-time work in 2021, levelling out at 56% from March to April.</p>
+
+<p align="justify">Compared to white female workers, minority-ethnic female workers saw a greater variability in part-time work for those in self-employment (small employers and own account workers) and lower supervisory/technical occupations. Self-employed minority-ethnic women saw their part-time employment levels peak at 60% just after the pandemic hit. Then, levels progressively decreased to reach 35% as we entered 2021, but then moved up again to 42% in February/April.</p>
+
+<p align="justify">Minority-ethnic women working in lower supervisory/technical jobs saw real variation in their levels of part-time work. Pre-pandemic levels at the end of 2019 were as low as 20%. They increased to 29% at the beginning of 2020. By the time of the first lockdown, levels stood at 26% and then rose sharply to 42% at the end of 2020. As we entered 2021, levels fell to 20%, back to 2019 levels.</p>
+
+```{r plot part-time mix, fig.width= 12, fig.height=8, fig.fullwidth=TRUE, fig.cap= "Figure 4: Intersectionality matters for part-time work"}
+
+tiplab_mix <- t_ptwrk_mix %>% 
+  mutate(SEX = as_label(SEX), ETHUKEUL_2 = as_label(ETHUKEUL_2), NSECMJ10_2 = as_label(NSECMJ10_2)) %>% 
+  dplyr::select(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, ETHUKEUL_2, NSECMJ10_2)
+
+
+p_ptwrk_mix <- t_ptwrk_mix %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_mix$qlabel[tiplab_mix$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX),
+                              "\nEthnic group:", as_label(ETHUKEUL_2),
+                              "\nOccupation:", as_label(NSECMJ10_2),
+                              "\nPart-timers:", round(percentage*100,1),"%")), 
+                   shape = 19) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_grid(as_label(ETHUKEUL_2) ~ as_label(SEX)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.7, 0.1), limits = c(0, 0.75), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.74, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.74, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.74, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_ptwrk_mix , tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.25,
+                     font  = list(size = 13)))
+
+
+```
+
+<p align="justify">Part-time levels for white male workers were far more stable than for minority-ethnic men. Minority-ethnic male workers employed in lower supervisory and technical occupations, as well as their self-employed peers, saw the highest increases in levels of part-time employment for all groups of men during 2020 but their part-time participation returned back to pre-pandemic levels in 2021. In marked contrast, minority-ethnic men in semi-routine and routine occupations saw a steep rise in part-time work from 2021, after a decline during 2020.</p>
+
+## What are the reasons for part-time work?
+
+<p align="justify">Part-time jobs are lower paid than full-time jobs, on the whole, and they bring a range of career penalties. There are various reasons for working on a part-time basis. The Labour Force Survey disaggregates part-time employment by reason as follows:</p>
+
+-   those who could not find full-time jobs
+-   those who did not want full-time jobs
+-   those who were ill or were disabled
+-   those who were students or were at school
+
+<p align="justify">It also includes those who do not give a reason for part-time working. We focus on those who could not find and did not want full-time jobs in our analysis.</p>
+
+### Male part-timers cannot find a full-time job, female part-timers do not want one
+
+```{r table part-time reason sex}
+
+t_yptwrk <- d_precariety %>% # table summary 
+  filter(FTPTWK == 2) %>% # only those in par-time work
+  group_by(QUARTER, SEX, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(YPTJOB %in% c("3", "4")) # could not find / did not want ft job
+```
+
+<p align="justify">Part-time jobs are lower paid than full-time jobs, on the whole, and they bring a range of career penalties. Why people work part-time, given the weaker quality of part-time than full-time jobs, is strongly gendered.</p>
+
+<p align="justify">Most female part-timers in the LFS say they do not want a full-time job (almost 80% in Figure 5). This is because they are invariably working part-time to fit around other roles in their lives. These are workers who benefit from the flexibility offered by part-time employment to fulfil those additional roles, but they can often become 'stuck' in the part-time labour force, unable to enter a full-time job later, should they wish to.</p>
+
+<p align="justify">Other than students and older workers approaching retirement age, men who work part-time in the UK are largely doing so involuntarily: they are looking for full-time work but cannot find it. Levels of male involuntary part-time working rose from a minimum of 21% pre-pandemic to 28% since the pandemic hit. There are several possible reasons why men saw this increase. The uncertainties that the Covid-19 pandemic brought may have caused employers to increase part-time employment. A shortage of full-time job opportunities in some regions of the country, together with workers' inability to migrate due to lockdowns, may result in workers being restricted to taking up local part-time employment when they would have preferred to work full-time.</p>
+
+```{r plot part-time reason sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 5: While men cannot find a full-time job, Women do not want it"}
+
+tiplab_yptwrk <- t_yptwrk %>% 
+  mutate(SEX = as_label(SEX), YPTJOB = as_label(YPTJOB)) %>% 
+  dplyr::select(QUARTER, SEX, YPTJOB) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, YPTJOB)
+
+p_yptwrk <- t_yptwrk %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_yptwrk$qlabel[tiplab_yptwrk$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nReason part-timer:", as_label(YPTJOB),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(YPTJOB)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,1, 0.1), limits = c(0, 1.05), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 1.04, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 1.04, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 1.04, label = "2021", size = 3.5) +
+
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_yptwrk, tooltip = c("text"), width = 750, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+
+```
+
+### Part-time workers from ethnic minorities struggle more to find a full-time job
+
+```{r table part-time reason ethnicity}
+ 
+t_yptwrk_eth <- d_precariety %>% # table summary
+  filter(FTPTWK == 2) %>% # only those in par-time work / ETHUKEUL_2 omit no answers and no apply
+  group_by(QUARTER, ETHUKEUL_2, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(YPTJOB %in% c("3", "4") & !is.na(ETHUKEUL_2)) # could not find / did not want ft job
+
+```
+
+<p align="justify">Workers from ethnic minority groups found it harder to find full-time work compared to their white counterparts before and after the pandemic hit. The pandemic increased the percentage of involuntary part-timers among both groups: it rose for white workers from 11% to 14%, but for ethnic minorities from 16% to almost a quarter at the end of 2020 (24%. Figure 6).</p>
+
+<p align="justify">While white workers saw an increase from the August/October quarter in 2020, minority-ethnic workers felt it immediately after the first lockdown in March 2020. Ethnic minorities are slowly going back to lower pre-pandemic involuntary part-time rates in 2021, but white workers' levels keep rising.</p>
+
+<p align="justify">People from white backgrounds are more likely to say that they work part-time because they do not want a full-time job than are minority ethnic part-timers, and there were no major changes in this before and during the pandemic. Most of these are white women, for whom part-time employment is a far more established way of working than it is for minority-ethnic women and for male workers, both minority-ethnic and white.</p>
+
+```{r plot part-time reason ethnicity, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 6: Ethnic minorities struggle more to find a full-time job"}
+
+tiplab_yptwrk_eth <- t_yptwrk_eth  %>% 
+  mutate(ETHUKEUL_2 = as_label(ETHUKEUL_2), YPTJOB = as_label(YPTJOB)) %>% 
+  dplyr::select(QUARTER, ETHUKEUL_2, YPTJOB) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, YPTJOB)
+
+p_yptwrk_eth <- t_yptwrk_eth %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_yptwrk_eth$qlabel[tiplab_yptwrk_eth$QUARTER == QUARTER],
+                              "\nEthnic group:", as_label(ETHUKEUL_2), 
+                              "\nReason part-timer:", as_label(YPTJOB),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(YPTJOB)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,1, 0.1), limits = c(0, 1.05), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 1.04, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 1.04, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 1.04, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(override.aes = list(size = 4))) # change the legend box size
+
+
+# interactive
+ggplotly(p_yptwrk_eth, tooltip = c("text"), width = 750, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+```
+
+### Part-timers in lower-level occupations struggle more to find full-time jobs
+
+```{r table part-time reason class}
+
+t_yptwrk_class <- d_precariety %>% # table summary 
+  filter(FTPTWK == 2 & NSECMJ10_2 <= 5) %>% # only those in par-time work
+  group_by(QUARTER, NSECMJ10_2, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, NSECMJ10_2) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(YPTJOB %in% c("3", "4")) # could not find / did not want ft job
+
+```
+
+<p align="justify">Workers in lower supervisory and technical occupations as well as those in semi-routine and routine occupations tend to have a harder time finding full-time employment (20% and above of the part-timers were involuntarily so in Figure 7). They also experienced a progressive growth in involuntary part-time working since the pandemic started. Part-timers in semi-routine and routine occupations saw an increase in the level of involuntary part-time working from 20% up until mid-2020 to 26% in 2021. Lower supervisory and technical part-time workers saw almost a doubling in involuntary part-timers (reaching a maximum of 30% from a pre-pandemic minimum of 17%). Their levels dropped to 13% in January-March 2021, indicating some recovery for this group.</p>
+
+<p align="justify">A sharp rise in involuntary part-time work was also experienced by the self-employed in 2020: from 10% to 18%. The increase stabilised at the end of 2020 and into 2021.</p>
+
+<p align="justify">Trends for those who say they worked part-time because they did not want a full-time job remained relatively stable. Again, this is largely women with caring responsibilities or, for men, younger and older workers entering or leaving the labour force and using part-time jobs to transition in or out. However, small employers and own account workers as well as lower supervisory and technical occupations experienced the most variation (their rates declined). In 2021 their levels began to return to pre-pandemic figures.</p>
+
+```{r plot part-time reason class, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 7: Lower level occupations struggle more to find full-time jobs"}
+
+tiplab_ptwrk_class <- t_yptwrk_class  %>% 
+  mutate(NSECMJ10_2 = as_label(NSECMJ10_2), YPTJOB = as_label(YPTJOB)) %>% 
+  dplyr::select(QUARTER, NSECMJ10_2, YPTJOB) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, YPTJOB)
+
+p_yptwrk_class <- t_yptwrk_class %>% # line graph
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) +
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_ptwrk_class$qlabel[tiplab_ptwrk_class$QUARTER == QUARTER],
+                              "\nOccupation:", as_label(NSECMJ10_2), 
+                              "\nReason part-timer:", as_label(YPTJOB),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(YPTJOB)) + 
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,1, 0.1), limits = c(0, 1.05), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 1.04, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 1.04, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 1.04, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_yptwrk_class, tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.3,
+                     font  = list(size = 13)))
+
+```
+
+### Minority-ethnic part-timers in most occupations struggle to find a full-time job
+
+```{r table part-time reason mix}
+
+t_yptwrk_mix <- d_precariety %>% # table summary
+  filter(FTPTWK == 2 & NSECMJ10_2 <= 5) %>% # only those in par-time work
+  group_by(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2, YPTJOB) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(YPTJOB %in% c("3") & !is.na(NSECMJ10_2) & !is.na(ETHUKEUL_2)) # could not find
+
+```
+
+<p align="justify">When the focus is on those part-time workers who could not find a full-time job, the intersection between gender, ethnicity and occupational class becomes even more relevant.</p>
+
+<p align="justify">We know that involuntary part-time working is more common among men than among women. But male part-timers from ethnic minorities, and in most occupations, experienced the most variation in their levels of involuntary part-time work after the pandemic hit. Involuntary part-time work increased dramatically for them until the start of 2021 when levels dropped for most groups.</p>
+
+<p align="justify">The routine and semi-routine male part-time workers from ethnic minorities stand out. Their levels were high and remained stable until the end of 2020 when they saw a sharp decline (from 47% to 30%). For all the other groups, routine and semi-routine part-time workers experienced a rise in their involuntary part-time work after the pandemic hit.</p>
+
+```{r plot part-time reason mix, fig.width= 12, fig.height=8, fig.fullwidth=TRUE, fig.cap= "Figure 8: Minority-ethnic women and men from most occupations struggle to find a full-time job"}
+
+tiplab_yptwrk_mix  <- t_yptwrk_mix  %>% 
+  mutate(SEX = as_label(SEX), ETHUKEUL_2 = as_label(ETHUKEUL_2), NSECMJ10_2 = as_label(NSECMJ10_2)) %>% 
+  dplyr::select(QUARTER, SEX, ETHUKEUL_2, NSECMJ10_2) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, ETHUKEUL_2, NSECMJ10_2)
+
+p_yptwrk_mix <- t_yptwrk_mix %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_yptwrk_mix$qlabel[tiplab_yptwrk_mix$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX),
+                              "\nEthnic group:", as_label(ETHUKEUL_2),
+                              "\nOccupation:", as_label(NSECMJ10_2), 
+                              "\nPart-timers who could not find a full-time job",
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_grid(as_label(SEX)~ as_label(ETHUKEUL_2)) + 
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,1, 0.1), limits = c(0, 1.05), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 1.04, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 1.04, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 1.04, label = "2021", size = 3.5) +
+
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+
+# interactive
+ggplotly(p_yptwrk_mix , tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.25,
+                     font  = list(size = 13)))
+
+```
+
+# Temporary Work
+
+## Who is in temporary work?
+
+<p align="justify">Temporary employment can increase the risk of precariousness as non-permanent contracts do not allow workers to plan in the long term. A temporary contract is one that has a specific end date, where the worker is only employed for a certain period of time.</p>
+
+<p align="justify">For those in temporary employment, the Labour Force Survey further identifies the following arrangements:</p>
+
+-   Working for an employment agency
+-   Casual type of work
+-   Seasonal work
+-   Under contract for a fixed period or fixed task
+-   Some other reason
+
+### Slight increase in temporary work for male and female workers
+
+```{r table temporary sex}
+
+t_jobtyp <- d_precariety %>% # summary table
+  filter(!is.na(JOBTYP)) %>%  # omit no answer and no apply
+  group_by(QUARTER, SEX, JOBTYP) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(JOBTYP == 2)
+
+```
+
+<p align="justify">Minorities of worker in the LFS report being in temporary employment. Women are slightly more likely to work in a temporary job than are men and the gender gap in temporary working remained stable since the pandemic started. Both female and male workers experienced a slight increase at the end of 2020 (from 5% for women and 4% for men in March/May to 6% and 5%, respectively). As we entered 2021 levels for male and female workers declined and then rose slightly again after March.</p>
+
+```{r plot temporary sex, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 9: Slight increase in temporary work"}
+
+tiplab_jobtyp <- t_jobtyp %>% 
+  mutate(SEX = as_label(SEX), JOBTYP = as_label(JOBTYP)) %>% 
+  dplyr::select(QUARTER, SEX, JOBTYP) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, SEX)
+
+
+p_jobtyp <- t_jobtyp %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_factor(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_jobtyp$qlabel[tiplab_jobtyp$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nRate workers in a temporary job:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.1, 0.01), limits = c(0, 0.11), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 17, y = 0.043, label = "Men", color= "#DF9216", size = 4) +
+  annotate(geom = "text", x = 17, y = 0.064, label = "Women", color= "#791F83", size = 4) +
+  annotate(geom = "text", x = 2, y = 0.105, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.105, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.105, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
+
+# interactive
+ggplotly(p_jobtyp, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)))
+
+```
+
+### Fixed contracts are increasing
+
+```{r table type temporary sex}
+
+d_precariety <- d_precariety %>% 
+  mutate(RESTMR6_2 = recode_factor(factor(RESTMR6), # recode categories in RESTMR6
+                                   `1` = "Permanent",
+                                   `2` = "Seasonal", `3` = "Seasonal", `4` = "Seasonal", `5` = "Seasonal", 
+                                   `6` = "Seasonal", `7` = "Seasonal", 
+                                   `8` = "Fixed contract", `9` = "Fixed contract", `10` = "Fixed contract", 
+                                   `11` = "Fixed contract", `12` = "Fixed contract", `13` = "Fixed contract",
+                                   `14` = "Agency", `15` = "Agency", `16` = "Agency", `17` = "Agency", `18` = "Agency", 
+                                   `19` = "Agency",
+                                   `20` = "Casual", `21` = "Casual", `22` = "Casual", `23` = "Casual", `24` = "Casual", 
+                                   `25` = "Casual",
+                                   `26` = "Other", `27` = "Other", `28` = "Other", `29` = "Other", `30` = "Other", 
+                                   `31` = "Other",
+                                   `32` = "Type not stated")) %>% as_numeric(., keep.labels = TRUE) 
+
+
+t_restmr2 <- d_precariety %>% # summary table
+  filter(JOBTYP == 2) %>%  
+  group_by(QUARTER, SEX, RESTMR6_2) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage 
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(RESTMR6_2) & RESTMR6_2 != 6) # remove "other"
+
+```
+
+<p align="justify">Most of the various kinds of temporary job declined after the pandemic hit as organisations cut back on their non-core staff (agency, casual and seasonal working all fell) but fixed term contracts grew among the temporary workforce, for male and for female workers.</p>
+
+<p align="justify">Fully 53% of male temporary workers were on fixed term contracts in summer 2020 (40% at the start of the year). The rate stabilised at around 50% in 2020 and 2021. This was a 10% increase compared to the pre-pandemic rate.</p>
+
+<p align="justify">Female workers followed a similar trend. However, the rise in the proportion of women temporary workers on fixed term contracts had already started before the first lockdown, stabilised during, and increased slightly at the end of 2020 and beginning of 2021 peaking at 54%. The pre-pandemic rate had been 42% (2019).</p>
+
+```{r plot type temporary sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 10: Fixed contracts are increasing"}
+
+tiplab_restmr2 <- t_restmr2  %>% 
+  mutate(SEX = as_label(SEX), RESTMR6_2 = as_label(RESTMR6_2)) %>% 
+  dplyr::select(QUARTER, SEX, RESTMR6_2) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, SEX, RESTMR6_2)
+
+p_restmr2 <- t_restmr2 %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(RESTMR6_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_restmr2$qlabel[tiplab_restmr2$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nType of temporary job:", as_label(RESTMR6_2),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(SEX)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.6, 0.1), limits = c(0, 0.65), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.64, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.64, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.64, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_restmr2, tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+```
+
+### Temporary work affects ethnic minorities the most
+
+```{r table temporary ethnicity}
+
+t_jobtyp_eth <- d_precariety %>% # table summary 
+  filter(!is.na(JOBTYP)) %>% # # omit no answer and no apply
+  group_by(QUARTER, ETHUKEUL_2, JOBTYP) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(JOBTYP == 2 & !is.na(ETHUKEUL_2))
+```
+
+<p align="justify">Minority-ethnic workers are more likely to work in temporary jobs than are white workers (with an ethnic gap of about 3%). They experienced a 1% decline in levels of temporary working at the start of 2020, followed by a progressive increase that peaked at 8.5%. The pattern for white workers was more stable.</p>
+
+```{r plot temporary ethnicity, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 11: Temporary work affects ethnic minorities the most"}
+
+tiplab_jobtyp_eth <- t_jobtyp_eth  %>% 
+  mutate(ETHUKEUL_2 = as_label(ETHUKEUL_2), JOBTYP = as_label(JOBTYP)) %>% 
+  dplyr::select(QUARTER, ETHUKEUL_2, JOBTYP) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, JOBTYP)
+
+p_jobtyp_eth <- t_jobtyp_eth %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_jobtyp_eth$qlabel[tiplab_jobtyp_eth$QUARTER == QUARTER],
+                              "\nEthnic group:", as_label(ETHUKEUL_2), 
+                              "\nRate workers in a temporary job:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.1, 0.01), limits = c(0, 0.105), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 17, y = 0.044, label = "White", color= "#DF9216", size = 4) +
+  annotate(geom = "text", x = 17, y = 0.088, label = "Minority-ethnic", color= "#791F83", size = 4) +
+  annotate(geom = "text", x = 2, y = 0.104, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.104, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.104, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) # change the face_wrap title
+
+# interactive
+ggplotly(p_jobtyp_eth, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)))
+
+```
+
+### Temporary work increased among lower-level occupations
+
+```{r table temporary class}
+
+t_jobtyp_class <- d_precariety %>% # table summary 
+  filter(!is.na(JOBTYP) & NSECMJ10_2 <= 5) %>% # remove NA's
+  group_by(QUARTER, NSECMJ10_2, JOBTYP) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, NSECMJ10_2) %>% 
+  # percentage part-time per quarter
+  mutate(percentage = count/sum(count)) %>% 
+  filter(JOBTYP == 2 & !is.na(NSECMJ10_2) & NSECMJ10_2 != 3)
+
+```
+
+<p align="justify">Temporary work increased among all occupational groups from the second semester in 2020. The rise was particularly noticeable for lower-level occupations including semi routine and routine (1% increase), lower supervisory/technical jobs (2% increase) and intermediate (1% increase). Management and professional occupations remained mostly stable after a very slight increased after the first lockdown.</p>
+
+<p align="justify">As we entered 2021, routine and semi-routine occupations levels moved closer back down to pre-pandemic levels. Similarly, lower supervisory/technical jobs saw a 1% decline, but remaining higher than pre-pandemic levels still.</p>
+
+```{r plot temporary class, fig.width= 8, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 12: Temporary work rose among lower level occupations"}
+
+tiplab_jobtyp_class <- t_jobtyp_class  %>% 
+  mutate(NSECMJ10_2 = as_label(NSECMJ10_2), JOBTYP = as_label(JOBTYP)) %>% 
+  dplyr::select(QUARTER, NSECMJ10_2, JOBTYP) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, JOBTYP)
+
+p_jobtyp_class <- t_jobtyp_class %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(NSECMJ10_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_jobtyp_class$qlabel[tiplab_jobtyp_class$QUARTER == QUARTER],
+                              "\nOccupation:", as_label(NSECMJ10_2), 
+                              "\nRate workers in a temporary job:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.1, 0.01), limits = c(0, 0.11), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.104, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.104, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.104, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+
+# interactive
+ggplotly(p_jobtyp_class, tooltip = c("text"), width = 700, height = 450) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+```
+
+## What are the reasons for temporary work?
+
+<p align="justify">As for part-time work, the Labour Force Survey also asks why people take non-permanent jobs. Options included are:</p>
+
+-   Contract which includes period of training
+-   Had a contract for probationary period
+-   Could not find a permanent job
+-   Did not want a permanent job
+-   Some other reason
+
+<p align="justify">We focus on "could not find a permanent job" and "Did not want a permanent job" for the analysis presented in the next section.</p>
+
+### The pandemic has made it harder to find a permanent job
+
+```{r table reason temporary sex}
+
+t_whytem <- d_precariety %>% # table summary 
+  # only temp
+  filter(JOBTYP == 2) %>% # only those in par-time work
+  group_by(QUARTER, SEX, WHYTMP6) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(WHYTMP6 %in% c("3", "4")) # could not find / did not want 
+
+```
+
+<p align="justify">The percentage of male and female workers taking temporary work voluntarily, because they do not want a permanent job, declined since the second semester in 2020. Those temporary workers who could not find a permanent job increased in the same period. The trends were similar when ethnicity and occupational class are included in the analysis.</p>
+
+```{r plot reason temporary sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 13: Pandemic has made harder to find a permanent job"}
+
+tiplab_whytem <- t_whytem %>% 
+  mutate(SEX = as_label(SEX), WHYTMP6 = as_label(WHYTMP6)) %>% 
+  dplyr::select(QUARTER, SEX, WHYTMP6) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, WHYTMP6)
+
+p_whytem <- t_whytem %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_whytem$qlabel[tiplab_whytem$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nReason temporary job:", as_label(WHYTMP6),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(WHYTMP6)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.4, 0.05), limits = c(0, 0.45), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.42, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.42, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.42, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_whytem, tooltip = c("text"), width = 750, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+```
+
+### Fixed contracts thrive when people cannot find permanent jobs
+
+```{r table type could not find permanent job sex}
+
+t_restmr <- d_precariety %>% # table summary 
+  filter(JOBTYP == 2) %>% 
+  group_by(QUARTER, RESTMR6_2, RESTMR6, SEX) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(RESTMR6) & RESTMR6 %in% c("4", "10", "16", "22")) # could not find
+
+```
+
+<p align="justify">What jobs were taken by those who could not find permanent work? Most involuntary temporary workers were on fixed term contracts. These figures rose almost 10% for men and women during the pandemic, compared with the lowest levels of fixed term contracts in 2019.</p>
+
+```{r plot type could not find permanent job sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 14: Fixed contracts thrive when permanent jobs don't"}
+
+tiplab_restmr <- t_restmr  %>% 
+  mutate(SEX = as_label(SEX), RESTMR6_2 = as_label(RESTMR6_2), RESTMR6 = as_label(RESTMR6)) %>% 
+  dplyr::select(QUARTER, SEX, RESTMR6_2, RESTMR6) %>% 
+  distinct() %>% 
+  left_join(tiplab, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, SEX, RESTMR6_2, RESTMR6)
+
+p_restmr <- t_restmr %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(RESTMR6_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_restmr$qlabel[tiplab_restmr$QUARTER == QUARTER],
+                              "\nTemporary workers who could not find a permanent job",
+                              "\nGender:", as_label(SEX),
+                              "\nType of temporary job:", as_label(RESTMR6_2),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(SEX)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.24), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.22, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.22, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.22, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_restmr , tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+
+```
+
+### Fixed contracts and agency work increased the most among minority-ethnic and white temporary workers
+
+```{r table type could not find permanent job ethnicity}
+
+t_restmr_eth <- d_precariety %>% # table summary 
+  filter(JOBTYP == 2) %>% # remove NA's
+  group_by(QUARTER, RESTMR6_2, RESTMR6, ETHUKEUL_2) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  # percentage
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(ETHUKEUL_2) & !is.na(RESTMR6) & RESTMR6 %in% c("4", "10", "16", "22")) # could not find
+
+```
+
+<p align="justify">The picture for involuntary temporary work among white and minority-ethnic workers in Figure 15 is similar to the one depicted in Figure 14 for fixed term contracts. In both cases, the percentage of fixed term contracts were increasing among involuntarily-temporary workers, but for white workers especially.</p>
+
+<p align="justify">Temporary agency work also showed a slight rise for white workers, while minority-ethnic workers experienced a steep decline in 2020.</p>
+
+```{r plot type could not find permanent job ethnicity, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 15: Fixed contracts and agency work trends differ among groups"}
+
+tiplab_restmr_eth <- t_restmr_eth   %>% 
+  mutate(ETHUKEUL_2 = as_label(ETHUKEUL_2), RESTMR6_2 = as_label(RESTMR6_2), RESTMR6 = as_label(RESTMR6)) %>% 
+  dplyr::select(QUARTER, ETHUKEUL_2, RESTMR6_2, RESTMR6) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, ETHUKEUL_2, RESTMR6_2, RESTMR6)
+
+
+p_restmr_eth <- t_restmr_eth %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(RESTMR6_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_restmr_eth$qlabel[tiplab_restmr_eth$QUARTER == QUARTER],
+                              "\nTemporary workers who could not find a permanent job",
+                              "\nEthnic group:", as_label(ETHUKEUL_2),
+                              "\nType of temporary job:", as_label(RESTMR6_2),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(ETHUKEUL_2)) + 
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.24), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.22, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.22, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.22, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+
+# interactive
+ggplotly(p_restmr_eth, tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+```
+
+### Fixed contracts are on the rise for all occupational groups
+
+```{r table type could not find permanent job class}
+
+t_restmr_class <- d_precariety %>% # table summary 
+  filter(JOBTYP == 2 & NSECMJ10_2 <= 5) %>% # remove NA's
+  group_by(QUARTER, RESTMR6_2, RESTMR6, NSECMJ10_2) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, NSECMJ10_2) %>% 
+  # percentage
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(RESTMR6) & RESTMR6 %in% c("4", "10", "16", "22") & NSECMJ10_2 != 3 & !is.na(NSECMJ10_2)) # remove "other" and self-employed
+
+```
+
+<p align="justify">Involuntary temporary workers in all occupational classes experienced an increase in fixed term contracts. Management and professionals saw the highest increases. Very few managerial/professional staff - who were working on a temporary contract because they could not find permanent work - reported being agency/casual/seasonal workers.</p>
+
+<p align="justify">While involuntary temporary agency work declined for most occupations, workers in intermediary jobs experienced a rise and lower supervisory and technical occupations saw the highest variability. Casual work also increased slightly for intermediary, lower supervisory and technical occupations. Causal work continued to rise for intermediary occupations in 2021, whereas rates were decreasing for lower supervisory and technical workers after the end of 2020.</p>
+
+```{r plot type could not find permanent job class, fig.width= 12, fig.height=7, fig.fullwidth=TRUE, fig.cap= "Figure 16: Fixed contracts are on the rise for all occupational groups"}
+
+tiplab_restmr_class <- t_restmr_class %>% 
+  mutate(NSECMJ10_2 = as_label(NSECMJ10_2), RESTMR6_2 = as_label(RESTMR6_2), RESTMR6 = as_label(RESTMR6)) %>% 
+  dplyr::select(QUARTER, NSECMJ10_2, RESTMR6_2, RESTMR6) %>% 
+  distinct() %>% 
+  left_join(tiplab_0, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, NSECMJ10_2, RESTMR6_2, RESTMR6)
+
+p_restmr_class <- t_restmr_class %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(RESTMR6_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_restmr_class$qlabel[tiplab_restmr_class$QUARTER == QUARTER],
+                              "\nTemporary workers who could not find a permanent job",
+                              "\nOccupation", as_label(NSECMJ10_2),
+                              "\nType of temporary job:", as_label(RESTMR6_2),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(NSECMJ10_2)) + 
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.3, 0.05), limits = c(0, 0.34), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.32, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.32, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.32, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", vjust = 0.5, hjust = 0, size = 11)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_restmr_class, tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+```
+
+# Very Atypical Employment
+
+## Who is in very atypical employment?
+
+<p align="justify">The Labour Force Survey collects information about a variety of work arrangements. These arrangements include flexible working hours (Flexitime), annualised hours contract, term time working, job sharing, nine day fortnight, four and a half day week, zero hours contract, and on-call working. Some of these are better quality arrangements, often actively sought after by some types of workers (e.g. flexiwork to help support caring roles). Other arrangements, such as zero hours contracts, provide flexibility to the employer rather than the worker, and are highly problematic for those workers looking for predictability in their wages and working schedules.</p>
+
+<p align="justify">From these arrangement, we consider the following as very atypical forms of work:</p>
+
+- <p align="justify">*flexible working hours (Flexitime)*: Employees can vary their daily start and finish times each day. Over an accounting period (often four weeks or a calendar month) debit and credit hours can be carried over into another accounting period.</p>
+- <p align="justify">*zero hours contract*: a contract where a person is not contracted to work a set number of hours, and is only paid for the number of hours that they actually work.</p>
+- <p align="justify">*on-call working*: on-call employees are those expected to be available for work outside of their regular hours, sometimes at short notice.</p>
+
+<p align="justify">We also include *annualised hours contract*. In these contracts, the number of hours an employee has to work are calculated over a full year. For example, instead of 40 hours per week, employees are contracted to say 1900 hours per year. Longer hours are worked over certain parts of the year and shorter hours at other periods. Variations in hours are related to seasonal factors or fluctuation in demand.</p>
+
+### Flexitime has increased since the pandemic started
+
+```{r table very atypical sex}
+
+t_fled <- d_precariety %>% # table summary 
+  filter(QUARTER %in% c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18)) %>% 
+  group_by(QUARTER, FLED10, SEX) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(FLED10) & FLED10 %in% c(1, 2, 7, 8)) # omit NAs and include only certain categories
+
+```
+
+<p align="justify">annualized hours. Male and female workers both experienced a rise in their share of flexitime and annualised hours in 2020, with noticeable spikes upwards during the first lockdown. Flexitime was on average 2% higher for women compared to men since the second semester in 2020 and into 2021.</p>
+
+<p align="justify">A small increased in zero-hours contracts was also experienced by women. While men's rates remained around 2%, female workers peaked at 3% and remained above 2% since the pandemic hit.</p>
+
+```{r plot very atypical sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 17: Flexitime has increased since the pandemic started"}
+
+tiplab_partialq <- tibble(QUARTER = c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18),
+                  qlabel = rep(c("Apr-Jun 2019","Oct-Dec 2019", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", 
+                                 "May-Jul 2020", "Jun-Aug 2020", "Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020", 
+                                 "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),1)) %>% dplyr::arrange(QUARTER)
+
+tiplab_fled <- t_fled %>% 
+  mutate(FLED10 = as_label(FLED10), SEX = as_label(SEX)) %>% 
+  dplyr::select(QUARTER, SEX, FLED10) %>% 
+  distinct() %>% 
+  left_join(tiplab_partialq, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, SEX)
+
+p_fled <- t_fled %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(FLED10))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_fled$qlabel[tiplab_fled$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX),
+                              "\nWork arrangement:", as_label(FLED10),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(SEX)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.2), labels =
+                       scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2.5, y = 0.19, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.19, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.19, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_fled, tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.18,
+                     font  = list(size = 13)))
+```
+
+### Atypical employment ethnic gap is widening
+
+```{r table very atypical ethnicity}
+
+t_fled_eth <- d_precariety %>% # table summary 
+  filter(QUARTER %in% c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18)) %>% 
+  group_by(QUARTER, FLED10, ETHUKEUL_2) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(FLED10) & !is.na(ETHUKEUL_2) & FLED10 %in% c(1, 2, 7, 8)) # remove NA and include only certain categories
+
+```
+
+<p align="justify">White and minority-ethnic workers similarly experienced rises in their share of flexitime and annualised hours, with peaks again after lockdown in 2020. Flexitime grew on average 2% higher for minority-ethnic workers compared to white workers at the end of 2020 and into 2021.</p>
+
+<p align="justify">Minority-ethnic workers experienced a higher increase in their share of zero-hours contracts compared to white workers. White workers' rates remained just above 2% during 2020 and after the first lockdown, and their rates were closer to pre-pandemic values as we moved into 2021. Minority-ethnic workers, on the other hand, peaked at 4.5% and remained just around 4% during the second semester in 2020. During 2021 the rate declined to 3.5%, but seemed to be increasing once again.</p>
+
+```{r plot very atypical ethnicity, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 18: Atypical employment ethnic gap is widening"}
+
+tiplab_partialq <- tibble(QUARTER = c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18),
+                  qlabel = rep(c("Apr-Jun 2019","Oct-Dec 2019", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", 
+                                 "May-Jul 2020", "Jun-Aug 2020", "Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020", 
+                                 "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),1)) %>% dplyr::arrange(QUARTER)
+
+tiplab_fled_eth <- t_fled_eth %>% 
+  mutate(FLED10 = as_label(FLED10), ETHUKEUL_2 = as_label(ETHUKEUL_2)) %>% 
+  dplyr::select(QUARTER, ETHUKEUL_2, FLED10) %>% 
+  distinct() %>% 
+  left_join(tiplab_partialq, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, ETHUKEUL_2)
+
+p_fled_eth <- t_fled_eth %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(FLED10))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_fled_eth$qlabel[tiplab_fled_eth$QUARTER == QUARTER],
+                              "\nEthnic group:", as_label(ETHUKEUL_2),
+                              "\nWork arrangement:", as_label(FLED10),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~as_label(ETHUKEUL_2)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.2), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2.5, y = 0.19, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.19, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.19, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_fled_eth, tooltip = c("text"), width = 750, height = 500) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.18,
+                     font  = list(size = 13)))
+
+```
+
+### Flexitime more common in high/middle occupations
+
+```{r table very atypical class}
+
+t_fled_class <- d_precariety %>% # table summary 
+  filter(QUARTER %in% c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18) & NSECMJ10_2 <= 5) %>% 
+  group_by(QUARTER, FLED10, NSECMJ10_2) %>% 
+  summarise(count = sum(PWT18)) %>% 
+  group_by(QUARTER, NSECMJ10_2) %>% 
+  # percentage reason
+  mutate(percentage = count/sum(count)) %>% 
+  filter(!is.na(FLED10) & FLED10 %in% c(1, 2, 7, 8) & !is.na(NSECMJ10_2) & NSECMJ10_2 != 3) # only certain categories
+
+```
+
+<p align="justify">Flexitime is far more common among management, professional and intermediate occupations, and allows the workers some valuable autonomy over their ways of working. Very few senior staff have the annualized or zero hours contracts that are more prevalent for workers in routine and semi-routine jobs.</p>
+
+```{r plot very atypical class, fig.width= 12, fig.height=7, fig.fullwidth=TRUE, fig.cap= "Figure 19: Fexitime common in high/middle occupations"}
+
+tiplab_partialq <- tibble(QUARTER = c(2, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18),
+                  qlabel = rep(c("Apr-Jun 2019","Oct-Dec 2019", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", 
+                                 "May-Jul 2020", "Jun-Aug 2020", "Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020", 
+                                 "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),1)) %>% dplyr::arrange(QUARTER)
+
+tiplab_fled_class <- t_fled_class %>% 
+  mutate(FLED10 = as_label(FLED10), NSECMJ10_2 = as_label(NSECMJ10_2)) %>% 
+  dplyr::select(QUARTER, NSECMJ10_2, FLED10) %>% 
+  distinct() %>% 
+  left_join(tiplab_partialq, by= c("QUARTER"))%>% 
+  dplyr::arrange(QUARTER, NSECMJ10_2)
+
+p_fled_class <- t_fled_class %>% 
+  ggplot(aes(x = QUARTER, y = percentage, colour = as_label(FLED10))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_fled_class$qlabel[tiplab_fled_class$QUARTER == QUARTER],
+                              "\nOccupation:", as_label(NSECMJ10_2),
+                              "\nWork arrangement:", as_label(FLED10),
+                              "\nRate:", round(percentage*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(NSECMJ10_2)) +
+  
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.23), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.22, label = "2019", size = 3.5) +
+  annotate(geom = "text", x = 9.5, y = 0.22, label = "2020", size = 3.5) +
+  annotate(geom = "text", x = 17, y = 0.22, label = "2021", size = 3.5) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 9),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", vjust = 0.5, hjust = 0, size = 11)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
+
+# interactive
+ggplotly(p_fled_class, tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.18,
+                     font  = list(size = 13)))
+```
+
+# Conclusions
+
+<p align="justify">We examined in this report if the Covid-19 pandemic is narrowing or reinforcing existing inequalities among women and men in their exposure to precarious work.</p>
+
+<p align="justify">Economic crises can increase the level of precarious employment if employers offer part-time jobs, temporary, fixed term or casual work, or zero hours contracts, when they would otherwise have provided full-time permanent positions.</p>
+
+<p align="justify">Drawing on analysis of 2019/20/21 data, we showed that the risk of precarious work has increased for all groups of worker and particularly for women, ethnic minorities, and people employed in lower-level occupations.</p>
+
+<p align="justify">We showed the importance of moving from aggregated to granulated analyses when employment trends are considered. For example, our initial results showed a decline in part-time working among employed men and women. However, this aggregate picture disguises a more complicated story about work-time, ethnicity and occupational class before and during the pandemic. The importance of looking at intersections of gender, ethnicity and class was reinforced when we considered which workers are in temporary jobs, who is work atypically, and the reasons they take these precarious jobs.</p>
+
+<p align="justify">The risk of precarious work, and its intensification during the pandemic, are not random but highly dependent on gender, ethnicity, class and how they intersect.</p>
+
+# The Project and its Data
+
+<p align="justify">Our project *'How is Covid-19 impacting women and men's working lives in the UK?'* is funded by Health Data Research UK, as part of the rapid funding call to use and enrich the data within the Data & Connectivity National Core Study (NCS) capability. This report draws on the analysis of the 2019/20/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar \| Apr-Jun \| Jul-Sep \| Oct-Dec. From 2020, additional non-calendar quarter data have been released in response to the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters in 2020 also included data for January and February 2021.</p>
+
+<p align="justify">Our analyses consider only those in employment (current jobs) between 18-64 years old. Table 1 summarises the sample size and population estimates for all the data waves considered in this analysis.</p>
+
+
+```{r sample, echo=FALSE}
+
+N_total_2 <- LFS_clean %>%
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  filter(ILODEFR == 1) %>% # only people in employment
+  filter(STAT <= 2) %>% # only employees and self-employed
+  filter(STATR <= 2) %>% # only employees and self-employed current job
+  group_by(as_label(QUARTER)) %>%
+  summarise(Sample = n(), Population = sum(PWT18)) 
+
+N_total_2 %>% flextable() %>% theme_vanilla() %>%
+  set_caption(caption = "Table 1: Sample size and population estimates", style = "Table Caption") %>%
+  bold(bold = TRUE, part = "header") %>%
+  set_header_labels(`as_label(QUARTER)` = "Quarter",
+                    Population = "Population estimates")  %>%
+  autofit() %>%
+  align_nottext_col(align = "center", header = TRUE, footer = FALSE) %>%
+  add_footer_lines("Source: UK Labour Force Survey (Person)") %>%
+  color(part = "footer", color = "#666666")  
+
+
+
+```
+
+
+<p align="justify">It is important to note that the LFS responses are weighted to official population projections that pre-date the Covid-19 pandemic. This particularly affects estimates for ethnicity. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.</p>
+
+# For more information
+
+## Contact details
+
+-   Luis D. Torres: [luis.torres\@nottingham.ac.uk](mailto:luis.torres@nottingham.ac.uk){.email};
+-   Tracey Warren: [tracey.warren\@nottingham.ac.uk](mailto:tracey.warren@nottingham.ac.uk){.email};
+-   Annegreet Veeken: [annegreet.veeken\@nottingham.ac.uk](mailto:annegreet.veeken@nottingham.ac.uk){.email}
+-   [Project website](https://www.nottingham.ac.uk/business/research/carrying-the-work-burden-of-covid-19/index.aspx)
+
+
+## Acknowledgements
+
+- <p align="justify">The project 'How is COVID-19 impacting women and men's working lives in the UK? Expanding an existing award (on the work of working-class women in the UK) to explore all workers' is part of the Data and Connectivity National Core Study, led by Health Data Research UK in partnership with the Office for National Statistics and funded by UK Research and Innovation (project ref HDRUK2020.137).</p>
+
+- <p align="justify">The research data are distributed by the UK Data Service (safeguarded data version). The original data creators, the depositors, the copyright holders, the funders and the UK Data Archive bear no responsibility for the analysis or interpretation of the data made in this paper.</p>
+
+## Citation
+
+<p align="justify">Torres L, Warren T, Veeken A and the UK Women's Budget Group (2021). *How has the risk of precarious work evolved in the COVID-19 UK?* Research Summary 2. Nottingham: Nottingham University Business School.</p>
