@@ -151,7 +151,12 @@ t_ptwrk <- d_precariety %>% # summary table
 
 ```
 
-<p align="justify">Part-time work is prevalent in the UK, especially so among women workers who have caring responsibilities. The level of part-time employment among women had been tapering gently downwards long before the pandemic hit, and this decline continued in 2020, falling from 39% to 35% of women workers in a part-time job. Men had seen some increases in part-time working in the decade after the recession of 2008-9. The pandemic period continued the slight decline for women but brought little change for men as shown in Figure 1.</p>
+<p align="justify">Part-time work is prevalent in the UK, especially so among women workers who have caring responsibilities[^6]. The level of part-time employment among women had been tapering gently downwards long before the pandemic hit, and this decline continued in 2020, falling from 39% to 35% of women workers in a part-time job. Men had seen some increases in part-time working in the decade after the recession of 2008-9[^7]. The pandemic period continued the slight decline for women but brought little change for men as shown in Figure 1.</p>
+
+[^6]: Warren T, Lyonette C (2018) Good, bad and very bad part-time jobs for women?: re-examining the importance of occupational class for job quality since the great recession in Britain, Work, Employment and Society 33(4): 747-767. https://nottingham-repository.worktribe.com/output/934140/good-bad-and-very-bad-part-time-jobs-for-women-re-examining-the-importance-of-occupational-class-for-job-quality-since-the-great-recession-in-britain
+
+[^7]: Warren T (2021) Work-time, male-breadwinning and the division of domestic labour: male part-time and full-time workers in unsettled times, Sociology, forthcoming 2021.
+https://nottingham-repository.worktribe.com/output/5508319/work-time-male-breadwinning-and-the-division-of-domestic-labour-male-part-time-and-full-time-workers-in-unsettled-times
 
 ```{r baseline tiplab with quarter and with quarter and sex}
 
@@ -528,7 +533,7 @@ t_yptwrk <- d_precariety %>% # table summary
 
 <p align="justify">Part-time jobs are lower paid than full-time jobs, on the whole, and they bring a range of career penalties. Why people work part-time, given the weaker quality of part-time than full-time jobs, is strongly gendered.</p>
 
-<p align="justify">Most female part-timers in the LFS say they do not want a full-time job (almost 80% in Figure 5). This is because they are invariably working part-time to fit around other roles in their lives. These are workers who benefit from the flexibility offered by part-time employment to fulfil those additional roles, but they can often become 'stuck' in the part-time labour force, unable to enter a full-time job later, should they wish to.</p>
+<p align="justify">Most female part-timers in the LFS say they do not want a full-time job (almost 80% in Figure 5). This is because they are invariably working part-time to fit around other roles in their lives . Women who work part-time to enable them to care for their children might actually like a full-time job if good quality and affordable child-care options were available to them, but the survey does not offer that as a response option. These women benefit from the flexibility offered by part-time employment to fulfil those additional roles, but they can often become ‘stuck’ in the low waged part-time labour force, unable to enter a full-time job later should they wish to, with serious ramifications for their own financial security in the short and longer terms. Women’s life-time earnings are reduced when they work part-time and they build up a smaller pension pot than do full-timers, meaning lower incomes after retirement.</p>
 
 <p align="justify">Other than students and older workers approaching retirement age, men who work part-time in the UK are largely doing so involuntarily: they are looking for full-time work but cannot find it. Levels of male involuntary part-time working rose from a minimum of 21% pre-pandemic to 28% since the pandemic hit. There are several possible reasons why men saw this increase. The uncertainties that the Covid-19 pandemic brought may have caused employers to increase part-time employment. A shortage of full-time job opportunities in some regions of the country, together with workers' inability to migrate due to lockdowns, may result in workers being restricted to taking up local part-time employment when they would have preferred to work full-time.</p>
 
@@ -884,7 +889,7 @@ t_jobtyp <- d_precariety %>% # summary table
 
 ```
 
-<p align="justify">Minorities of worker in the LFS report being in temporary employment. Women are slightly more likely to work in a temporary job than are men and the gender gap in temporary working remained stable since the pandemic started. Both female and male workers experienced a slight increase at the end of 2020 (from 5% for women and 4% for men in March/May to 6% and 5%, respectively). As we entered 2021 levels for male and female workers declined and then rose slightly again after March.</p>
+<p align="justify">A small proportion of workers in the LFS report being in temporary employment. Women are slightly more likely to work in a temporary job than are men and the gender gap in temporary working remained stable since the pandemic started. Both female and male workers experienced a slight increase at the end of 2020 (from 5% for women and 4% for men in March/May to 6% and 5%, respectively). As we entered 2021 levels for male and female workers declined and then rose slightly again after March.</p>
 
 ```{r plot temporary sex, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 9: Slight increase in temporary work"}
 
@@ -1057,7 +1062,7 @@ t_jobtyp_eth <- d_precariety %>% # table summary
   filter(JOBTYP == 2 & !is.na(ETHUKEUL_2))
 ```
 
-<p align="justify">Minority-ethnic workers are more likely to work in temporary jobs than are white workers (with an ethnic gap of about 3%). They experienced a 1% decline in levels of temporary working at the start of 2020, followed by a progressive increase that peaked at 8.5%. The pattern for white workers was more stable.</p>
+<p align="justify">Minority-ethnic workers are more likely to work in temporary jobs than are white workers (with an ethnic gap of about 3% points). They experienced a 1% point decline in levels of temporary working at the start of 2020, followed by a progressive increase that peaked at 8.5%. The pattern for white workers was more stable.</p>
 
 ```{r plot temporary ethnicity, fig.width= 8, fig.height=5, fig.fullwidth=TRUE, fig.cap= "Figure 11: Temporary work affects ethnic minorities the most"}
 
@@ -1132,9 +1137,9 @@ t_jobtyp_class <- d_precariety %>% # table summary
 
 ```
 
-<p align="justify">Temporary work increased among all occupational groups from the second semester in 2020. The rise was particularly noticeable for lower-level occupations including semi routine and routine (1% increase), lower supervisory/technical jobs (2% increase) and intermediate (1% increase). Management and professional occupations remained mostly stable after a very slight increased after the first lockdown.</p>
+<p align="justify">Temporary work increased among all occupational groups from the second semester in 2020. The rise was particularly noticeable for lower-level occupations including semi routine and routine (1% point increase), lower supervisory/technical jobs (2% points increase) and intermediate (1% point increase). Management and professional occupations remained mostly stable after a very slight increased after the first lockdown.</p>
 
-<p align="justify">As we entered 2021, routine and semi-routine occupations levels moved closer back down to pre-pandemic levels. Similarly, lower supervisory/technical jobs saw a 1% decline, but remaining higher than pre-pandemic levels still.</p>
+<p align="justify">As we entered 2021, routine and semi-routine occupations levels moved closer back down to pre-pandemic levels. Similarly, lower supervisory/technical jobs saw a 1% point decline, but remaining higher than pre-pandemic levels still.</p>
 
 ```{r plot temporary class, fig.width= 8, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 12: Temporary work rose among lower level occupations"}
 
@@ -1306,7 +1311,7 @@ t_restmr <- d_precariety %>% # table summary
 
 ```
 
-<p align="justify">What jobs were taken by those who could not find permanent work? Most involuntary temporary workers were on fixed term contracts. These figures rose almost 10% for men and women during the pandemic, compared with the lowest levels of fixed term contracts in 2019.</p>
+<p align="justify">What jobs were taken by those who could not find permanent work? Most involuntary temporary workers were on fixed term contracts. These figures rose almost 10% points for men and women during the pandemic, compared with the lowest levels of fixed term contracts in 2019.</p>
 
 ```{r plot type could not find permanent job sex, fig.width= 12, fig.height=6, fig.fullwidth=TRUE, fig.cap= "Figure 14: Fixed contracts thrive when permanent jobs don't"}
 
@@ -1824,9 +1829,24 @@ ggplotly(p_fled_class, tooltip = c("text"), width = 750, height = 650) %>%
 
 <p align="justify">Drawing on analysis of 2019/20/21 data, we showed that the risk of precarious work has increased for all groups of worker and particularly for women, ethnic minorities, and people employed in lower-level occupations.</p>
 
-<p align="justify">We showed the importance of moving from aggregated to granulated analyses when employment trends are considered. For example, our initial results showed a decline in part-time working among employed men and women. However, this aggregate picture disguises a more complicated story about work-time, ethnicity and occupational class before and during the pandemic. The importance of looking at intersections of gender, ethnicity and class was reinforced when we considered which workers are in temporary jobs, who is work atypically, and the reasons they take these precarious jobs.</p>
+<p align="justify">We showed the importance of moving from aggregated to granulated analyses when employment trends are considered. For example, our initial results showed a decline in part-time working among employed men and women. However, this aggregate picture disguises a more complicated story about work-time, ethnicity and occupational class before and during the pandemic. The importance of looking at intersections of gender, ethnicity and class was reinforced when we considered which workers are in temporary jobs, who is working atypically, and the reasons they take these precarious jobs.</p>
 
 <p align="justify">The risk of precarious work, and its intensification during the pandemic, are not random but highly dependent on gender, ethnicity, class and how they intersect.</p>
+
+# Recommendations
+
+<p align="justify">In order to improve the working lives of everyone, particularly in the post-pandemic context, policies must take into account the fact that gender, ethnicity and class impact the likelihood of a person to be in precarious work. To be effective, policies to combat precarious work should therefore tackle the root causes of these structural inequalities, rather than simply address their manifestations.</p>
+
+-	<p align="justify">**Invest in universal free/affordable childcare and adult social care**: the uneven distribution of unpaid labour like caring responsibilities and domestic work is the main reason women are more likely to be in part-time, low-paid and zero-hours contract work. Long-term sustainable investment in social infrastructure like nurseries, social care centres, domiciliary care and early years’ education has the potential to not only create millions of jobs in these sectors but across the economy through an indirect effect, allowing many mothers to enter or progress in the labour market and into better jobs. More importantly, investment in social infrastructure results in a healthier, better educated and better cared-for population.</p>
+
+-	<p align="justify">**Reform Shared Parental Leave and Paternity Leave**: the uneven distribution of unpaid labour is not just one between families and wider society, but also and fundamentally between women and men. Parental and Paternity Leave should be designed to truly incentivise fathers to do more of the child-rearing, and for families to share caring responsibilities more equally.</p>
+
+-	<p align="justify">**Introduce the right to flexible working from day one**: the pandemic has accelerated the trend for flexible patterns of work, including remote working and flexible work-time. However, as this report shows, flexibility was not experienced by all workers in the same way, with class as a big divide in the workers who were more or less likely to work in flexible arrangements that suited them. The right to request flexible work should be the default, with the onus of proof on employers should it be rejected.</p>
+
+-	<p align="justify">**Establish a well-resourced labour rights monitoring body**: legislation to protect workers and improve working conditions is crucial but insufficient on its own. Legal enforcement is key to ensure workers’ rights are respected.</p>
+
+-	<p align="justify">**Introduce Ethnicity Pay Gap reporting**: ethnic minorities continue to experience worse working conditions and more precarious work than the white majority, across class and gender. The Gender Pay Gap reporting requirement should be extended to include ethnicity, and companies should be required to put in place plans to address these gaps.</p>
+
 
 # The Project and its Data
 
@@ -1869,6 +1889,7 @@ N_total_2 %>% flextable() %>% theme_vanilla() %>%
 -   Luis D. Torres: [luis.torres\@nottingham.ac.uk](mailto:luis.torres@nottingham.ac.uk){.email};
 -   Tracey Warren: [tracey.warren\@nottingham.ac.uk](mailto:tracey.warren@nottingham.ac.uk){.email};
 -   Annegreet Veeken: [annegreet.veeken\@nottingham.ac.uk](mailto:annegreet.veeken@nottingham.ac.uk){.email}
+- 	The UK Women’s Budget Group: [sara.reis@wbg.org.uk](mailto:sara.reis@wbg.org.uk){.email} 
 -   [Project website](https://www.nottingham.ac.uk/business/research/carrying-the-work-burden-of-covid-19/index.aspx)
 
 
