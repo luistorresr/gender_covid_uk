@@ -290,14 +290,7 @@ variables <- c(
         ## work arrangements
         
         "FLED10", # Type of agreed work arrangement
-        "VARYHR", # Whether weekly hours tend to vary
-        
-        ## Seeking for work
-        "DIFJOB", # Whether looking for different or additional paid job or business
-        "ADDJOB", # Whether seeking replacement or additional job (DIFJOB = 1)
-        "UNDEMP", # Whether would like to work longer hours, at current basic rate of pay, given the opportunity
-        "UNDHRS", # Number of extra hours would like to work
-        
+
         # SECOND JOB
         
         "SECJOB", # Whether had second job in reference week
@@ -316,6 +309,9 @@ variables <- c(
         "UOTHR", # Usual hours of unpaid overtime (filter by EVEROT = 1)
         
         "SUMHRS", # Total hours worked in reference week in main and second jobs
+
+        "VARYHR", # Whether weekly hours tend to vary
+        "DIFFHR20", # Whether hours different from usual in reference week
         
         ## Main job 
         
@@ -341,10 +337,33 @@ variables <- c(
         
         "REDUND", #  Whether made redundant in last three months (filter for 1 in each of the next ones)
         "REDPAID", # Have you left any paid job in the last three months?
+        "REDSTAT", # Status in job (made redundant from) - applies to (((REDYL13 = 2 OR 3) AND REDPAID = 1) OR (REDANY = 1)).
         "REDYL13", # Could you tell me the reason you left your last job? (filter by REDPAID=Yes))
         "REDANY", # Whether made redundant from any other job in last 3 months (filter by REDYL13 = 1, 4, 5, 6, 7, 8, 9, 10, 11 AND REDPAID = 1))
         "REDCLOS",  # Reason for leaving job left in last three months (REDYL13 = 2 OR 3 AND REDPAID = 1) OR (REDANY = 1))     
         "INDE07R", #  Industry sectors in job made redundant from
+        
+        # self-employment
+        
+        ### NOTE: partime, redundancy, hours, income, seeking also applies
+        
+        "SELF1", # Other methods of payment aside from receiving a salary or wage direct from an employer
+        "SELF2", # Other methods of payment aside from receiving a salary or wage direct from an employer
+        "SELF3", # Other methods of payment aside from receiving a salary or wage direct from an employer
+        "SELF4", # Other methods of payment aside from receiving a salary or wage direct from an employer
+        "SOLOR", # Self-employed with or without employees (reported)
+        "ONETEN", # Number (1 – 10) of employees working for self employed person. Filter by "SOLOR" ==2
+        "NOCUST", # Number of customers which a self employed respondent has
+        "CONSEY", # Year started as continuously self employed
+        "SOLO2", # Working alone or employees in second job (reported)
+        
+        ## Seeking for work
+        "DIFJOB", # Whether looking for different or additional paid job or business
+        "TYEMPS", # Type of employment sought (DIFJOB = 1)
+        "LKSELA", # Whether looking for work as employee or self employed
+        "ADDJOB", # Whether seeking replacement or additional job (DIFJOB = 1)
+        "UNDEMP", # Whether would like to work longer hours, at current basic rate of pay, given the opportunity
+        "UNDHRS", # Number of extra hours would like to work
         
         # weights
         "PWT18", "PIWT18" # data for PIWT18 is not available for the new covid series
