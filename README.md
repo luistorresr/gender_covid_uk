@@ -4,8 +4,7 @@ The COVID-19 pandemic has changed the way we work. It has created job loss, work
 
 The research asks whether the pandemic is narrowing or reinforcing existing gender inequalities in our ways of working. Has it created new inequities? To answer these crucial questions, the project is analysing data gathered from very many workers, and very different workplaces, across the whole of the UK.
 
-This research will allow us to: • Track key labour force changes as the effects of the pandemic rolled out e.g. are there differences among women and men in their levels of unemployment, their hours worked and typical earnings?
-• Identify variation in the impact of COVID-19 on workplaces e.g. which businesses were most likely to close, what was the extent of remote working, and did all of this vary by the gender composition of the workers? • Track over time workers’ worries about, for example, pandemic-induced changes to their hours of paid work, and how to balance the demands of their paid work with intensified caring demands?
+This research will allow us to: • Track key labour force changes as the effects of the pandemic rolled out • Identify variation in the impact of COVID-19 on workplaces • Track over time workers’ worries about pandemic-induced changes to their employment situation.
 
 The project will rapidly fill an urgent need. It will start to disseminate early findings and urgent policy solutions.
 
