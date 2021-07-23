@@ -486,7 +486,7 @@ p_ptwrk_mix <- t_ptwrk_mix %>%
   guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
 
 # interactive
-ggplotly(p_ptwrk_mix , tooltip = c("text"), width = 750, height = 650) %>%
+ggplotly(p_ptwrk_mix , tooltip = c("text"), width = 730, height = 650) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE),
          margin = list(l = 0)) %>%
@@ -843,7 +843,7 @@ p_yptwrk_mix <- t_yptwrk_mix %>%
 
 
 # interactive
-ggplotly(p_yptwrk_mix , tooltip = c("text"), width = 750, height = 650) %>%
+ggplotly(p_yptwrk_mix , tooltip = c("text"), width = 730, height = 650) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE),
          margin = list(l = 0)) %>%
@@ -1531,7 +1531,7 @@ p_restmr_class <- t_restmr_class %>%
   guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
 
 # interactive
-ggplotly(p_restmr_class, tooltip = c("text"), width = 750, height = 650) %>%
+ggplotly(p_restmr_class, tooltip = c("text"), width = 720, height = 650) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE),
          margin = list(l = 0)) %>%
@@ -1805,7 +1805,7 @@ p_fled_class <- t_fled_class %>%
   guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size
 
 # interactive
-ggplotly(p_fled_class, tooltip = c("text"), width = 750, height = 650) %>%
+ggplotly(p_fled_class, tooltip = c("text"), width = 720, height = 650) %>%
   layout(yaxis = list(fixedrange = TRUE),
          xaxis = list(fixedrange = TRUE),
          margin = list(l = 0)) %>%
