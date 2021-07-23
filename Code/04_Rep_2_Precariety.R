@@ -492,7 +492,7 @@ t_yptwrk_eth <- d_precariety %>% # table summary
   filter(FTPTWK == 2) %>% # only those in par-time work / ETHUKEUL_2 omit no answers and no apply
   group_by(QUARTER, ETHUKEUL_2, YPTJOB) %>% 
   summarise(count = sum(PWT18)) %>% 
-  group_by(QUARTER, ETHUKEUL_2) %>% 
+  group_by(QUARTER, SEX, ETHUKEUL_2) %>% 
   # percentage reason
   mutate(percentage = count/sum(count)) %>% 
   filter(YPTJOB %in% c("3", "4") & !is.na(ETHUKEUL_2)) # could not find / did not want ft job
