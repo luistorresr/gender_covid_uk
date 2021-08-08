@@ -1,11 +1,7 @@
 
 ########################### Load packages ##############################################
 
-### R version
-# R version 4.0.4
-
-### R version
-# R 4.0 or above
+### R version 4.1.0 (2021-05-18)
 
 #### packages needed
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
