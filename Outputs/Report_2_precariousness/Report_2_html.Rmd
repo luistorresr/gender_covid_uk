@@ -1577,7 +1577,7 @@ t_fled <- d_precariety %>% # table summary
 
 ```
 
-<p align="justify">annualized hours. Male and female workers both experienced a rise in their share of flexitime and annualised hours in 2020, with noticeable spikes upwards during the first lockdown. Flexitime was on average 2% higher for women compared to men since the second semester in 2020 and into 2021.</p>
+<p align="justify">Male and female workers both experienced a rise in their share of flexitime and annualised hours in 2020, with noticeable spikes upwards during the first lockdown. Flexitime was on average 2% higher for women compared to men since the second semester in 2020 and into 2021.</p>
 
 <p align="justify">A small increased in zero-hours contracts was also experienced by women. While men's rates remained around 2%, female workers peaked at 3% and remained above 2% since the pandemic hit.</p>
 
