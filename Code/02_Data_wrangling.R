@@ -311,7 +311,6 @@ variables <- c(
         "SUMHRS", # Total hours worked in reference week in main and second jobs
 
         "VARYHR", # Whether weekly hours tend to vary
-        "DIFFHR20", # Whether hours different from usual in reference week
         
         ## Main job 
         
@@ -353,7 +352,6 @@ variables <- c(
         "SELF4", # Other methods of payment aside from receiving a salary or wage direct from an employer
         "SOLOR", # Self-employed with or without employees (reported)
         "ONETEN", # Number (1 – 10) of employees working for self employed person. Filter by "SOLOR" ==2
-        "NOCUST", # Number of customers which a self employed respondent has
         "CONSEY", # Year started as continuously self employed
         "SOLO2", # Working alone or employees in second job (reported)
         
@@ -371,21 +369,21 @@ variables <- c(
 
 #### selecting the variables in all dataset and creating temporary datasets
 
-t1a <- LFS19_JM %>% select(variables) # FLED10 does not exist
-t2a <- LFS19_AJ %>% select(variables)
-t3a <- LFS19_JS %>% select(variables) # FLED10 does not exist
-t4a <- LFS19_OD %>% select(variables)
+t1a <- LFS19_JM %>% select(variables) # FLED10 does not exist 
+t2a <- LFS19_AJ %>% select(variables) # `                     
+t3a <- LFS19_JS %>% select(variables) # FLED10 does not exist 
+t4a <- LFS19_OD %>% select(variables) #                       
 
-t1 <- LFS20_JM %>% select(variables) # FLED10 does not exist
+t1 <- LFS20_JM %>% select(variables) # FLED10 does not exist t
 t2 <- LFS20_FA %>% select(variables)
 t3 <- LFS20_MM %>% select(variables)
 t4 <- LFS20_AJ %>% select(variables)
-t5 <- LFS20_MJ %>% select(variables)
-t6 <- LFS20_JA %>% select(variables)
-t7 <- LFS20_JS %>% select(variables) # FLED10 does not exist
-t8 <- LFS20_AO %>% select(variables)
-t9 <- LFS20_SN %>% select(variables)
-t10 <- LFS20_OD %>% select(variables)
+t5 <- LFS20_MJ %>% select(variables) #                        
+t6 <- LFS20_JA %>% select(variables) #                        
+t7 <- LFS20_JS %>% select(variables) # FLED10 does not exist  
+t8 <- LFS20_AO %>% select(variables) #                        
+t9 <- LFS20_SN %>% select(variables) #                       
+t10 <- LFS20_OD %>% select(variables)#                        
 
 t11 <- LFS21_NJ %>% select(variables)
 t12 <- LFS21_DF %>% select(variables)
@@ -398,9 +396,9 @@ t14 <- LFS21_FA %>% select(variables)
 LFS_all <- rbind(t1a, t2a, t3a, t4a, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14) # working database
 LFS_all <- as_tibble(LFS_all) # creating a tibble for data manipulation
 
-rm(list = ls()) # clean the global environment to save memory
-
 save(LFS_all, file = "./Data_clean/LFS_all.rda") # load the saved dataset for data manipulation
+
+rm(list = ls()) # clean the global environment to save memory
 
 load("./Data_clean/LFS_all.rda") # this is the file for analysis
 
