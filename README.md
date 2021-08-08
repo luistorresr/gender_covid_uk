@@ -8,6 +8,7 @@ This research will allow us to: • Track key labour force changes as the effect
 
 The project will rapidly fill an urgent need. It will start to disseminate early findings and urgent policy solutions.
 
+This research is part of the Data and Connectivity National Core Study, led by Health Data Research UK in partnership with the Office for National Statistics and funded by UK Research and Innovation (grant ref MC_PC_20029)
 
 # Project links:
 1) https://web.www.healthdatagateway.org/project/527575984885184
