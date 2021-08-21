@@ -1,0 +1,1381 @@
+---
+title: "How has self-employment changed since the COVID-19 pandemic in the UK? Research Summary 3"
+subtitle: 'Project: How is COVID-19 impacting women and men’s working lives in the UK?'
+author: "Luis D. Torres, Tracey Warren and Annegreet Veeken, and the UK Women’s Budget Group"
+date: August 2021
+output: 
+   rmdformats::robobook:
+     self_contained: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+	warning = FALSE,
+  collapse = TRUE,
+  fig.align = "center",
+  fig_caption= TRUE,
+  use_bookdown= TRUE,
+  toc= TRUE,
+  toc_depth= 3,
+  collapsed = FALSE
+  
+)
+```
+
+```{r libraries}
+#### packages needed
+if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if(!require(gridExtra)) install.packages("girdExtra", repos = "http://cran.us.r-project.org")
+if(!require(corrr)) install.packages("corrr", repos = "http://cran.us.r-project.org")
+if(!require(Hmisc)) install.packages("Hmisc", repos = "http://cran.us.r-project.org")
+if(!require(sjlabelled)) install.packages("sjlabelled", repos = "http://cran.us.r-project.org")
+if(!require(ggthemes)) install.packages("ggthemes", repos = "http://cran.us.r-project.org")
+if(!require(ggtext)) install.packages("ggtext", repos = "http://cran.us.r-project.org")
+if(!require(ggrepel)) install.packages("ggrepel", repos = "http://cran.us.r-project.org")
+if(!require(doBy)) install.packages("doBy", repos = "http://cran.us.r-project.org")
+if(!require(sjmisc)) install.packages("sjmisc", repos = "http://cran.us.r-project.org")
+if(!require(plotly)) install.packages("plotly", repos = "http://cran.us.r-project.org")
+if(!require(flextable)) install.packages("flextable", repos = "http://cran.us.r-project.org")
+if(!require(scales)) install.packages("scales", repos = "http://cran.us.r-project.org")
+if(!require(ggalt)) install.packages("ggalt", repos = "http://cran.us.r-project.org")
+if(!require(janitor)) install.packages("janitor", repos = "http://cran.us.r-project.org")
+if(!require(bookdown)) install.packages("bookdown", repos = "http://cran.us.r-project.org")
+if(!require(rmdformats)) install.packages("rmdformats", repos = "http://cran.us.r-project.org")
+if(!require(htmlwidgets)) install.packages("htmlwidgets", repos = "http://cran.us.r-project.org")
+if(!require(widgetframe)) install.packages("widgetframe", repos = "http://cran.us.r-project.org")
+if(!require(shiny)) install.packages("shiny", repos = "http://cran.us.r-project.org")
+
+library(ggalt) # contingency table
+library(tidyverse) # several tools for data manipulation
+library(haven) # read SPSS, Stata, and SAS data
+library(gridExtra) # arrange multiple grid-based plots on a page
+library(corrr) # for correlations correlate()
+library(Hmisc) # many functions useful for data analysis
+library(sjmisc) # useful to set Na's
+library(sjlabelled) # get_labels function
+library(ggthemes) # themes for ggplot2
+library(ggtext) # fancy text
+library(ggrepel) # help with the position of the labels on ggplot2 graph
+library(doBy) # 'do' something to data stratified 'by' some variables
+library(plotly) # interactive plots
+library(flextable) # formatting tables 
+library(scales) # add scale symbols and colour to axis
+library(janitor) # add totals to tables
+library(rmdformats)
+library(htmlwidgets)
+library(shiny)
+library(widgetframe)
+
+```
+
+```{r data, echo=FALSE}
+
+load("../../Data_clean/LFS_clean.rda") # this is the base file
+
+d_self <- LFS_clean %>% # sud-dataset to facilitate analysis
+  # set variable types
+  mutate_at(c("QUARTER", "PWT18", "PIWT18"), ~as.numeric(.)) %>%  
+  # Apply basic filters
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  filter(ILODEFR == 1) # only people in employment 
+```
+
+```{r baseline tiplab with quarter, quarter and sex and quarter and ethnicity}
+
+tiplab_quarter <- tibble(QUARTER = c(seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),1)) %>% 
+            dplyr::arrange(QUARTER)
+
+tiplab_sex <-  tibble(SEX = c(rep("Men",18),rep("Women", 18)),
+                  QUARTER = c(seq(1:18), seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),2)) %>% 
+            dplyr::arrange(QUARTER)
+
+
+d_self <- d_self %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL), 
+                                                             `1` = "White",
+                                                             `2` = "Minority-ethnic", `3` = "Minority-ethnic", 
+                                                             `4` = "Minority-ethnic", `5` = "Minority-ethnic",
+                                                             `6` = "Minority-ethnic",`7` = "Minority-ethnic",
+                                                             `8` = "Minority-ethnic",`9` = "Minority-ethnic")) %>% as_numeric(., keep.labels = TRUE)
+
+
+tiplab_eth <-  tibble(ETHUKEUL_2 = c(rep("White",18),rep("Minority-ethnic", 18)),
+                  QUARTER = c(seq(1:18), seq(1:18)),
+                  qlabel = rep(c("Jan-Mar 2019","Apr-Jun 2019","Jul-Sep 2019","Oct-Dec 2019",
+            "Jan-Mar 2020", "Feb-Apr 2020", "Mar-May 2020", "Apr-Jun 2020", "May-Jul 2020",
+            "Jun-Aug 2020", "Jul-Sep 2020","Aug-Oct 2020", "Sep-Nov 2020", "Oct-Dec 2020",
+            "Nov 2020 - Jan 2021", "Dec 2020 - Feb 2021", "Jan-March 2021", "Feb-Apr 2021"),2)) %>% 
+            dplyr::arrange(QUARTER)
+
+```
+
+
+# Background
+
+<p align="justify">Covid-19 has proven to be not solely a health crisis. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, have shaped the impacts of the pandemic in ways not comparable to previous social and economic crises, while lockdowns and social distancing measures have had an unequal impact on those jobs frequently done by women and men. We set out to examine if Covid-19 is narrowing or reinforcing existing inequalities among women and men in their working lives.</p>
+
+<p align="justify">Our first and second research summaries focused on  [unemployment](https://reports.recode.ai/gender_covid19_uk/report_1.html) and [precarious work](https://reports.recode.ai/gender_covid19_uk/report_2.html), respectively. This research summary examines self-employment. The self-employed were predicted to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods[^1].</p>
+
+[^1]: Enterprise Research Centre (2020) Covid-19 and self-employment in the UK. Retrieved from <https://www.enterpriseresearch.ac.uk/wp-content/uploads/2020/04/ERC-Insight-Covid-19-and-self-employment-in-the-UK.pdf>
+
+<p align="justify">Over 99% of all people in employment can be classified as employees or self-employed workers[^2] . Employees are those who are paid a wage by an employer for the work that they do. On the other hand, self-employed workers are those people who in their main employment work on their own account (with or without employees). The number of employees and self-employed people in the UK is measured by the Labour Force Survey (LFS).</p>
+
+[^2]: Office of National Statistics (2020). A guide to labour market statistics. Retrieved from: <https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/methodologies/aguidetolabourmarketstatistics>
+
+<p align="justify">This research summary aims at understanding how Covid-19 has impacted, if at all, on self-employment in the UK. To answer this question, we use the UK's largest study on employment circumstances, the Labour Force Survey (LFS), drawing on analysis of the 2019/20/21 releases. We follow the trend pre- and post-pandemic, considering March/May 2020 as the reference point. We trace the pre-pandemic trend from the first 2019 quarter (Jan/March). We do this to identify if the Covid-19 pandemic is narrowing or reinforcing existing inequalities in self-employment trends for workers aged between 18-64.</p>
+
+# How did self-employment evolve after the pandemic hit?
+
+```{r table self-employment total}
+
+t_self_total <- d_self %>% # Totals
+  # Apply basic filters
+  group_by(QUARTER) %>% 
+  summarise(self = sum(PWT18[INECAC05 == 2]))
+
+```
+
+<p align="justify"> The numbers of workers in self-employment fell after the start of 2020 (see Figure 1). Up to the end of 2019 self-employment had been increasing, a rise that started in the 1970s[^3]. However, the uncertainties that COVID-19 brought appear to have paused any short-term plans to become self-employed and made it difficult to continue in self-employment for those already working on their own account.</p>
+
+[^3]: Giupponi, G. & Xu, X. (2020). What does the rise of self-employment tell us about the UK labour market? Institute for Fiscal Studies. Retrieved from: <https://ifs.org.uk/uploads/BN-What-does-the-rise-of-self-employment-tell-us-about-the-UK-labour-market-1.pdf>
+
+<p align="justify">Government support for the self-employed through the 'Self-Employment Income Support Scheme' helped to keep the numbers steady from May-July quarter 2020. However, the number of self-employed workers fell again from the October-December quarter, amid further uncertainties brought by the second lockdown in November 2020.</p>
+
+```{r plot self-employment total, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 1: Self-employment dropped after the pandemic started"}
+
+p_self_total <- t_self_total %>% 
+  ggplot(aes(x = QUARTER, y = self)) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7, linetype="dotted") +
+  geom_bar(stat="identity", width=0.5, fill = c("#367BB8"), 
+           aes(text = paste("Quarter:", tiplab_quarter$qlabel[tiplab_quarter$QUARTER == QUARTER],
+                              "\nSelf-employed:", scales::comma(self)))) + 
+
+  # scale and colour
+  scale_y_continuous(breaks = seq(0,5000000, 500000), limits = c(0, 5000000), labels = comma) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+  caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 4800000, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 4800000, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 4800000, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none", 
+        legend.title = element_blank(),
+        legend.text = element_text(size=11))
+
+# interactive
+ggplotly(p_self_total, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)))
+
+
+
+
+```
+
+<p align="justify">Self-employed workers are concentrated in sectors like construction and banking and finance. However, this applies mainly to men. Besides banking and finance, the female self-employed are concentrated in sectors such as public administration, education and health as well as other services such as domestic services, personal care, entertainment, and accommodation and food that were shut down fully or severely limited with the pandemic restrictions, and government support schemes for the self-employed were less well-known and excluded those newly self-employed.</p>
+
+<p align="justify">The following sections present a detailed analysis of self-employment trends considering gender and ethnicity in the UK. To facilitate comparison, we calculate a self-employment rate. This is a percentage that summarises self-employment as a share of all workers (employees and self-employed).</p>
+
+
+## Self-employment among women and men fell after the pandemic hit
+
+```{r table self-employment rate sex}
+
+t_self_rate <- d_self %>% # rate to in employment population
+  # Apply basic filters
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  group_by(QUARTER, SEX) %>% 
+  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER, SEX) %>% 
+  # rate compared to the 
+  mutate(rate_self = self / empl)
+
+```
+
+<p align="justify">Self-employment is highly gendered. There are far more self-employed males than there are females: women are less likely to set up in business, their operations tend to be smaller, and fewer self-employed women than men employ other workers.</p>
+
+<p align="justify">Male workers were more likely to be self-employed than were women in all periods included in this analysis, with a gender gap of 8% points in 2019. Men experienced the highest drops in post-pandemic self-employment levels: their rates fell from 18.2% at the end of 2019 to 15.2% at the beginning of 2021. Women saw a smaller decline from 10.6% to 9.1%.</p>
+
+```{r plot self-employment rate sex, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 2: Self-employed male workers numbers dropped the most"}
+
+p_self_rate <- t_self_rate %>% 
+  ggplot(aes(x = QUARTER, y = rate_self, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_sex$qlabel[tiplab_sex$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nSelf-employment rate:", round(rate_self*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.208), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 17, y = 0.145, label = "Men", color= "#DF9216", size = 4) +
+  annotate(geom = "text", x = 17, y = 0.085, label = "Women", color= "#791F83", size = 4) +
+  annotate(geom = "text", x = 7.1, y = 0.03, label = "Start of the COVID-19\nfirst lockdown", hjust = 0, size = 3.1) +
+  annotate(geom = "text", x = 2, y = 0.207, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.207, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.207, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.title = element_blank(), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none") 
+
+# interactive
+ggplotly(p_self_rate, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)))
+
+```
+
+
+## Minority-ethnic self-employment rates fell the most
+
+```{r table minority and sex}
+
+t_self_rate_eth <- d_self %>% # rate to in employment population
+  # Apply basic filters
+  group_by(QUARTER, SEX, ETHUKEUL_2) %>% 
+  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER, SEX, ETHUKEUL_2) %>% 
+  # rate compared to the 
+  mutate(rate = self / empl) %>%
+  filter(!is.na(ETHUKEUL_2))
+
+```
+
+<p align="justify">Ethnicity also plays a strong role in self-employment: men from minority-ethnic groups are more likely to be self-employed than are white men or minority-ethnic and white women workers. Restricted job opportunities and the prevalence of insecure work for minority-ethnic men are key contributing factors.</p>
+
+<p align="justify">Men and women from minority-ethnic groups experienced the steepest post-pandemic falls in rates of self-employment. This is particularly the case for minority-ethnic men who saw a decline of 4% points (from 20% to 16%), while white men saw 3% points decrease (18% to 15%). White women experienced the smallest decrease of around 1% points, while ethnic-minority women saw a cut of 2% points (from 11% to 9%).</p>
+
+```{r plot minority and sex, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 3: Minority-ethnic self-employment rates fell the most."}
+
+tiplab_eth_sex <-  t_self_rate_eth  %>% 
+  mutate(SEX = as_label(SEX), ETHUKEUL_2 = as_label(ETHUKEUL_2)) %>% 
+  dplyr::select(QUARTER, SEX, ETHUKEUL_2) %>% 
+  distinct() %>% 
+  left_join(tiplab_sex, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, ETHUKEUL_2)
+
+p_self_rate_eth <- t_self_rate_eth %>% 
+  ggplot(aes(x = QUARTER, y = rate, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_eth_sex$qlabel[tiplab_eth_sex$QUARTER == QUARTER],
+                              "\nGender:", as_label(SEX), 
+                              "\nEthnicity:", as_label(ETHUKEUL_2),
+                              "\nSelf-employment Rate:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_grid(.~ as_label(ETHUKEUL_2)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.22, 0.02), limits = c(0, 0.225), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 17, y = 0.165, label = "Men", color= "#DF9216", size = 4) +
+  annotate(geom = "text", x = 17, y = 0.105, label = "Women", color= "#791F83", size = 4) +
+  annotate(geom = "text", x = 7.1, y = 0.03, label = "Start of the COVID-19\nfirst lockdown", hjust = 0, size = 3.1) +
+  annotate(geom = "text", x = 2, y = 0.224, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.224, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.224, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+# interactive
+ggplotly(p_self_rate_eth, tooltip = c("text"), width = 750, height = 430) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+```
+
+## Northern Ireland experienced the steepest fall in male self-employment
+
+```{r table country and sex}
+
+t_self_rate_sex_country <- d_self %>% # rate to in employment population
+  # Apply basic filters
+  group_by(QUARTER, COUNTRY2, SEX) %>% 
+  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER, COUNTRY2, SEX) %>% 
+  # rate compared to the 
+  mutate(rate_self = self / empl)
+
+```
+
+<p align="justify">All nations within the UK experienced the decline in male and female self-employment outlined above but, while England and Scotland followed the overall trend depicted in Figure 2, Wales and Northern Ireland showed a rather different pattern.</p>
+
+<p align="justify">In Wales, male self-employment rates had reached their highest levels at 19% in the second quarter of 2019, but then fell to their lowest rate in 2020 before the pandemic hit (14% in the first quarter of 2020). During the pandemic, rates remained between 15% and 16% and with some additional small recovery at the start of 2021. The picture is different for women whose self-employment remained above 8% until the start of the pandemic when it decreased to a low of 6% at the end of 2020.</p>
+
+<p align="justify">Male self-employment fell most steeply in Northern Ireland. Male rates here fell from 22% to 14% while female rates remained relatively stable.</p>
+
+```{r plot country and sex, fig.width= 12, fig.height= 7, fig.fullwidth=TRUE, fig.cap= "Figure 4: Northern Ireland experienced the steepest fall in male self-employment"}
+
+tiplab_sex_country <- t_self_rate_sex_country %>% 
+  mutate(COUNTRY2 = as_label(COUNTRY2), SEX = as_label(SEX)) %>% 
+  dplyr::select(QUARTER, COUNTRY2, SEX) %>% 
+  distinct() %>% 
+  left_join(tiplab_sex, by= c("QUARTER", "SEX"))%>% 
+  dplyr::arrange(QUARTER, COUNTRY2, SEX)
+
+p_self_rate_sex_country <- t_self_rate_sex_country %>% 
+  ggplot(aes(x = QUARTER, y = rate_self, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_sex_country$qlabel[tiplab_sex_country$QUARTER == QUARTER],
+                              "\nNation:", as_label(COUNTRY2),
+                              "\nGender:", as_label(SEX),
+                              "\nSelf-Employment Rate:", round(rate_self*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(COUNTRY2)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.25, 0.02), limits = c(0, 0.25), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.25, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.25, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.25, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
+
+
+# interactive
+ggplotly(p_self_rate_sex_country, tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+
+```
+
+
+## Minority-ethnic self-employment fell dramatically in Scotland and Northern Ireland
+
+```{r table country and ethnicity}
+
+t_self_rate_eth_country <- d_self %>% # rate to in employment population
+  # Apply basic filters
+  group_by(QUARTER, COUNTRY2, ETHUKEUL_2) %>% 
+  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER, COUNTRY2, ETHUKEUL_2) %>% 
+  # rate compared to the 
+  mutate(rate = self / empl) %>%
+  filter(!is.na(ETHUKEUL_2))
+
+```
+
+<p align="justify">Minority-ethnic self-employment rates showed significant variation among the four nations. While the self-employment rate was very similar for white and minority-ethnic workers in England; Wales, Scotland and Northern Ireland showed very different patterns.</p>
+
+<p align="justify">Wales experienced the highest levels of variability. Rates of self-employment among minority-ethnic workers reached their highest point at 20% in the third quarter of 2019 but fell to below 10% in the first quarter of 2020. Rates remained between 10% and 14% from the start of the pandemic until the end of 2020, returning to 2019 levels at the start of 2021. A similar trend can be seen among minority-ethnic workers in Northern Ireland.</p>
+
+<p align="justify">On the other hand, Scotland has experienced a persistent decrease in minority-ethnic self-employment rates. Levels fell from 17% in 2019 to a low of 4% at the end of 2020. As we entered 2021, rates went up to 6%.</p>
+
+
+```{r plot country and ethnicity, fig.width= 12, fig.height= 7, fig.fullwidth=TRUE, fig.cap= "Figure 5: Minority-ethnic self-employment fell dramatically in Scotland and Northern Ireland"}
+
+tiplab_eth_country <- t_self_rate_eth_country %>% 
+  mutate(COUNTRY2 = as_label(COUNTRY2), ETHUKEUL_2 = as_label(ETHUKEUL_2)) %>% 
+  dplyr::select(QUARTER, COUNTRY2, ETHUKEUL_2) %>% 
+  distinct() %>% 
+  left_join(tiplab_eth, by= c("QUARTER", "ETHUKEUL_2"))%>% 
+  dplyr::arrange(QUARTER, COUNTRY2, ETHUKEUL_2)
+
+p_self_rate_eth_country <- t_self_rate_eth_country %>% 
+  ggplot(aes(x = QUARTER, y = rate, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", tiplab_eth_country$qlabel[tiplab_eth_country$QUARTER == QUARTER],
+                              "\nNation:", as_label(COUNTRY2),
+                              "\nEthnicity:", as_label(ETHUKEUL_2),
+                              "\nSelf-Employment Rate:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(COUNTRY2)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.20, 0.02), limits = c(0, 0.207), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.207, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.207, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.207, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+
+# interactive
+ggplotly(p_self_rate_eth_country, tooltip = c("text"), width = 750, height = 650) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         xaxis2 = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         yaxis2 = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+```
+
+# Did the capacity of the self-employed to hire employees change?
+
+```{r table selfemployed with employees overall}
+
+t_self_main_overall <- d_self %>% 
+  filter(STATR == 2) %>%
+  group_by(QUARTER) %>% 
+  summarise(total = sum(PWT18)) # total self employment in main job 
+
+t_self_main_employees_overall <- d_self %>% 
+  filter(STATR == 2 & SOLOR == 2) %>% 
+  group_by(QUARTER) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in main job
+
+t_self_main_employees_rate_overall <- left_join(t_self_main_overall, t_self_main_employees_overall, by = c("QUARTER"))
+t_self_main_employees_rate_overall <- t_self_main_employees_rate_overall  %>% mutate(rate = with_employees / total, category = 1)
+
+t_self_second_overall <- d_self %>% 
+  filter(STAT2 == 2) %>%
+  group_by(QUARTER) %>% 
+  summarise(total = sum(PWT18)) # total self employment in second job
+
+t_self_second_employees_overall <- d_self %>% 
+  filter(STAT2 == 2 & SOLO2 == 2) %>% 
+  group_by(QUARTER) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in second job
+
+t_self_second_employees_rate_overall <- left_join(t_self_second_overall, t_self_second_employees_overall, by = c("QUARTER"))
+t_self_second_employees_rate_overall <- t_self_second_employees_rate_overall  %>% mutate(rate = with_employees / total, category = 2)
+
+t_self_employees_rate_overall <- rbind(t_self_main_employees_rate_overall, t_self_second_employees_rate_overall)
+
+t_self_employees_rate_overall <- t_self_employees_rate_overall %>% set_labels(category, 
+                                                                labels = c("Self-employment as main job" = 1,
+                                                                           "Self-employment as second job" = 2))
+
+t_self_employees_rate_overall <- left_join(t_self_employees_rate_overall, tiplab_quarter, by = c("QUARTER"))
+
+```
+
+<p align="justify">The deep uncertainties being experienced by the self-employed had ramifications for the wider labour force. We ask next whether self-employed workers were hiring staff. Figure 8 shows that they were having trouble doing so. Since the pandemic hit the number of self-employed workers having employees progressively declined and continued doing so as we entered 2021. The decline was particularly sharp for those self-employed workers in their second job (6% points fall). Some recovery was being experienced by these workers as we entered 2021.</p>
+
+```{r plot selfemployed with employees overall, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 6: Self-employed workers with employees in their main and second jobs"}
+
+p_self_employees_overall <- t_self_employees_rate_overall %>% 
+  ggplot(aes(x = QUARTER, y = rate, col = as_label(category))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", as_label(qlabel),
+                              "\n", as_label(category),
+                              "\nWith employees:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  #facet_wrap(.~ as_label(category)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.208), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.207, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.207, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.207, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+# interactive
+ggplotly(p_self_employees_overall, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+```
+
+## Self-employed women are less likely to have employees
+
+```{r table selfemployed with employees rate}
+
+t_self_main <- d_self %>% 
+  filter(STATR == 2) %>%
+  group_by(QUARTER, SEX) %>% 
+  summarise(total = sum(PWT18)) # total self employment in main job 
+
+t_self_main_employees <- d_self %>% 
+  filter(STATR == 2 & SOLOR == 2) %>% 
+  group_by(QUARTER, SEX) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in main job
+
+t_self_main_employees_rate <- left_join(t_self_main, t_self_main_employees, by = c("QUARTER", "SEX"))
+t_self_main_employees_rate <- t_self_main_employees_rate  %>% mutate(rate = with_employees / total, category = 1)
+
+t_self_second <- d_self %>% 
+  filter(STAT2 == 2) %>%
+  group_by(QUARTER, SEX) %>% 
+  summarise(total = sum(PWT18)) # total self employment in second job
+
+t_self_second_employees <- d_self %>% 
+  filter(STAT2 == 2 & SOLO2 == 2) %>% 
+  group_by(QUARTER, SEX) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in second job
+
+t_self_second_employees_rate <- left_join(t_self_second, t_self_second_employees, by = c("QUARTER", "SEX"))
+t_self_second_employees_rate <- t_self_second_employees_rate  %>% mutate(rate = with_employees / total, category = 2)
+
+t_self_employees_rate <- rbind(t_self_main_employees_rate, t_self_second_employees_rate)
+
+t_self_employees_rate <- t_self_employees_rate %>% set_labels(category, 
+                                                                labels = c("Self-employment as main job" = 1,
+                                                                           "Self-employment as second job" = 2))
+
+
+t_self_employees_rate<- left_join(t_self_employees_rate, tiplab_quarter, by = c("QUARTER"))
+
+```
+
+<p align="justify">Figure 7 shows that, overall, self-employed women are less likely than are their male counterparts to have employees working for them. There was a clear gender gap in whether they were an employer for both types of self-employed worker (self-employed in their main or second jobs).</p>
+
+<p align="justify">Since the pandemic hit the number of self-employed women having employees progressively declined and continued doing so as we entered 2021. This trend applied both to those women who are in self-employment in their main jobs as well as those who are self-employed in their second jobs. Self-employed men in their main and second jobs both experienced a decline in hiring employees since the pandemic hit, but it was particularly abrupt for those self-employed in their second job (8% points fall). Some recovery was being experienced by these workers as we entered 2021.</p>
+
+```{r plot selfemployed with employees rate, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 7: Self-employed women are less likely to have employees"}
+
+
+p_self_employees_rate <- t_self_employees_rate %>% 
+  ggplot(aes(x = QUARTER, y = rate, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", as_label(qlabel),
+                             "\nGender:", as_label(SEX),
+                              "\n", as_label(category),
+                              "\nWith employees:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(category)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.2, 0.02), limits = c(0, 0.208), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.207, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.207, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.207, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+# interactive
+ggplotly(p_self_employees_rate, tooltip = c("text"), width = 750, height = 430) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+```
+
+## Falling numbers of self-employed minority-ethnic workers are employers
+
+```{r table selfemployed with employees rate by ethnicity}
+
+t_self_main_eth <- d_self %>% 
+  filter(STATR == 2) %>%
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(total = sum(PWT18)) # total self employment in main job 
+
+t_self_main_employees_eth <- d_self %>% 
+  filter(STATR == 2 & SOLOR == 2) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in main job
+
+t_self_main_employees_rate_eth <- left_join(t_self_main_eth, t_self_main_employees_eth, by = c("QUARTER", "ETHUKEUL_2"))
+t_self_main_employees_rate_eth <- t_self_main_employees_rate_eth  %>% mutate(rate = with_employees / total, category = 1)
+
+t_self_second_eth <- d_self %>% 
+  filter(STAT2 == 2) %>%
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(total = sum(PWT18)) # total self employment in second job
+
+t_self_second_employees_eth <- d_self %>% 
+  filter(STAT2 == 2 & SOLO2 == 2) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(with_employees = sum(PWT18)) # total self-employed with employees in second job
+
+t_self_second_employees_rate_eth <- left_join(t_self_second_eth, t_self_second_employees_eth, by = c("QUARTER", "ETHUKEUL_2"))
+t_self_second_employees_rate_eth <- t_self_second_employees_rate_eth %>% mutate(rate = with_employees / total, category = 2)
+
+t_self_employees_rate_eth <- rbind(t_self_main_employees_rate_eth, t_self_second_employees_rate_eth) %>% filter(!is.na(ETHUKEUL_2))
+
+t_self_employees_rate_eth <- t_self_employees_rate_eth %>% set_labels(category, 
+                                                              labels = c("Self-employment as main job" = 1,
+                                                                         "Self-employment as second job" = 2))
+t_self_employees_rate_eth <- t_self_employees_rate_eth %>% set_labels(ETHUKEUL_2, 
+                                                                      labels = c("White" = 1,
+                                                                                 "Minority-ethnic" = 2))
+
+t_self_employees_rate_eth <- left_join(t_self_employees_rate_eth, tiplab_quarter, by = c("QUARTER"))
+
+```
+
+<p align="justify">Self-employed minority-ethnic workers are more likely to have employees working for them than are the white self-employed (Figure 8).</p>
+
+<p align="justify">Since the pandemic hit the number of self-employed minority-ethnic workers having employees progressively declined through 2020. The start of 2021 did show signs of recovery, but only for those self-employed in their main jobs. The situation was different for those minority-ethnic workers who were self-employed as their second jobs: the percentage having employees dropped dramatically (from over 16% to below 2%).</p>
+
+```{r plot selfemployed with employees rate by ethnicity, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 8: Self-employed minority-ethnic workers are less likely to employ workers after the pandemic hit"}
+
+p_self_employees_rate_eth <- t_self_employees_rate_eth %>% 
+  ggplot(aes(x = QUARTER, y = rate, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = .5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", as_label(qlabel),
+                             "\nEthnicity:", as_label(ETHUKEUL_2),
+                              "\n", as_label(category),
+                              "\nWith employees:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  facet_wrap(.~ as_label(category)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +
+  scale_y_continuous(breaks = seq(0,0.25, 0.02), limits = c(0, 0.25), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","","Jul-\nSep","",
+                              "Jan-\nMar", "", "", "Apr-\nJun", "",
+                              "", "Jul-\nSep","", "", "Oct-\nDec",
+                              "", "", "Jan-\nMar", "")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.23, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.23, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.23, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+
+# interactive
+ggplotly(p_self_employees_rate_eth, tooltip = c("text"), width = 750, height = 430) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)), 
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "top",
+                     x = 0.5, y= 1.2,
+                     font  = list(size = 13)))
+
+
+```
+
+# How have the hours worked by the self-employed changed?
+
+```{r table hous}
+
+hours <- d_self %>% select(QUARTER, ILODEFR, INECAC05, SEX, ETHUKEUL_2, PAIDHRU, BUSHR, TTUSHR, EVEROT, POTHR, UOTHR) %>%
+  filter(INECAC05 %in% c(1, 2))
+
+hours$TTUSHR <- round(hours$TTUSHR, digits = 0)
+
+
+```
+
+<p align="justify">The self-employed report real diversity in how many hours they spend on their businesses a week, with some working only a few hours and others spending far longer at work. How many hours do self-employed people spend in work per week and did this change with the pandemic?</p>
+
+<p align="justify">Figure 9 shows the range and distribution of the total usual hours per week for self-employed workers. The main impact of the pandemic has been in the distribution of typical and maximum hours. By looking at the size of the box in the figure we can see that typical hour in pre-pandemic 2020 were concentrated around 27 to 45 hours, maximum hours of between 70 to 73 hours per week, and a median of 40 hours. Since the pandemic hit typical paid hours were concentrated between 25 to 45 hours per week, maximum hours up to 75, while the median remained at 40 hours. This has been relatively stable since the pandemic hit.</p>
+
+```{r plot hours overall, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 9: Total usual hours worked per week for all quarters"}
+
+p_hours_overall <- hours %>%  filter(ILODEFR == 1 & !is.na(TTUSHR) & INECAC05 == 2 & TTUSHR >= 1) %>%
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_factor(QUARTER))) + 
+  geom_boxplot(alpha=0.3, outlier.shape= NA, show.legend = TRUE) +
+  geom_vline(xintercept = 4.2, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15.5, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7.2, linetype="dotted") + 
+  
+  # scale and colour
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_y_continuous(breaks = seq(0,100, 5)) + 
+  scale_fill_manual(values = c("#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9" ,"#360EA9" ,"#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9","#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9" , "#360EA9")) +
+  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
+                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "Usual hours per week - main job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 103, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 103, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 103, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
+  guides(col = guide_legend(override.aes = list(size = 5)))
+
+# interactive
+p_hours_overall_interactive <- ggplotly(p_hours_overall, tooltip = "all", width = 700, height = 400, 
+                                        originalData = TRUE, mode = "markers+lines") %>%
+                              layout(yaxis = list(fixedrange = TRUE),
+                                    xaxis = list(fixedrange = TRUE),
+                                    margin = list(l = 0)) %>%
+                              config(displayModeBar = FALSE) %>% 
+                              layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+                              yaxis = list(tickfont = list(size = 11)))
+
+
+p_hours_overall_interactive
+
+```
+
+## Self-employed women work fewer paid hours than do men
+
+<p align="justify">Self-employed women tend to spend shorter weeks at work than do men. Many of the women work in their business on a part-time basis, fewer than 30 hours a week, while the male self-employed can report working very long weeks. Figure 10 compares the range and distribution of the total usual hours for male and female self-employed workers. By looking at the size of the box in the figure we can see that the distribution of usual hours for female self-employed workers vary greatly compared to men.</p>
+
+<p align="justify">Since the pandemic hit typical total usual hours for men have been concentrated around 35 and 50 hours per week, while women's range between 16 to 40 hours per week. Median paid hours remained stable for both: at 40 per week for men and 30 for women.</p>
+
+```{r plot hours, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 10: Self-employed women work fewer hours per week"}
+
+p_hours <- hours %>%  filter(ILODEFR == 1 & !is.na(TTUSHR) & INECAC05 == 2 & TTUSHR >= 1) %>%
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_label(SEX))) + 
+  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.3, outlier.shape=NA, show.legend = TRUE) +
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7, linetype="dotted") + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
+  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_y_continuous(breaks = seq(0,100, 5)) + 
+  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
+                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "Usual hours per week - main job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 97, label = "2019", size = 3) +
+  annotate(geom = "text", x = 9.5, y = 97, label = "2020", size = 3) +
+  annotate(geom = "text", x = 17, y = 97, label = "2021", size = 3) +
+
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
+  guides(col = guide_legend(override.aes = list(size = 5)))
+
+
+# interactive
+
+p_hours_interactive <- plotly::ggplotly(p_hours, width = 730, height = 430, type = "box", tooltip = c("text"),
+                                originalData = FALSE) %>%
+                        config(displayModeBar = FALSE) %>%    
+                        layout(yaxis = list(fixedrange = TRUE),
+                              xaxis = list(fixedrange = TRUE),
+                              margin = list(l = 0), font = list(size = 10),
+                              legend = list(showlegend = TRUE,
+                                            orientation = "h",   # show entries horizontally
+                                             xanchor = "center",  # use center of legend as anchor
+                                             yanchor = "center",
+                                             x = 0.5, y= 1.15,
+                                             font  = list(size = 13))) %>%
+                        layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+                              yaxis = list(tickfont = list(size = 11))) %>%
+                        layout(boxmode = "group")
+
+                        
+p_hours_interactive <- plotly_build(p_hours_interactive) # from this point we remove outliers and format the legends
+
+p_hours_interactive$x$data <- lapply(p_hours_interactive$x$data, FUN = function(x){
+  x$marker = list(opacity = 0)
+  return(x)
+})
+
+clean_plotly_leg <- function(.plotly_x, .extract_str) {
+  # Inpects an x$data list in a plotly object, cleans up legend values where appropriate
+  if ("legendgroup" %in% names(.plotly_x)) {
+    # The list includes a legend group
+    
+    .plotly_x$legendgroup <- stringr::str_extract(.plotly_x$legendgroup, .extract_str)
+    .plotly_x$name <- stringr::str_extract(.plotly_x$name, .extract_str)
+    
+  }
+  .plotly_x
+}
+
+p_hours_interactive$x$data <- p_hours_interactive$x$data %>%  map(clean_plotly_leg, "[^\\(][^,]*")
+
+p_hours_interactive
+
+
+```
+
+```{r table self-employment part-time}
+
+t_self <- d_self %>% 
+  filter(INECAC05 == 2) %>%
+  group_by(QUARTER, SEX) %>% 
+  summarise(total = sum(PWT18))
+
+t_self_ft <- d_self %>% # rate to in employment population
+  filter(INECAC05 == 2 & FTPTWK == 1) %>% 
+  group_by(QUARTER, SEX) %>% 
+  summarise(subtotal= sum(PWT18)) %>%
+  mutate(jobtype = 1)
+
+t_self_pt <- d_self %>% # rate to in employment population
+  filter(INECAC05 == 2 & FTPTWK == 2) %>% 
+  group_by(QUARTER, SEX) %>% 
+  summarise(subtotal= sum(PWT18)) %>%
+  mutate(jobtype = 2)
+
+t_self_ft_rate <- left_join(t_self, t_self_ft, by = c("QUARTER", "SEX"))
+t_self_ft_rate <- t_self_ft_rate %>% mutate(rate = subtotal / total)
+
+t_self_pt_rate <- left_join(t_self, t_self_pt, by = c("QUARTER", "SEX"))
+t_self_pt_rate <- t_self_pt_rate %>% mutate(rate = subtotal / total)
+
+t_self_ftpt_rate <- rbind(t_self_ft_rate, t_self_pt_rate) 
+
+t_self_ftpt_rate <- t_self_ftpt_rate %>% set_labels(jobtype, 
+                                                           labels = c("Full-time" = 1,
+                                                                      "Part-time" = 2))
+
+t_self_ftpt_rate <- left_join(t_self_ftpt_rate, tiplab_quarter, by = c("QUARTER"))
+
+```
+
+<p align="justify">
+
+The difference in usual hours between men and women is explained to some extend by their share of part-time work. Close to 50% of self-employed women work part-time, while only 15% of men do so (Figure 11). Our [Research Summary 2](https://reports.recode.ai/gender_covid19_uk/report_2.html) provides more details on part-time work.
+
+</p>
+
+```{r plot self-employment part-time, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 11: Half of self-employed women work part-time"}
+
+p_self_ftpt_rate <- t_self_ftpt_rate %>% filter(jobtype == 2) %>% 
+  ggplot(aes(x = QUARTER, y = rate, colour = as_label(SEX))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", as_label(qlabel),
+                              "\nGender:", as_label(SEX), 
+                              "\nPart-timers:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  #facet_grid(.~ as_label(jobtype)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
+  scale_y_continuous(breaks = seq(0,0.6, 0.05), limits = c(0, 0.6), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.58, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.58, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.58, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+
+# interactive
+ggplotly(p_self_ftpt_rate, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+
+```
+
+## The ethnic gap in paid hours among the self-employed is narrowing
+
+<p align="justify">Average hours worked a week fluctuated from around 38 to 40 hours for both groups of the self-employed, minority-ethnic, and white, and in all quarters examined. Typical hours for white self-employed workers ranged from around 25 to 45 hours per week, while minority-ethnic workers worked between 25 to 40 hours per week.</p>
+
+<p align="justify">The gap in the number of total hours worked by white and minority-ethnic self-employed workers narrowed after the end of 2020.</p>
+
+```{r plot hours ethnicity, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 12: The usual hours gap between white and minority-ethnic self-employed workers narrowed"}
+
+p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & ILODEFR == 1 & !is.na(TTUSHR) & INECAC05 == 2 & TTUSHR >= 1) %>% 
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_label(ETHUKEUL_2))) + 
+  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.3, outlier.shape=NA, show.legend = TRUE) +
+  #stat_summary(aes(col = as_label(ETHUKEUL_2)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7, linetype="dotted") + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
+  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_y_continuous(breaks = seq(0,100, 5)) + 
+  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
+                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "Usual hours per week - main job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 97, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 97, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 97, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
+  guides(col = guide_legend(override.aes = list(size = 5)))
+
+
+# interactive
+
+p_hours_eth_interactive <- plotly::ggplotly(p_hours_eth, width = 730, height = 430, type = "box", tooltip = c("text"),
+                                originalData = FALSE) %>%
+                        config(displayModeBar = FALSE) %>%    
+                        layout(yaxis = list(fixedrange = TRUE),
+                              xaxis = list(fixedrange = TRUE),
+                              margin = list(l = 0), font = list(size = 10),
+                              legend = list(showlegend = TRUE,
+                                            orientation = "h",   # show entries horizontally
+                                             xanchor = "center",  # use center of legend as anchor
+                                             yanchor = "center",
+                                             x = 0.5, y= 1.15,
+                                             font  = list(size = 13))) %>%
+                        layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+                              yaxis = list(tickfont = list(size = 11))) %>%
+                        layout(boxmode = "group")
+
+                        
+p_hours_eth_interactive <- plotly_build(p_hours_eth_interactive) # from this point we remove outliers and format the legends
+
+p_hours_eth_interactive$x$data <- lapply(p_hours_eth_interactive$x$data, FUN = function(x){
+  x$marker = list(opacity = 0)
+  return(x)
+})
+
+clean_plotly_leg <- function(.plotly_x, .extract_str) {
+  # Inpects an x$data list in a plotly object, cleans up legend values where appropriate
+  if ("legendgroup" %in% names(.plotly_x)) {
+    # The list includes a legend group
+    
+    .plotly_x$legendgroup <- stringr::str_extract(.plotly_x$legendgroup, .extract_str)
+    .plotly_x$name <- stringr::str_extract(.plotly_x$name, .extract_str)
+    
+  }
+  .plotly_x
+}
+
+p_hours_eth_interactive$x$data <- p_hours_eth_interactive$x$data %>%  map(clean_plotly_leg, "[^\\(][^,]*")
+
+p_hours_eth_interactive
+
+
+```
+
+```{r table part-time ethnicity}
+
+t_self_eth <- d_self %>% 
+  filter(INECAC05 == 2) %>%
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(total = sum(PWT18))
+
+t_self_ft_eth <- d_self %>% # rate to in employment population
+  filter(INECAC05 == 2 & FTPTWK == 1) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(subtotal= sum(PWT18)) %>%
+  mutate(jobtype = 1)
+
+t_self_pt_eth <- d_self %>% # rate to in employment population
+  filter(INECAC05 == 2 & FTPTWK == 2) %>% 
+  group_by(QUARTER, ETHUKEUL_2) %>% 
+  summarise(subtotal= sum(PWT18)) %>%
+  mutate(jobtype = 2)
+
+t_self_ft_rate_eth <- left_join(t_self_eth, t_self_ft_eth, by = c("QUARTER", "ETHUKEUL_2"))
+t_self_ft_rate_eth <- t_self_ft_rate_eth %>% mutate(rate = subtotal / total)
+
+t_self_pt_rate_eth <- left_join(t_self_eth, t_self_pt_eth, by = c("QUARTER", "ETHUKEUL_2"))
+t_self_pt_rate_eth <- t_self_pt_rate_eth %>% mutate(rate = subtotal / total)
+
+t_self_ftpt_rate_eth <- rbind(t_self_ft_rate_eth, t_self_pt_rate_eth) 
+
+t_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% set_labels(jobtype, 
+                                                    labels = c("Full-time" = 1,
+                                                               "Part-time" = 2)) %>% 
+  filter(!is.na(ETHUKEUL_2)) %>% 
+  tibble(.)
+
+t_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% set_labels(ETHUKEUL_2, 
+                                                            labels = c("White" = 1,
+                                                                       "Minority-ethnic" = 2)) %>% tibble(.)
+
+t_self_ftpt_rate_eth  <- left_join(t_self_ftpt_rate_eth , tiplab_quarter, by = c("QUARTER"))
+
+```
+
+<p align="justify"> The trend towards narrowing the usual hours gap can be explained by the white and minority-ethnic workers' share of part-time work. As Figure 13 shows, up to 5% points more self-employed minority-ethnic workers than white workers were in part-time work between the beginning of 2020 and May-July quarter. From the second semester of 2020 minority-ethnic workers moved closer to their white counterparts.</p>
+
+```{r plot part-time ethnicity, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 13: The ethnicity gap in part-time is narrowing"}
+
+p_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% filter(jobtype == 2) %>% 
+  ggplot(aes(x = as.numeric(QUARTER), y = rate, colour = as_label(ETHUKEUL_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 0.5, show.legend = FALSE) +
+  geom_point(aes(text = paste("Quarter:", as_label(qlabel),
+                              "\nEthnicity:", as_label(ETHUKEUL_2), 
+                              "\nPart-timers:", round(rate*100,1),"%"))) +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  geom_vline(xintercept = 7, linetype="dotted") +
+  #facet_grid(.~ as_label(jobtype)) + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
+  scale_y_continuous(breaks = seq(0,0.4, 0.05), limits = c(0, 0.4), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 0.38, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 0.38, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.38, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
+
+
+# interactive
+ggplotly(p_self_ftpt_rate_eth, tooltip = c("text"), width = 700, height = 400) %>%
+  layout(yaxis = list(fixedrange = TRUE),
+         xaxis = list(fixedrange = TRUE),
+         margin = list(l = 0)) %>%
+  config(displayModeBar = FALSE) %>% 
+  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
+         yaxis = list(tickfont = list(size = 11)),
+         legend = list(orientation = "h",   # show entries horizontally
+                     xanchor = "center",  # use center of legend as anchor
+                     yanchor = "center",
+                     x = 0.5, y= 1.15,
+                     font  = list(size = 13)))
+
+
+```
+
+# Conclusions and Recommendations
+
+## Conclusions
+
+<p align="justify">We examined in this report if the Covid-19 pandemic impacted the self-employed in the UK. We looked at women and men, the type of self-employment, whether the self-employed were employers or not, and their hours worked per week.</p>
+
+<p align="justify">The self-employed were seen to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods. Indeed, the numbers of self-employed fell from over 4.4 million at the start of 2019 to 3.8 million by April 2021 (Table 1). These workers are over concentrated in sectors like domestic services, personal care, and accommodation and food that were shut down fully or severely limited with the pandemic restrictions, and government support schemes for the self-employed were less well-known and excluded those newly self-employed.</p>
+
+<p align="justify">Drawing on analysis of 2019/20/21 data, we showed that the numbers of self-employed workers fell across the UK, with some variations in England, Scotland, Wales and Northern Ireland. The impact of the pandemic on self-employment is not random but gendered, ethnically, and geographically driven. Self-employed people were less able to hire staff, with ramifications for unemployment levels among the labour force, and their own working hours varied more than they did pre-pandemic, with potential disruption to their incomes and financial security.</p>
+
+<p align="justify">We showed the importance of looking at gender in an analysis of self-employment but also the necessity of including ethnicity and nation when we consider who is self-employed and why as the pandemic rolled out. Who is self-employed and the risks that they faced during the pandemic are not random but highly dependent on gender, ethnicity and how these intersect.</p>
+
+## Recommendations
+
+<p align="justify">In order to improve the working lives of everyone, particularly in the post-pandemic context, policies must take into account the fact that gender and ethnicity impact the likelihood of a person to be in self-employment.</p>
+
+<p align="justify">To be effective, policies to support the self-employed should therefore tackle the root causes of structural inequalities, rather than simply address their manifestations. Some areas that need public policy action are:</p>
+
+-   <p align="justify">**Access to training and mentoring**: Offering training and general consultancy services to self-employed workers are typically a common good practice. These are even more relevant in times of economic uncertainty. Training and mentoring should be widely available for entrepreneurs to help them grow their businesses, develop confidence and skills. They should not only be tailored to the business stage, but also to the differential needs of women and minorities.</p>
+
+-   <p align="justify">**Strengthen social capital**: Networking and being part of a community of like-minded individual are fundamental for those in self-employment. They facilitate access to customers and even finance. Policies should promote these networks and communities by providing resources, creating opportunities for collaboration, and monitoring that everyone is benefiting from them.</p>
+
+-   <p align="justify"> **Access to social benefits**: Self-employed workers frequently struggle with sick, maternity, and paternity pay. This is a constrain particularly for self-employed women due to their family responsibilities. During the pandemic they also struggle to navigate the government support schemes. Policies should make sure that social benefits reach everyone and that everyone understand how they can access them.</p>
+
+-   <p align="justify">**Access to finance**: Without assets self-employed workers will find it difficult to borrow. The borrowing capacity of those starting their self-employment journey, minorities, and women is even lower. Policies should create formal funding opportunities that allow the self-employed not only to grow their business, but also build capacity to overcome economic uncertainty.</p>
+
+# The Project and its Data
+
+<p align="justify">Our project *'How is Covid-19 impacting women and men's working lives in the UK?'* is funded by Health Data Research UK, as part of the rapid funding call to use and enrich the data within the Data & Connectivity National Core Study (NCS) capability. This report draws on the analysis of the 2019/20/21 releases of the UK Labour Force Survey (LFS). Respondents are interviewed for five successive waves at three-months intervals and approximately 20% of the sample is replaced every quarter. Four quarters releases are supported in a typical year: Jan-Mar \| Apr-Jun \| Jul-Sep \| Oct-Dec. From 2020, additional non-calendar quarter data have been released in response to the context of the coronavirus pandemic. Besides the four calendar quarters per year, 2020 included another eight releases of data. The last two quarters in 2020 also included data for January and February 2021.</p>
+
+<p align="justify">Our analyses consider only those in employment (current jobs) between 18-64 years old. Table 1 summarises the sample size and population estimates for all the data waves considered in this analysis.</p>
+
+```{r sample, echo=FALSE}
+
+## CREATING A SUB-DATASET FOR ANALYSIS
+
+d_self <- LFS_clean %>% 
+  # set variable types
+  #mutate_at(c("QUARTER", "PWT18", "PIWT18"), ~as.numeric(.)) %>%  
+  # Apply basic filters
+  filter(AGE >= 18 & AGE <= 64) %>% 
+  filter(ILODEFR == 1) # only people in employment 
+
+## Sample and population   
+  
+N_total_3 <- d_self %>%
+  group_by(as_label(QUARTER)) %>%
+  summarise(Sample = n(), In_employment = sum(PWT18), Self_employed = sum(PWT18[INECAC05 == 2])) 
+
+N_total_3 %>% flextable() %>% theme_vanilla() %>%
+  set_caption(caption = "Table 1: Sample size and population estimates", style = "Table Caption") %>%
+  bold(bold = TRUE, part = "header") %>%
+  set_header_labels(`as_label(QUARTER)` = "Quarter",
+                    In_employment = "In employment",
+                    Self_employed = " Self-employed")  %>%
+  autofit() %>%
+  align_nottext_col(align = "center", header = TRUE, footer = FALSE) %>%
+  add_footer_lines("Note: Workers between 18-64 years old") %>%
+  add_footer_lines("Source: UK Labour Force Survey (Person)") %>%
+  color(part = "footer", color = "#666666")  
+
+```
+
+<p align="justify">It is important to note that the LFS responses are weighted to official population projections that pre-date the Covid-19 pandemic. This particularly affects estimates for ethnicity. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.</p>
+
+# For more information
+
+## Contact details
+
+-   Luis D. Torres: [luis.torres\@nottingham.ac.uk](mailto:luis.torres@nottingham.ac.uk){.email};
+-   Tracey Warren: [tracey.warren\@nottingham.ac.uk](mailto:tracey.warren@nottingham.ac.uk){.email};
+-   Annegreet Veeken: [annegreet.veeken\@nottingham.ac.uk](mailto:annegreet.veeken@nottingham.ac.uk){.email}
+-   The UK Women's Budget Group: [sara.reis\@wbg.org.uk](mailto:sara.reis@wbg.org.uk){.email}
+-   [Project website](https://www.nottingham.ac.uk/business/research/carrying-the-work-burden-of-covid-19/index.aspx)
+
+## Acknowledgements
+
+-   <p align="justify">The project 'How is COVID-19 impacting women and men's working lives in the UK? Expanding an existing award (on the work of working-class women in the UK) to explore all workers' is part of the Data and Connectivity National Core Study, led by Health Data Research UK in partnership with the Office for National Statistics and funded by UK Research and Innovation (project ref HDRUK2020.137).</p>
+
+-   <p align="justify">The research data are distributed by the UK Data Service (safeguarded data version). The original data creators, the depositors, the copyright holders, the funders and the UK Data Archive bear no responsibility for the analysis or interpretation of the data made in this paper.</p>
+
+## Citation
+
+<p align="justify">Torres L, Warren T, Veeken A and the UK Women's Budget Group (2021). *How has self-employment changed since the COVID-19 pandemic in the UK?* Research Summary 3. Nottingham: Nottingham University Business School.</p>
