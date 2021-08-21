@@ -6,6 +6,7 @@
 
 load("./Data_clean/LFS_clean.rda") # this is the base file
 
+
 ## CREATING A SUB-DATASET FOR ANALYSIS
 
 d_self <- LFS_clean %>% 
@@ -139,84 +140,7 @@ p_self_rate # plot
 
 
 
-## in main and second jobs by sex
-
-t_self_rate_sex_emain <- d_self %>% # main as an employee with a second job as self-employee
-  filter(STATR == 1 & STAT2 == 2) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 1)
-
-t_self_rate_sex_smain <- d_self %>% # main as self-employee with a second job as  employee
-  filter(STATR == 2 & STAT2 == 1) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 2)
-
-t_self_rate_sex_smains <- d_self %>% # main as self-employee with a second job as self-employee
-  filter(STATR == 2 & STAT2 == 2) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 3)
-
-t_self_rate_sex_main_second <- rbind(t_self_rate_sex_emain, t_self_rate_sex_smain, t_self_rate_sex_smains)
-
-t_self_rate_sex_main_second <- t_self_rate_sex_main_second %>% set_labels(worker_type, 
-                                                                          labels = c("Main job: Employee | Second job: Self-employed" = 1,
-                                                                                     "Main job: Self-employed | Second job: Employee" = 2,
-                                                                                     "Main job: Self-employed | Second job: Self-employed" = 3))
-
-t_self_rate_sex_main_second <- t_self_rate_sex_main_second %>% set_labels(SEX, 
-                                                                          labels = c("Men" = 1,
-                                                                                     "Women" = 2))
-
-p_self_rate_sex_main_second  <- t_self_rate_sex_main_second  %>% #filter(worker_type != 1) %>%
-  ggplot(aes(x = QUARTER, y = total, colour = as_label(SEX))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  facet_wrap(.~as_label(worker_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +
-  #scale_y_continuous(breaks = seq(0,100000, 10000), limits = c(0, 100000), labels = comma) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 95000, label = "2019", size = 3.1) +  
-  annotate(geom = "text", x = 9.5, y = 95000, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 95000, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 12),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
-
-p_self_rate_sex_main_second # plot
-
-
-
-### by ethnicity and sex
+## by ethnicity 
 
 d_self <- d_self %>% mutate(ETHUKEUL_2 = recode_factor(factor(ETHUKEUL), 
                                                              `1` = "White",
@@ -282,82 +206,6 @@ p_self_rate_eth <- t_self_rate_eth %>%
 
 p_self_rate_eth # plot
 
-
-
-## in main and second jobs by ethnicity
-
-t_self_rate_eth_emain <- d_self %>% # main as an employee with a second job as self-employee
-  filter(STATR == 1 & STAT2 == 2) %>% 
-  group_by(QUARTER, ETHUKEUL_2) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 1)
-
-t_self_rate_eth_smain <- d_self %>% # main as self-employee with a second job as  employee
-  filter(STATR == 2 & STAT2 == 1) %>% 
-  group_by(QUARTER, ETHUKEUL_2) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 2)
-
-t_self_rate_eth_smains <- d_self %>% # main as self-employee with a second job as self-employee
-  filter(STATR == 2 & STAT2 == 2) %>% 
-  group_by(QUARTER, ETHUKEUL_2) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 3)
-
-t_self_rate_eth_main_second <- rbind(t_self_rate_eth_emain, t_self_rate_eth_smain, t_self_rate_eth_smains)
-
-t_self_rate_eth_main_second <- t_self_rate_eth_main_second %>% set_labels(worker_type, 
-                                                                          labels = c("Main job: Employee | Second job: Self-employed" = 1,
-                                                                                     "Main job: Self-employed | Second job: Employee" = 2,
-                                                                                     "Main job: Self-employed | Second job: Self-employed" = 3))
-
-t_self_rate_eth_main_second <- t_self_rate_eth_main_second %>% set_labels(ETHUKEUL_2, 
-                                                                          labels = c("White" = 1,
-                                                                                     "Minority-ethnic" = 2))
-
-p_self_rate_eth_main_second  <- t_self_rate_eth_main_second  %>% filter(worker_type != 1) %>%
-  ggplot(aes(x = QUARTER, y = total, colour = as_label(ETHUKEUL_2))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  facet_wrap(.~as_label(worker_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +
-  scale_y_continuous(breaks = seq(0,400000, 20000), limits = c(0, 400000), labels = comma) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 95000, label = "2019", size = 3.1) +  
-  annotate(geom = "text", x = 9.5, y = 95000, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 95000, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 12),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
-
-p_self_rate_eth_main_second # plot
 
 
 ### Where do they work by sex, ethnicity 
@@ -428,7 +276,7 @@ t_self_rate_eth_country <- d_self %>% # rate to in employment population
   group_by(QUARTER, COUNTRY2, ETHUKEUL_2) %>% 
   # rate compared to the 
   mutate(rate = self / empl) %>%
-  filter(!is.na(ETHUKEUL_2))
+  filter(!is.na(ETHUKEUL_2)) 
 
 p_self_rate_eth_country <- t_self_rate_eth_country %>% 
   ggplot(aes(x = QUARTER, y = rate, colour = as_label(ETHUKEUL_2))) + # line graph
@@ -489,18 +337,78 @@ d_self <- d_self %>% mutate(INDE07M_2 = recode_factor(factor(INDE07M),
 
 
 
-## by sex 
+## total
 
-t_self_rate_sex_industry <- d_self %>% # rate to in employment population
+t_self_total_industry <- d_self %>% # rate to in employment population
   # Apply basic filters
-  group_by(QUARTER, INDE07M_2, SEX) %>% 
-  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
-  group_by(QUARTER, INDE07M_2, SEX) %>% 
-  # rate compared to the 
-  mutate(rate_self = self / empl) %>%
+  group_by(QUARTER, INDE07M_2) %>% 
+  summarise(self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER) %>% 
+  mutate(total_qualter = sum(self)) %>%
+  # rate compared to the total self-employed in the quarter
+  group_by(QUARTER, INDE07M_2) %>%
+  mutate(rate_self = self / total_qualter) %>%
   filter(!is.na(INDE07M_2))
 
-p_self_rate_sex_industry <- t_self_rate_sex_industry %>% 
+
+p_self_total_industry <- t_self_total_industry  %>% 
+  ggplot(aes(x = QUARTER, y = rate_self, colour = as_label(INDE07M_2))) + # line graph
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_point(shape = 19) +
+  geom_vline(xintercept = 7, linetype="dotted") + 
+  
+  # scale and colour
+  
+  scale_y_continuous(breaks = seq(0,0.60, 0.05), limits = c(0, 0.60), labels =
+                       scales::percent_format(accuracy = 1L)) +
+  scale_x_continuous(breaks=c(1:18),
+                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 9.5, y = 0.244, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 0.244, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
+        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
+        plot.subtitle = element_text(size = 12, hjust = 0),
+        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
+                                    vjust = 0, size = 12),
+        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
+                                    vjust = 2, size = 12),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 10),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
+  guides(color = guide_legend(nrow = 3, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
+
+p_self_total_industry # plot
+
+
+## by sex 
+
+t_self_total_sex_industry <- d_self %>% 
+  # Apply basic filters
+  group_by(QUARTER, INDE07M_2, SEX) %>% 
+  summarise(self = sum(PWT18[INECAC05 == 2])) %>% 
+  group_by(QUARTER, SEX) %>% 
+  mutate(total_qsex = sum(self)) %>%
+  # rate compared to the total self-employed in the quarter
+  group_by(QUARTER, SEX, INDE07M_2) %>%
+  mutate(rate_self = self / total_qsex) %>%
+  filter(!is.na(INDE07M_2))
+
+p_self_total_sex_industry <- t_self_total_sex_industry %>% 
   ggplot(aes(x = QUARTER, y = rate_self, colour = as_label(INDE07M_2))) + # line graph
   geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
   geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
@@ -540,68 +448,13 @@ p_self_rate_sex_industry <- t_self_rate_sex_industry %>%
         legend.title = element_blank(),
         legend.text = element_text(size = 12),
         strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 3, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
+  guides(color = guide_legend(nrow = 2, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
 
-p_self_rate_sex_industry # plot
-
-
-### by ethnicity 
-
-t_self_rate_eth_industry <- d_self %>% # rate to in employment population
-  # Apply basic filters
-  group_by(QUARTER, ETHUKEUL_2, INDE07M_2) %>% 
-  summarise(empl = sum(PWT18[ILODEFR ==1]), self = sum(PWT18[INECAC05 == 2])) %>% 
-  group_by(QUARTER, ETHUKEUL_2, INDE07M_2) %>% 
-  # rate compared to the 
-  mutate(rate = self / empl) %>%
-  filter(!is.na(ETHUKEUL_2) & !is.na(INDE07M_2))
-
-p_self_rate_eth_industry <- t_self_rate_eth_industry %>% 
-  ggplot(aes(x = QUARTER, y = rate, colour = as_label(INDE07M_2))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  facet_grid(.~ as_label(ETHUKEUL_2)) + 
-  
-  # scale and colour
-  scale_y_continuous(breaks = seq(0,0.55, 0.05), limits = c(0, 0.56), labels =
-                       scales::percent_format(accuracy = 1L)) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 0.56, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 0.56, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 0.56, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 12),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top", 
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 3, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
-
-p_self_rate_eth_industry # plot
+p_self_total_sex_industry # plot
 
 
-## How formal they are?
+
+## Do they have employees? 
 
 ### sex 
 
@@ -931,87 +784,27 @@ p_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% filter(jobtype == 2) %>%
 p_self_ftpt_rate_eth # plot
 
 
+# Total usual hours
 
-
-#"VARYHR", # Whether weekly hours tend to vary / not much information
-#"UNDEMP", # Whether would like to work longer hours, at current basic rate of pay, given the opportunity / not much information
-
-d_self$UNDEMP
-
-t_self_varyhr <- d_self %>% 
-  filter(INECAC05 == 2 & VARYHR == 1) %>%
-  group_by(QUARTER, SEX) %>% 
-  summarise(hours_vary = sum(PWT18))
-
-t_self_varyhr_rate <- left_join(t_self, t_self_varyhr, by = c("QUARTER", "SEX"))
-t_self_varyhr_rate <- t_self_varyhr_rate  %>% mutate(rate = hours_vary / total)
-
-p_self_varyhr_rate <- t_self_varyhr_rate %>% 
-  ggplot(aes(x = QUARTER, y = rate, colour = as_label(SEX))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
-  scale_y_continuous(breaks = seq(0,1, 0.1), limits = c(0, 1), labels =
-                       scales::percent_format(accuracy = 1L)) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 0.56, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 0.56, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 0.56, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 12),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top", 
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 3, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size) 
-
-p_self_varyhr_rate# plot
-
-
-# "PAIDHRU", # Paid hours - based on usual hours per week, including paid overtime only
-
-## sex
-
-mean(d_self$PAIDHRU[d_self$INECAC05 == 2], na.rm = TRUE)
-
-hours <- d_self %>% select(QUARTER, INECAC05, SEX, ETHUKEUL_2, PAIDHRU, EVEROT, POTHR, UOTHR) %>%
+hours <- d_self %>% select(QUARTER, ILODEFR, INECAC05, SEX, ETHUKEUL_2, PAIDHRU, BUSHR, TTUSHR, EVEROT, POTHR, UOTHR) %>%
   filter(INECAC05 %in% c(1, 2))
 
-p_hours <- hours %>%  filter(!is.na(PAIDHRU) & INECAC05 ==2) %>%
-  ggplot(aes(x = as_factor(QUARTER), y = PAIDHRU, fill = as_label(SEX))) + 
-  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.2, outlier.shape=NA, show.legend = FALSE) +
-  stat_summary(aes(col = as_label(SEX)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_vline(xintercept = 7, linetype="dotted") +
+hours$TTUSHR <- round(hours$TTUSHR, digits = 0)
+
+
+## overall
+
+p_hours_overall <- hours %>%  filter(!is.na(TTUSHR) & INECAC05 == 2) %>%
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_factor(QUARTER))) + 
+  geom_boxplot(alpha=0.3, outlier.shape=TRUE, show.legend = TRUE) +
+  geom_vline(xintercept = 4.2, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15.5, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7.2, linetype="dotted") + 
   
   # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
-  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
-  scale_y_continuous(breaks = seq(0,80, 5), limits = c(-1, 82)) + 
+  coord_cartesian(ylim = c(0, 100)) +
+  scale_y_continuous(breaks = seq(0,100, 5)) + 
+  scale_fill_manual(values = c("#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9" ,"#360EA9" ,"#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9","#360EA9", "#360EA9", "#360EA9", "#360EA9", "#360EA9" , "#360EA9")) +
   scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
                    labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
                             "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
@@ -1019,12 +812,11 @@ p_hours <- hours %>%  filter(!is.na(PAIDHRU) & INECAC05 ==2) %>%
                             "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
   # annotation
   labs(x = "", 
-       y = "Paid hours including overtime",
+       y = "Usual hours per week - main job",
        caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 82, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 82, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 82, label = "2021", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = -1, label = "Circles represent averages", size = 4) +
+  annotate(geom = "text", x = 2, y = 103, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 103, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 103, label = "2021", size = 3.1) +
   
   # theme
   theme_economist_white(gray_bg = FALSE) +
@@ -1035,7 +827,55 @@ p_hours <- hours %>%  filter(!is.na(PAIDHRU) & INECAC05 ==2) %>%
                                     vjust = 0, size = 12),
         axis.title.y = element_text(margin = ggplot2::margin(r = 3),
                                     vjust = 2, size = 11),
-        axis.text.x = element_text(size = 8),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none", 
+        legend.title = element_blank(),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
+  guides(col = guide_legend(override.aes = list(size = 5)))
+
+p_hours_overall # plot
+
+
+## sex 
+
+p_hours <- hours %>%  filter(!is.na(TTUSHR) & INECAC05 == 2) %>%
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_label(SEX))) + 
+  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.3, outlier.shape=NA, show.legend = TRUE) +
+  # stat_summary(aes(col = as_label(SEX)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
+  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
+  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
+  geom_vline(xintercept = 7, linetype="dotted") + 
+  
+  # scale and colour
+  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
+  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
+  coord_cartesian(ylim = c(0, 60)) +
+  scale_y_continuous(breaks = seq(0,60, 5)) + 
+  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
+                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
+                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
+                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
+                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
+  # annotation
+  labs(x = "", 
+       y = "Usual hours per week - main job",
+       caption = c("Source: UK Labour Force Survey (Person)")) +
+  annotate(geom = "text", x = 2, y = 58, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 58, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 58, label = "2021", size = 3.1) +
+  
+  # theme
+  theme_economist_white(gray_bg = FALSE) +
+  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
+        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
+        plot.subtitle = element_text(size = 12, hjust = 0),
+        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
+                                    vjust = 0, size = 12),
+        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
+                                    vjust = 2, size = 11),
+        axis.text.x = element_text(size = 10),
         axis.text.y = element_text(size = 10),
         legend.position = "top", 
         legend.title = element_blank(),
@@ -1045,35 +885,22 @@ p_hours <- hours %>%  filter(!is.na(PAIDHRU) & INECAC05 ==2) %>%
 
 p_hours# plot
 
-ggplotly(p_hours) %>%
-  layout(boxmode = "group",
-         yaxis = list(fixedrange = TRUE),
-         xaxis = list(fixedrange = TRUE),
-         margin = list(l = 0)) %>%
-  config(displayModeBar = FALSE) %>% 
-  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
-         yaxis = list(tickfont = list(size = 11)), 
-         legend = list(orientation = "h",   # show entries horizontally
-                       xanchor = "center",  # use center of legend as anchor
-                       yanchor = "top",
-                       x = 0.5, y= 1.2,
-                       font  = list(size = 13))) 
 
 ## ethnicity
 
-p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(PAIDHRU) & INECAC05 == 2) %>% 
-  ggplot(aes(x = as_factor(QUARTER), y = PAIDHRU, fill = as_label(ETHUKEUL_2))) + 
-  geom_boxplot(alpha=0.5, outlier.shape=NA, show.legend = FALSE) +
-  stat_summary(aes(col = as_label(ETHUKEUL_2)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
+p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(TTUSHR) & INECAC05 == 2) %>% 
+  ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_label(ETHUKEUL_2))) + 
+  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.3, outlier.shape=NA, show.legend = TRUE) +
+  #stat_summary(aes(col = as_label(ETHUKEUL_2)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
   geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
   geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
   geom_vline(xintercept = 7, linetype="dotted") + 
-  #facet_wrap(.~ as_label(INECAC05)) + 
   
   # scale and colour
   scale_colour_manual(values = c("#DF9216", "#791F83")) +  
   scale_fill_manual(values = c("#DF9216", "#791F83")) + 
-  scale_y_continuous(breaks = seq(0,80, 5), limits = c(-1, 82)) + 
+  coord_cartesian(ylim = c(0, 60)) +
+  scale_y_continuous(breaks = seq(0,60, 5)) + 
   scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
                    labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
                             "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
@@ -1081,12 +908,11 @@ p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(PAIDHRU) & INECAC05
                             "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
   # annotation
   labs(x = "", 
-       y = "Paid hours including overtime",
+       y = "Usual hours per week - main job",
        caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 82, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 82, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 82, label = "2021", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = -1, label = "Circles represent averages", size = 4) +
+  annotate(geom = "text", x = 2, y = 58, label = "2019", size = 3.1) +
+  annotate(geom = "text", x = 9.5, y = 58, label = "2020", size = 3.1) +
+  annotate(geom = "text", x = 17, y = 58, label = "2021", size = 3.1) +
   
   # theme
   theme_economist_white(gray_bg = FALSE) +
@@ -1097,7 +923,7 @@ p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(PAIDHRU) & INECAC05
                                     vjust = 0, size = 12),
         axis.title.y = element_text(margin = ggplot2::margin(r = 3),
                                     vjust = 2, size = 11),
-        axis.text.x = element_text(size = 8),
+        axis.text.x = element_text(size = 10),
         axis.text.y = element_text(size = 10),
         legend.position = "top", 
         legend.title = element_blank(),
@@ -1106,131 +932,3 @@ p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(PAIDHRU) & INECAC05
   guides(col = guide_legend(override.aes = list(size = 5)))
 
 p_hours_eth # plot
-
-ggplotly(p_hours_eth) %>%
-  layout(boxmode = "group",
-         yaxis = list(fixedrange = TRUE),
-         xaxis = list(fixedrange = TRUE),
-         margin = list(l = 0)) %>%
-  config(displayModeBar = FALSE) %>% 
-  layout(xaxis = list(showticklabels = TRUE, autotick = TRUE, tickfont = list(size = 11)),
-         yaxis = list(tickfont = list(size = 11)), 
-         legend = list(orientation = "h",   # show entries horizontally
-                       xanchor = "center",  # use center of legend as anchor
-                       yanchor = "top",
-                       x = 0.5, y= 1.2,
-                       font  = list(size = 13))) 
-
-# "POTHR", # Usual hours of paid overtime
-# "UOTHR", # Usual hours of unpaid overtime
-
-## sex
-
-t_povertime <- hours %>% filter(INECAC05 == 2 & EVEROT == 1 & POTHR >= 1 & !is.na(POTHR)) %>% 
-  mutate(overtime = POTHR, overtime_type = 1) %>% 
-  select(QUARTER, SEX, ETHUKEUL_2, overtime, overtime_type)
-
-t_nonpovertime <- hours %>% filter(INECAC05 == 2 & EVEROT == 1 & UOTHR >= 1 & !is.na(UOTHR)) %>% 
-  mutate(overtime = UOTHR, overtime_type = 2) %>% 
-  select(QUARTER, SEX, ETHUKEUL_2, overtime, overtime_type)
-
-t_overtime <- rbind(t_povertime, t_nonpovertime)
-
-t_overtime <- t_overtime %>% set_labels(overtime_type, 
-                                           labels = c("Usual hours of PAID overtime" = 1,
-                                                      "Usual hours of UNPAID overtime" = 2))
-
-p_overtime <- t_overtime %>%  
-  ggplot(aes(x = as_factor(QUARTER), y = overtime, fill = as_label(SEX))) + 
-  geom_boxplot(aes(ymin=..lower.., ymax=..upper..), alpha=0.3, outlier.shape=NA, show.legend = TRUE) +
-  stat_summary(aes(col = as_label(SEX)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_vline(xintercept = 7, linetype="dotted") + 
-  facet_wrap(.~ as_label(overtime_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
-  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
-  coord_cartesian(ylim = c(1, 15)) + 
-  scale_y_continuous(breaks = seq(1,20, 1)) + 
-  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
-                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "Hours",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 20.5, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 20.5, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 20.5, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 11),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top", 
-        legend.title = element_blank(),
-        legend.text = element_text(size = 11),
-        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
-  guides(color = guide_legend(override.aes = list(size = 5))) 
-
-p_overtime  # plot
-
-
-## ethnicity   
-  
-p_overtime_eth <- t_overtime %>% filter(!is.na(ETHUKEUL_2)) %>%
-  ggplot(aes(x = as_factor(QUARTER), y = overtime, fill = as_label(ETHUKEUL_2))) + 
-  geom_boxplot(alpha=0.5, outlier.shape=NA, show.legend = FALSE) +
-  stat_summary(aes(col = as_label(ETHUKEUL_2)), fun = mean, geom = "point", shape=19, size = 3, show.legend = TRUE, alpha=1) + 
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_vline(xintercept = 7, linetype="dotted") + 
-  facet_wrap(.~ as_label(overtime_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +  
-  scale_fill_manual(values = c("#DF9216", "#791F83")) + 
-  scale_y_continuous(breaks = seq(1,20, 1), limits = c(0, 20.5)) + 
-  scale_x_discrete(limits=c("1","2","3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18"),
-                   labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                            "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                            "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                            "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "Hours",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 20.5, label = "2019", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 20.5, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 20.5, label = "2021", size = 3.1) +
-  annotate(geom = "text", x = 9.5, y = 0.2, label = "Circles represent averages", size = 4) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 11),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top", 
-        legend.title = element_blank(),
-        legend.text = element_text(size = 11),
-        strip.text = element_text(face = "bold", hjust = 0, size = 11)) + # change the face_wrap title
-  guides(color = guide_legend(override.aes = list(size = 5))) 
-
-p_overtime_eth  # plot  
