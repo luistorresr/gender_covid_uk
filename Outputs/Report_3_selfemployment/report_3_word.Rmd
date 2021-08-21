@@ -80,7 +80,7 @@ d_self <- LFS_clean %>% # sud-dataset to facilitate analysis
 
 Covid-19 has proven to be not solely a health crisis. Measures adopted by businesses and governments, such as flexible working and the job retention scheme, have shaped the impacts of the pandemic in ways not comparable to previous social and economic crises, while lockdowns and social distancing measures have had an unequal impact on those jobs frequently done by women and men. We set out to examine if Covid-19 is narrowing or reinforcing existing inequalities among women and men in their working lives. 
 
-Our first and second research summaries focused on unemployment and precarious work, respectively. This research summary examines self-employment. The self-employed were predicted to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods[^1].
+Our first and second research summaries focused on [unemployment](https://reports.recode.ai/gender_covid19_uk/report_1.html) and [precarious work](https://reports.recode.ai/gender_covid19_uk/report_2.html), respectively. This research summary examines self-employment. The self-employed were predicted to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods[^1].
 
 [^1]:Enterprise Research Centre (2020) Covid-19 and self-employment in the UK. Retrieved from https://www.enterpriseresearch.ac.uk/wp-content/uploads/2020/04/ERC-Insight-Covid-19-and-self-employment-in-the-UK.pdf
 
@@ -102,9 +102,11 @@ t_self_total <- d_self %>% # Totals
 
 ```
 
-The numbers of workers in self-employment fell after the start of 2020 (see Figure 1). Up to the end of 2019 self-employment had been increasing, a rise that started in the 1970s . However, the uncertainties that COVID-19 brought appear to have paused any short-term plans to become self-employed and made it difficult to continue in self-employment for those already working on their own account. 
+The numbers of workers in self-employment fell after the start of 2020 (see Figure 1). Up to the end of 2019 self-employment had been increasing, a rise that started in the 1970s[^3]. However, the uncertainties that COVID-19 brought appear to have paused any short-term plans to become self-employed and made it difficult to continue in self-employment for those already working on their own account. 
 
 Government support for the self-employed through the ‘Self-Employment Income Support Scheme’ helped to keep the numbers steady from May-July quarter 2020. However, the number of self-employed workers fell again from the October-December quarter, amid further uncertainties brought by the second lockdown in November 2020.
+
+[^3]:Giupponi, G. & Xu, X. (2020). What does the rise of self-employment tell us about the UK labour market? Institute for Fiscal Studies. Retrieved from: https://ifs.org.uk/uploads/BN-What-does-the-rise-of-self-employment-tell-us-about-the-UK-labour-market-1.pdf
 
 
 ```{r plot self-employment total, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 1: Self-employment dropped after the pandemic started"}
@@ -150,7 +152,10 @@ p_self_total # print
 
 ```
 
-The following sections present a detailed analysis of self-employment trends considering gender, ethnicity, and nation within the UK. To facilitate comparison, we calculate a self-employment rate. This is a percentage that summarises self-employment as a share of all workers (employees and self-employed). 
+
+Self-employed workers are concentrated in sectors like construction and banking and finance. However, this applies mainly to men. Besides banking and finance, the female self-employed are concentrated in sectors such as public administration, education and health as well as other services such as domestic services, personal care, entertainment, and accommodation and food that were shut down fully or severely limited with the pandemic restrictions, and government support schemes for the self-employed were less well-known and excluded those newly self-employed.
+
+The following sections present a detailed analysis of self-employment trends considering gender and ethnicity in the UK. To facilitate comparison, we calculate a self-employment rate. This is a percentage that summarises self-employment as a share of all workers (employees and self-employed). 
 
 
 ## Self-employment among women and men fell after the pandemic hit
@@ -167,9 +172,10 @@ t_self_rate <- d_self %>% # rate to in employment population
   mutate(rate_self = self / empl)
 
 ```
+
 Self-employment is highly gendered. There are far more self-employed males than there are females: women are less likely to set up in business, their operations tend to be smaller, and fewer self-employed women than men employ other workers.
 
-Male workers were more likely to be self-employed than were women in all periods included in this analysis, with a gender gap of 8% in 2019. Men experienced the highest drops in post-pandemic self-employment levels: their rates fell from 18.2% at the end of 2019 to 15.2% at the beginning of 2021. Women saw a smaller decline from 10.6% to 9.1%.  
+Male workers were more likely to be self-employed than were women in all periods included in this analysis, with a gender gap of 8% in 2019. Men experienced the highest drops in post-pandemic self-employment levels: their rates fell from 18.2% at the end of 2019 to 15.2% at the beginning of 2021. Women saw a smaller decline from 10.6% to 9.1%. 
 
 
 ```{r plot self-employment rate sex, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 2: Self-employed male workers numbers dropped the most"}
@@ -240,6 +246,7 @@ t_self_rate_eth <- d_self %>% # rate to in employment population
   filter(!is.na(ETHUKEUL_2))
 
 ```
+
 Ethnicity also plays a strong role in self-employment: men from minority-ethnic groups are more likely to be self-employed than are white men or minority-ethnic and white women workers. Restricted job opportunities and the prevalence of insecure work for minority-ethnic men are key contributing factors.
 
 Men and women from minority-ethnic groups experienced the steepest post-pandemic falls in rates of self-employment. This is particularly the case for minority-ethnic men who saw a decline of 4% points (from 20% to 16%), while white men saw 3% points decrease (18% to 15%). White women experienced the smallest decrease of around 1% points, while ethnic-minority women saw a cut of 2% (from 11% to 9%). 
@@ -437,157 +444,6 @@ p_self_rate_eth_country # plot
 ```
 
 
-# How did the choice of first and second jobs evolve for men and women?
-
-The LFS classifies a worker as employee or self-employed according to their main jobs. However, some workers also have a second job. This implies that someone who is an employee in their main job, could be self-employed in their second job and vice versa. 
-
-In this section, we explore the relationship between main and second jobs with focus on self-employment. We first look at the second job options of those who are employees in the main job. We focus on self-employment as a second job. Then, we focus on the second job options of those who are self-employed in their main jobs. Here we explore if those in self-employment become employees or continue as self-employed in their second jobs This relationship can help us to understand the actual opportunities that self-employment offered to workers during the pandemic. For example, if employees are self-employed in a second job then this could be an indicator of self-employment as a positive option (e.g., complement income, explore new ideas, etc.), while a self-employed worker who is an employee in a second job could be a sign of struggles in their main job (e.g., uncertainties, insufficient income, etc). 
-
-
-## Self-employment is more common as a second job for female employees
-
-Is self-employment a second job option for those who are employees in their main jobs? The answer is yes, and particularly for women. Figure 6 shows that a higher number of female employees say that they are self-employed in their second job. This may be explained by the time flexibility that self-employment offers and their need to balance work with their own family responsibilities. The second semester of 2020 saw a further increase in self-employment as a second job for female employees.  
-
-```{r table self-employment second job sex}
-
-t_self_rate_sex_emain <- d_self %>% # main as an employee with a second job as self-employee
-  filter(STATR == 1 & STAT2 == 2) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 1)
-
-t_self_rate_sex_smain <- d_self %>% # main as self-employee with a second job as  employee
-  filter(STATR == 2 & STAT2 == 1) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 2)
-
-t_self_rate_sex_smains <- d_self %>% # main as self-employee with a second job as self-employee
-  filter(STATR == 2 & STAT2 == 2) %>% 
-  group_by(QUARTER, SEX) %>% 
-  summarise(total = sum(PWT18)) %>% 
-  mutate(worker_type = 3)
-
-t_self_rate_sex_main_second <- rbind(t_self_rate_sex_emain, t_self_rate_sex_smain, t_self_rate_sex_smains)
-
-t_self_rate_sex_main_second <- t_self_rate_sex_main_second %>% set_labels(worker_type, 
-                                                                          labels = c("Main job: Employee | Second job: Self-employed" = 1,
-                                                                                     "Main job: Self-employed | Second job: Employee" = 2,
-                                                                                     "Main job: Self-employed | Second job: Self-employed" = 3))
-
-t_self_rate_sex_main_second <- t_self_rate_sex_main_second %>% set_labels(SEX, 
-                                                                          labels = c("Men" = 1,
-                                                                                     "Women" = 2))
-
-```
-
-
-```{r plot self-employment second job sex, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 6: Self-employment is more common as a second job for women"}
-
-p_self_rate_sex_main_second  <- t_self_rate_sex_main_second  %>% filter(worker_type == 1) %>%
-  ggplot(aes(x = QUARTER, y = total, colour = as_label(SEX))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  facet_wrap(.~as_label(worker_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +
-  scale_y_continuous(breaks = seq(0,220000, 20000), limits = c(0, 227000), labels = comma) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "Number of workers",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 227000, label = "2019", size = 3.1) +  
-  annotate(geom = "text", x = 9.5, y = 227000, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 227000, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 9),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
-
-p_self_rate_sex_main_second # plot
-
-
-```
-
-## Being an employee in a second job is more common among self-employed women than men
-
-What about the second jobs options of those who are self-employed in their main jobs? Figure 7 shows the second job options of those who are self-employed in their main jobs. The figure shows two second job options for those in self-employment: switch to employee and continue as self-employed. The left side of the figure shows that self-employed women tend to switch back to being employees in their second jobs. The pandemic reduced this trend for most of 2020, most likely because of less employment opportunities during the pandemic. However, as we entered 2021 numbers rose once again.
-
-By contrary, more self-employed men than women tend to choose self-employment also as their second job (right side on Figure 7). This trend saw a reduction since the pandemic hit until the end of 2020. The beginning of 2021 showed signs of a new increase for male and female self-employed workers. 
-
-```{r plot self-employment second job sex 2, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 7: Being an employee in a second job is more common among self-employed women than men"}
-
-p_self_rate_sex_main_second_2  <- t_self_rate_sex_main_second  %>% filter(worker_type != 1) %>%
-  ggplot(aes(x = QUARTER, y = total, colour = as_label(SEX))) + # line graph
-  geom_vline(xintercept = 4, color = "#c9c9c9") + # gridline between 2019/2020
-  geom_vline(xintercept = 15, color = "#c9c9c9") + # gridline between 2020/2021
-  geom_line(size = 1, show.legend = FALSE) +
-  geom_point(shape = 19) +
-  geom_vline(xintercept = 7, linetype="dotted") +
-  facet_wrap(.~as_label(worker_type)) + 
-  
-  # scale and colour
-  scale_colour_manual(values = c("#DF9216", "#791F83")) +
-  scale_y_continuous(breaks = seq(0,100000, 10000), limits = c(0, 105000), labels = comma) +
-  scale_x_continuous(breaks=c(1:18),
-                     labels=c("Jan-\nMar","Apr-\nJun","Jul-\nSep","Oct-\nDec",
-                              "Jan-\nMar", "Feb-\nApr", "Mar-\nMay", "Apr-\nJun", "May-\nJul",
-                              "Jun-\nAug", "Jul-\nSep","Aug-\nOct", "Sep-\nNov", "Oct-\nDec",
-                              "Nov-\nJan", "Dec-\nFeb", "Jan-\nMar", "Feb-\nApr")) +
-  # annotation
-  labs(x = "", 
-       y = "Number of workers",
-       caption = c("Source: UK Labour Force Survey (Person)")) +
-  annotate(geom = "text", x = 2, y = 105000, label = "2019", size = 3.1) +  
-  annotate(geom = "text", x = 9.5, y = 105000, label = "2020", size = 3.1) +
-  annotate(geom = "text", x = 17, y = 105000, label = "2021", size = 3.1) +
-  
-  # theme
-  theme_economist_white(gray_bg = FALSE) +
-  theme(plot.margin = unit(c(1, 5, 1, 1), "lines"),
-        plot.title = element_text(margin = ggplot2::margin(10, 0, 10, 0)),
-        plot.subtitle = element_text(size = 12, hjust = 0),
-        axis.title.x = element_text(margin = ggplot2::margin(t = 5),
-                                    vjust = 0, size = 12),
-        axis.title.y = element_text(margin = ggplot2::margin(r = 3),
-                                    vjust = 2, size = 9),
-        axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 10),
-        legend.position = "top",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 12),
-        strip.text = element_text(face = "bold", hjust = 0, size = 12)) + # change the face_wrap title
-  guides(color = guide_legend(nrow = 1, byrow = TRUE, override.aes = list(size = 4))) # change the legend box size)  
-
-p_self_rate_sex_main_second_2 # plot
-
-```
-
-
-
-
 # Did the capacity of the self-employed to hire employees change? 
 
 ```{r table selfemployed with employees overall}
@@ -626,10 +482,10 @@ t_self_employees_rate_overall <- t_self_employees_rate_overall %>% set_labels(ca
 ```
 
 
-The deep uncertainties being experienced by the self-employed had ramifications for the wider labour force. We ask next whether self-employed workers were hiring staff. Figure 8 shows that they were having trouble to do to. Since the pandemic hit the number of self-employed workers having employees progressively declined and continued doing so as we entered 2021. The decline was particularly sharp for those self-employed workers in their second job (6% points fall). Some recovery was being experienced by these workers as we entered 2021.
+The deep uncertainties being experienced by the self-employed had ramifications for the wider labour force. We ask next whether self-employed workers were hiring staff. Figure 8 shows that they were having trouble doing so. Since the pandemic hit the number of self-employed workers having employees progressively declined and continued doing so as we entered 2021. The decline was particularly sharp for those self-employed workers in their second job (6% points fall). Some recovery was being experienced by these workers as we entered 2021.
 
 
-```{r plot selfemployed with employees overall, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 8: Self-employed with employees in their main and second jobs"}
+```{r plot selfemployed with employees overall, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 6: Self-employed workers with employees in their main and second jobs"}
 
 
 p_self_employees_overall <- t_self_employees_rate_overall %>% 
@@ -716,12 +572,12 @@ t_self_employees_rate <- t_self_employees_rate %>% set_labels(category,
                                                                            "Self-employment as second job" = 2))
 ```
 
-Figure 9 shows that, overall, self-employed women are less likely than are their male counterparts to have employees working for them. There was a clear gender gap in whether they were an employer for both types of self-employed (self-employed in their main and second jobs).
+Figure 7 shows that, overall, self-employed women are less likely than are their male counterparts to have employees working for them. There was a clear gender gap in whether they were an employer for both types of self-employed worker (self-employed in their main or second jobs).
 
-Since the pandemic hit the number of self-employed women having employees progressively declined and continued doing so as we entered 2021. This trend applied both to those women who are in self-employment in their main jobs as well as those who are self-employed in their second jobs. Self-employed men in their main and second jobs both experienced a decline in hiring employees since the pandemic hit, but it was particularly abrupt for those self-employed in their second job (8% points fall). Some recovery was being experienced by these workers as we entered 2021. 
+Since the pandemic hit the number of self-employed women having employees progressively declined and continued doing so as we entered 2021. This trend applied both to those women who are in self-employment in their main jobs as well as those who are self-employed in their second jobs. Self-employed men in their main and second jobs both experienced a decline in hiring employees since the pandemic hit, but it was particularly abrupt for those self-employed in their second job (8% points fall). Some recovery was being experienced by these workers as we entered 2021.  
 
 
-```{r plot selfemployed with employees rate, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 9: Self-employed women are less likely to have employees"}
+```{r plot selfemployed with employees rate, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 7: Self-employed women are less likely to have employees"}
 
 
 p_self_employees_rate <- t_self_employees_rate %>% 
@@ -813,11 +669,12 @@ t_self_employees_rate_eth <- t_self_employees_rate_eth %>% set_labels(ETHUKEUL_2
 
 ```
 
-Self-employed minority-ethnic workers are more likely to have employees working for them than are the white self-employed (Figure 10). 
+Self-employed minority-ethnic workers are more likely to have employees working for them than are the white self-employed (Figure 12). 
+
 Since the pandemic hit the number of self-employed minority-ethnic workers having employees progressively declined through 2020. The start of 2021 did show signs of recovery, but only for those self-employed in their main jobs. The situation was different for those minority-ethnic workers who were self-employed as their second jobs: the percentage having employees dropped dramatically (from over 16% to below 2%). 
 
 
-```{r plot selfemployed with employees rate by ethnicity, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 10: Self-employed minority-ethnic workers are less likely to employ workers after the pandemic hit"}
+```{r plot selfemployed with employees rate by ethnicity, fig.width= 12, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 8: Self-employed minority-ethnic workers are less likely to employ workers after the pandemic hit"}
 
 p_self_employees_rate_eth <- t_self_employees_rate_eth %>% 
   ggplot(aes(x = QUARTER, y = rate, colour = as_label(ETHUKEUL_2))) + # line graph
@@ -878,10 +735,10 @@ hours <- d_self %>% select(QUARTER, INECAC05, SEX, ETHUKEUL_2, PAIDHRU, BUSHR, T
 
 The self-employed report real diversity in how many hours they spend on their businesses a week, with some working only a few hours and others spending far longer at work. How many hours do self-employed people spend in work per week and did this change with the pandemic? 
 
-Figure 11 shows the range and distribution of the total usual hours (usual hours and any additional worked per week) for self-employed workers. The main impact of the pandemic has been in the distribution of typical and maximum hours. By looking at the size of the box in the figure we can see that typical hours in pre-pandemic 2020 were concentrated around 27 to 45 hours, maximum hours of between 70 to 73 hours per week, and a median of 40 hours. Since the pandemic hit typical paid hours were concentrated between 25 to 45 hours per week, maximum hours up to 75, while the median remained at 40 hours. This has been relatively stable since the pandemic hit. 
+Figure 9 shows the range and distribution of the total usual hours per week for self-employed workers. The main impact of the pandemic has been in the distribution of typical and maximum hours. By looking at the size of the box in the figure we can see that typical hour in pre-pandemic 2020 were concentrated around 27 to 45 hours, maximum hours of between 70 to 73 hours per week, and a median of 40 hours. Since the pandemic hit typical paid hours were concentrated between 25 to 45 hours per week, maximum hours up to 75, while the median remained at 40 hours. This has been relatively stable since the pandemic hit.  
 
 
-```{r plot hours overall, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 11: Total usual hours worked per week for all quarters"}
+```{r plot hours overall, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 9: Total usual hours worked per week for all quarters"}
 
 p_hours_overall <- hours %>%  filter(!is.na(TTUSHR) & INECAC05 == 2) %>%
   ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_factor(QUARTER))) + 
@@ -930,14 +787,14 @@ p_hours_overall # plot
 
 
 
-## Self-employed women work fewer paid hours than do men and their hours vary the most
+## Self-employed women work fewer paid hours than do men 
 
-Self-employed women tend to spend shorter weeks at work than do men. Many of the women work in their business on a part-time basis, fewer than 30 hours a week, while the male self-employed can report working very long weeks. Figure 12 compares the range and distribution of the total usual hours for male and female self-employed workers. By looking at the size of the box in the figure we can see that usual hours for female self-employed workers vary greatly compared to men. 
+Self-employed women tend to spend shorter weeks at work than do men. Many of the women work in their business on a part-time basis, fewer than 30 hours a week, while the male self-employed can report working very long weeks. Figure 10 compares the range and distribution of the total usual hours for male and female self-employed workers. By looking at the size of the box in the figure we can see that the distribution of usual hours for female self-employed workers vary greatly compared to men. 
 
 Since the pandemic hit typical total usual hours for men have been concentrated around 35 and 45 hours per week, while women’s range between 16 to 40 hours per week. Median paid hours remained stable for both: at 40 per week for men and 30 for women. 
 
 
-```{r plot hours, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 12: Self-employed women work fewer hours per week"}
+```{r plot hours, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 10: Self-employed women work fewer hours per week"}
 
 p_hours <- hours %>%  filter(!is.na(TTUSHR) & INECAC05 == 2) %>%
   ggplot(aes(x = as_factor(QUARTER), y = TTUSHR, fill = as_label(SEX))) + 
@@ -1019,10 +876,9 @@ t_self_ftpt_rate <- t_self_ftpt_rate %>% set_labels(jobtype,
 
 ```
 
+The difference in usual hours between men and women is explained to some extend by their share of part-time work. Close to 50% of self-employed women work part-time, while only 15% of men do so (Figure 11). Our [Research Summary 2](https://reports.recode.ai/gender_covid19_uk/report_2.html) provides more details on part-time work. 
 
-
-
-```{r plot self-employment part-time, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 13: Half of self-employed women work part-time"}
+```{r plot self-employment part-time, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 11: Half of self-employed women work part-time"}
 
 p_self_ftpt_rate <- t_self_ftpt_rate %>% filter(jobtype == 2) %>% 
   ggplot(aes(x = QUARTER, y = rate, colour = as_label(SEX))) + # line graph
@@ -1075,12 +931,12 @@ p_self_ftpt_rate # plot
 
 ## The ethnic gap in paid hours among the self-employed is narrowing
 
-Average hours worked a week fluctuated from around 38 to 40 hours for both groups of the self-employed, minority-ethnic and white, and in all quarters examined. Typical hours for white self-employed workers ranged from around 25 to 45 hours per week, while minority-ethnic workers worked between 25 to 40 hours per week. 
+Average hours worked a week fluctuated from around 38 to 40 hours for both groups of the self-employed, minority-ethnic, and white, and in all quarters examined. Typical hours for white self-employed workers ranged from around 25 to 45 hours per week, while minority-ethnic workers worked between 25 to 40 hours per week.  
 
 The gap in the number of total hours worked by white and minority-ethnic self-employed workers narrowed after the end of 2020. 
 
 
-```{r plot hours ethnicity, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 14: The usual hours gap between white and minority-ethnic self-employed workers narrowed"}
+```{r plot hours ethnicity, fig.width= 8, fig.height= 6, fig.fullwidth=TRUE, fig.cap= "Figure 12: The usual hours gap between white and minority-ethnic self-employed workers narrowed"}
 
 
 p_hours_eth <- hours %>%  filter(!is.na(ETHUKEUL_2) & !is.na(TTUSHR) & INECAC05 == 2) %>% 
@@ -1172,7 +1028,10 @@ t_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% set_labels(ETHUKEUL_2,
 ```
 
 
-```{r plot part-time ethnicity, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 15: The ethnicity gap in part-time is narrowing"}
+The trend towards narrowing the usual hours gap can be explained by the white and minority-ethnic workers’ share of part-time work. As Figure 13 shows, up to 5% more self-employed minority-ethnic workers than white workers were in part-time work between the beginning of 2020 and May-July quarter. From the second semester of 2020 minority-ethnic workers moved closer to their white counterparts.  
+
+
+```{r plot part-time ethnicity, fig.width= 8, fig.height= 5, fig.fullwidth=TRUE, fig.cap= "Figure 13: The ethnicity gap in part-time is narrowing"}
 
 p_self_ftpt_rate_eth <- t_self_ftpt_rate_eth %>% filter(jobtype == 2) %>% 
   ggplot(aes(x = as.numeric(QUARTER), y = as.numeric(rate), colour = as_label(ETHUKEUL_2))) + # line graph
@@ -1230,19 +1089,25 @@ p_self_ftpt_rate_eth # plot
 
 We examined in this report if the Covid-19 pandemic impacted the self-employed in the UK. We looked at women and men, the type of self-employment, whether the self-employed were employers or not, and their hours worked per week.
 
-The self-employed were seen to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods. Indeed the numbers of self-employed fell from over 4.4 million at the start of 2019 to 3.8 million by April 2021 (Table 1). These workers are over concentrated in sectors like domestic services, personal care, and accommodation and food that were shut down fully or severely limited with the pandemic restrictions, and government support schemes for the self-employed were less well-known and excluded those newly self-employed.
+The self-employed were seen to be particularly vulnerable workers as the pandemic took hold, facing real threats to their livelihoods. Indeed, the numbers of self-employed fell from over 4.4 million at the start of 2019 to 3.8 million by April 2021 (Table 1). These workers are over concentrated in sectors like domestic services, personal care, and accommodation and food that were shut down fully or severely limited with the pandemic restrictions, and government support schemes for the self-employed were less well-known and excluded those newly self-employed.
 
 Drawing on analysis of 2019/20/21 data, we showed that the numbers of self-employed workers fell across the UK, with some variations in England, Scotland, Wales and Northern Ireland. The impact of the pandemic on self-employment is not random but gendered, ethnically, and geographically driven. Self-employed people were less able to hire staff, with ramifications for unemployment levels among the labour force, and their own working hours varied more than they did pre the pandemic, with potential disruption to their incomes and financial security. 
 
 We showed the importance of looking at gender in an analysis of self-employment but also the necessity of including ethnicity and nation when we consider who is self-employed and why as the pandemic rolled out. Who is self-employed and the risks that they faced during the pandemic are not random but highly dependent on gender, ethnicity and how they intersect.
 
-
 ## Recommendations
 
-In order to improve the working lives of everyone, particularly in the post-pandemic context, policies must take into account the fact that gender and ethnicity impact the likelihood of a person to be in self-employment. 
+In order to improve the working lives of everyone, particularly in the post-pandemic context, policies must take into account the fact that gender and ethnicity impact the likelihood of a person to be in self-employment.
 
-To be effective, policies to support the self-employed should therefore tackle the root causes of structural inequalities, rather than simply address their manifestations.
+To be effective, policies to support the self-employed should therefore tackle the root causes of structural inequalities, rather than simply address their manifestations. Some areas that need public policy action are: 
+ 
+- **Access to training and mentoring**:  offering training and general consultancy services to self-employed workers are typically a common good practice. These are even more relevant in times of economic uncertainty. Training and mentoring should be widely available for entrepreneurs to help them grow their businesses, develop confidence and skills.  They should not only be tailored to the business stage, but also to the differential needs of women and minorities.   
 
+- **Strengthen social capital**: networking and being part of a community of like-minded individual are fundamental for those in self-employment. They facilitate access to customers and even finance. Policies should promote these networks and communities by providing resources, creating opportunities for collaboration, and monitoring that everyone is benefiting from them.
+
+- **Access to social benefits**: Self-employed workers frequently struggle with sick, maternity, and paternity pay. This is a constrain particularly for self-employed women due to their family responsibilities. During the pandemic they also struggle to navigate the government support schemes. Policies should make sure that social benefits reach everyone and that everyone understand how they can access them. 
+
+- **Access to finance**: Without assets self-employed workers will find it difficult to borrow. The borrowing capacity of those starting their self-employment journey, minorities, and women is even lower. Policies should create formal funding opportunities that allow the self-employed not only to grow their business, but also build capacity to overcome economic uncertainty.  
 
 # The Project and its Data
 
