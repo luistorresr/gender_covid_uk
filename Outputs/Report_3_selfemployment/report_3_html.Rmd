@@ -1358,7 +1358,7 @@ N_total_3 %>% flextable() %>% theme_vanilla() %>%
 
 ```
 
-<p align="justify">It is important to note that the LFS responses are weighted to official population projections that pre-date the Covid-19 pandemic. This particularly affects estimates for ethnicity. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.</p>
+<p align="justify">It is important to note that the LFS responses are weighted to official population projections that pre-date the Covid-19 pandemic. This particularly affects estimates for ethnicity as they also record no responses. This implies that levels and differences in levels should be used with caution. Despite this, sample level estimates show a similar trend regarding gender differences for each group.</p>
 
 # For more information
 
