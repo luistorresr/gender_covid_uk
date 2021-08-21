@@ -421,6 +421,7 @@ LFS_clean$FLED10 <- set_labels(LFS_clean$FLED10, labels = c("Flexitime" = 1,
                                                             "Don’t know" = 10))
 l_LFS_clean <- get_labels(LFS_clean, values = "n") # value labels 
 
+
 ### saving the clean dataset
 
 save(LFS_clean, file = "./Data_clean/LFS_clean.rda")
